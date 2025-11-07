@@ -107,6 +107,22 @@ Each worker produces a small JSON state blob in Room (or DataStore) to resume if
   - Introduce helper bones (from `sl_extended.json`) to capture bulges and joint-dependent stretching.  
   - Ensure sliders drive both shape morphs and weight redistribution for natural deformation.
 
+### Muscle Deformer System
+
+- **Hyper-muscle morph targets**:  
+  - Generate layered morphs (base → athletic → hyper) from MPFB2 muscular presets and custom sculpts.  
+  - Store as high-resolution displacement vectors, simplified into multi-resolution deltas for low-memory devices.
+- **Procedural muscle inflators**:  
+  - Implement Kotlin-side modifiers that scale specific muscle groups based on slider values (e.g., biceps, deltoids).  
+  - Use TFLite predictors to compute bulge magnitude given bone angles and user-defined “hyper” sliders.  
+  - Blend shape + pose-dependent corrections so extreme poses maintain believable volume.
+- **Dynamic deformers (optional)**:  
+  - Attach secondary simulation to helper bones (spring-mass or position-based dynamics) for jiggle and flex.  
+  - Provide toggle in UI for users who want purely baked morphs vs dynamic runtime effects.
+- **Performance safeguards**:  
+  - Clamp extreme sliders to physically plausible ranges unless “pro mode” enabled.  
+  - Cache deformer outputs per pose frame to reduce repeated ML inference.
+
 ### Biomechanics & Validation (OpenSim)
 
 - Integrate datasets from [OpenSim](https://opensim.stanford.edu/) to validate joint ranges, muscle volumes, and center-of-mass changes.  
