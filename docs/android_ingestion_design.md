@@ -94,6 +94,26 @@ Each worker produces a small JSON state blob in Room (or DataStore) to resume if
 - During ingestion, map uploaded rigs onto SL bones (name matching + fallback heuristics).  
 - Ensure generated sliders respect SL bone limits (joint rotations, stretch factors) to guarantee export compatibility with existing animation packs.
 
+### Soft Tissue Layers
+
+- **Skin weights**:  
+  - Use MPFB2 vertex groups as initial ground truth.  
+  - Blend in SL skin envelope data where available to ensure compatibility with existing clothing systems.  
+  - Generate fallback weights using Laplacian-based projection when imported models lack rigging.
+- **Muscle & fat wraps**:  
+  - Leverage reference meshes from MPFB2 plus anatomical datasets to define “muscle” and “fat” envelopes.  
+  - Train TFLite predictors to output per-bone density maps; quantize to fp16/int8 targets.
+- **Tendon/volume preservation**:  
+  - Introduce helper bones (from `sl_extended.json`) to capture bulges and joint-dependent stretching.  
+  - Ensure sliders drive both shape morphs and weight redistribution for natural deformation.
+
+### Biomechanics & Validation (OpenSim)
+
+- Integrate datasets from [OpenSim](https://opensim.stanford.edu/) to validate joint ranges, muscle volumes, and center-of-mass changes.  
+- Use OpenSim-derived muscle paths and moment arms to calibrate our muscle/fat weight distributions.  
+- Where licensing permits, convert OpenSim musculoskeletal models into simplified training targets (resampled to SL skeleton) for the ML pipeline.  
+- Implement offline validation scripts that compare our generated muscle/fat envelopes against OpenSim references, enforcing error thresholds before assets ship.
+
 ## ML Considerations
 
 - Use offline training to convert skeleton examples into TFLite models.  
