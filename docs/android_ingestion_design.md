@@ -84,6 +84,16 @@ Each worker produces a small JSON state blob in Room (or DataStore) to resume if
 - Allow optional “resource packs”: zipped additive assets downloaded or sideloaded. Drop into `Android/data/.../resources/`.
 - Document zipped bundle structure (`/models`, `/skeletons`, `/weights`, metadata JSON).
 
+### Skeleton Baseline
+
+- Adopt the standard Second Life (SL) skeleton as the canonical rig.  
+- Convert SL joint definitions, constraints, and naming to our XML format and export as a Kotlin data snapshot for fast lookup.  
+- Provide compatibility layers:  
+  - `sl_rig.json` → default, animation-ready rig.  
+  - `sl_extended.json` → additional bones / helper joints for muscle/fat simulation.  
+- During ingestion, map uploaded rigs onto SL bones (name matching + fallback heuristics).  
+- Ensure generated sliders respect SL bone limits (joint rotations, stretch factors) to guarantee export compatibility with existing animation packs.
+
 ## ML Considerations
 
 - Use offline training to convert skeleton examples into TFLite models.  
