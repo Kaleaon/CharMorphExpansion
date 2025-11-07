@@ -34,6 +34,10 @@ It is planned that CharMorph won't be limited to humanoids. Animals and other cr
 * Rig is added only at finalization, because it takes quite a long time for Rigify to generate a rig and I have no idea if it's possible to morph such rig in real time.
 * Still lacking some features (Automodelling, measures) just because I don't use them in my projects. Maybe they'll be implemented later.
 
+## XML Base Mesh Presets
+
+`data/base_meshes/` now ships XML parseable humanoid presets (`HumanoidNeutral`, `HumanoidAthletic`) that define topology, rig hierarchy, and layered skin/muscle/fat weights together with sizing metadata. These files are loaded automatically into `library.base_meshes` for use by future UI/rigging workflows or external tooling.
+
 ## Development notes
 
 This project uses git submodules, so you need to use `git clone --recursive` when cloning this repository. If you forgot to do so, you can execute the following commands individually after cloning:
