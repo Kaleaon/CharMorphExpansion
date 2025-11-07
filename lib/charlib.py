@@ -22,7 +22,7 @@ import os, json, collections, logging, traceback, numpy
 
 import bpy  # pylint: disable=import-error
 
-from . import morphs, utils
+from . import morphs, utils, xml_base_mesh
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +128,9 @@ class Character(DataDir):
             self.default_type = self.basis
 
         self.armature = self._parse_armature(self.armature)
+        self.xml_base_mesh_id = self.__dict__.get("xml_base_mesh", "")
+        if "xml_base_mesh" in self.__dict__:
+            del self.__dict__["xml_base_mesh"]
 
     def __bool__(self):
         return bool(self.name)
@@ -141,6 +144,12 @@ class Character(DataDir):
     @utils.lazyproperty
     def morphs_meta(self):
         return self.get_yaml("morphs_meta.yaml")
+
+    @utils.lazyproperty
+    def xml_base_mesh(self):
+        if not self.xml_base_mesh_id:
+            return None
+        return self.lib.base_meshes.get(self.xml_base_mesh_id)
 
     @utils.lazyproperty
     def fitting_subset(self):
@@ -414,12 +423,14 @@ class Library(DataDir):
     char_aliases: dict[str, str]
     additional_assets: dict[str, Asset]
     hair_colors: dict[str, dict] = {}
+    base_meshes: dict[str, xml_base_mesh.BaseMesh]
 
     def __init__(self, dirpath):
         super().__init__(dirpath)
         self.chars = {}
         self.char_aliases = {}
         self.additional_assets = {}
+        self.base_meshes = {}
 
     def char_by_name(self, name: str) -> Character:
         return self.chars.get(name) or self.chars.get(self.char_aliases.get(name)) or empty_char
@@ -438,6 +449,7 @@ class Library(DataDir):
         if not os.path.isdir(self.dirpath):
             logger.error("Charmorph data is not found at %s", self.dirpath)
         self.chars.clear()
+        self.base_meshes = xml_base_mesh.load_dir(self.path("base_meshes"))
         self.hair_colors = self.get_yaml("hair_colors.yaml")
         aliases = self.get_yaml("characters/aliases.yaml")
         self.char_aliases.clear()
