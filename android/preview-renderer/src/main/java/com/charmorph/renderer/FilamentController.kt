@@ -9,15 +9,20 @@ import com.google.android.filament.Camera
 import com.google.android.filament.Colors
 import com.google.android.filament.Engine
 import com.google.android.filament.EntityManager
+import com.google.android.filament.IndexBuffer
 import com.google.android.filament.LightManager
+import com.google.android.filament.RenderableManager
 import com.google.android.filament.Renderer
 import com.google.android.filament.Scene
 import com.google.android.filament.Skybox
 import com.google.android.filament.SwapChain
+import com.google.android.filament.VertexBuffer
 import com.google.android.filament.View
 import com.google.android.filament.Viewport
 import com.google.android.filament.utils.Manipulator
 import com.google.android.filament.utils.Utils
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class FilamentController(
     private val context: Context,
@@ -32,14 +37,13 @@ class FilamentController(
     private var swapChain: SwapChain? = null
     private var choreographer: Choreographer = Choreographer.getInstance()
     
-    private val entityMap = mutableMapOf<String, Int>() // Maps Group Name to Entity ID
+    private val entityMap = mutableMapOf<String, Int>()
+    private val bufferMap = mutableMapOf<String, Pair<VertexBuffer, IndexBuffer>>()
     private var cameraManipulator: Manipulator? = null
 
     init {
         view.scene = scene
         view.camera = camera
-        
-        // Lighting Setup
         setupLighting()
         setupManipulator()
         
@@ -66,7 +70,6 @@ class FilamentController(
     
     private fun setupLighting() {
         scene.skybox = Skybox.Builder().color(0.1f, 0.1f, 0.1f, 1.0f).build(engine)
-        
         val light = EntityManager.get().create()
         LightManager.Builder(LightManager.Type.DIRECTIONAL)
             .color(1.0f, 0.95f, 0.9f)
@@ -83,35 +86,86 @@ class FilamentController(
     }
 
     fun loadMesh(mesh: Mesh) {
-        // Clear existing
+        cleanup()
+
+        // Create Buffers
+        // 1. Flatten Vertices
+        val vertexCount = mesh.vertices.size
+        val vertexBufferData = ByteBuffer.allocateDirect(vertexCount * 3 * 4)
+            .order(ByteOrder.nativeOrder())
+        mesh.vertices.forEach { v ->
+            vertexBufferData.putFloat(v.x)
+            vertexBufferData.putFloat(v.y)
+            vertexBufferData.putFloat(v.z)
+        }
+        vertexBufferData.flip()
+
+        // 2. Create VertexBuffer
+        val vb = VertexBuffer.Builder()
+            .bufferCount(1)
+            .vertexCount(vertexCount)
+            .attribute(VertexBuffer.VertexAttribute.POSITION, 0, VertexBuffer.AttributeType.FLOAT3, 0, 12)
+            .build(engine)
+        vb.setBufferAt(engine, 0, vertexBufferData)
+
+        // 3. Create Entities per Group
+        if (mesh.groups.isEmpty()) {
+            createEntityForGroup("root", mesh.indices, emptyList(), vb)
+        } else {
+            mesh.groups.forEach { group ->
+                createEntityForGroup(group.name, group.indices, group.tags, vb)
+            }
+        }
+    }
+    
+    private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>, vb: VertexBuffer) {
+        // Create IndexBuffer for this group
+        val indexCount = indices.size
+        val indexBufferData = ByteBuffer.allocateDirect(indexCount * 4)
+            .order(ByteOrder.nativeOrder())
+        indices.forEach { indexBufferData.putInt(it) }
+        indexBufferData.flip()
+
+        val ib = IndexBuffer.Builder()
+            .indexCount(indexCount)
+            .bufferType(IndexBuffer.Builder.IndexType.UINT)
+            .build(engine)
+        ib.setBuffer(engine, indexBufferData)
+        
+        // Track buffers for cleanup
+        bufferMap[name] = Pair(vb, ib)
+
+        val entity = EntityManager.get().create()
+        RenderableManager.Builder(1)
+            .boundingBox(com.google.android.filament.Box(0f, 0f, 0f, 2f, 2f, 2f))
+            .geometry(0, RenderableManager.PrimitiveType.TRIANGLES, vb, ib)
+            .culling(false)
+            // .material(0, materialInstance) // TODO: Add material support
+            .build(engine, entity)
+        
+        scene.addEntity(entity)
+        entityMap[name] = entity
+    }
+    
+    private fun cleanup() {
         entityMap.values.forEach { 
             scene.removeEntity(it)
             engine.destroyEntity(it) 
         }
         entityMap.clear()
-
-        // In a real app, we would create separate entities per group.
-        // For now, we simulate creating entities.
-        if (mesh.groups.isEmpty()) {
-             createEntityForGroup("root", mesh.indices, emptyList())
-        } else {
-            mesh.groups.forEach { group ->
-                createEntityForGroup(group.name, group.indices, group.tags)
-            }
-        }
-    }
-    
-    private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>) {
-        val entity = EntityManager.get().create()
-        // Real implementation would attach Renderable with Morphing enabled
-        // RenderableManager.Builder(1)
-        //    .morphing(true) 
-        //    .build(engine, entity)
         
-        // scene.addEntity(entity)
-        entityMap[name] = entity
+        // Clean up buffers (except VB which might be shared, but here we simplified)
+        // In this simplified logic we recreate VB every time, so we should destroy it.
+        bufferMap.values.forEach { (vb, ib) ->
+             // vb might be duplicated in map, handle carefuly in real app
+             engine.destroyIndexBuffer(ib)
+        }
+        if (bufferMap.isNotEmpty()) {
+            engine.destroyVertexBuffer(bufferMap.values.first().first)
+        }
+        bufferMap.clear()
     }
-    
+
     fun setGroupVisibility(name: String, visible: Boolean) {
         val entity = entityMap[name] ?: return
         val rm = engine.renderableManager
@@ -122,24 +176,12 @@ class FilamentController(
     }
 
     fun setMorphWeight(targetName: String, weight: Float) {
-        // Filament requires setting morph weights by index.
-        // We need a mapping from "targetName" -> "index" which should be provided by the Asset/Mesh data.
-        // Assuming we have the index 'idx':
-        
-        // val idx = mesh.morphTargetMap[targetName]
-        // entityMap.values.forEach { entity ->
-        //     val instance = engine.renderableManager.getInstance(entity)
-        //     engine.renderableManager.setMorphWeights(instance, floatArrayOf(...))
-        // }
-        
-        // For now, this is a placeholder to indicate where the logic goes.
+        // Implementation depends on having morph targets compiled into the mesh
     }
 
     override fun doFrame(frameTimeNanos: Long) {
         choreographer.postFrameCallback(this)
-        
         cameraManipulator?.update(frameTimeNanos.toFloat())
-        
         if (view.viewport.width > 0 && view.viewport.height > 0) {
             if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
                 renderer.render(view)
@@ -149,6 +191,7 @@ class FilamentController(
     }
 
     fun destroy() {
+        cleanup()
         choreographer.removeFrameCallback(this)
         engine.destroyRenderer(renderer)
         engine.destroyView(view)

@@ -10,12 +10,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportScreen(onBack: () -> Unit) {
+fun ImportScreen(
+    onBack: () -> Unit,
+    viewModel: ImportViewModel = hiltViewModel()
+) {
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
     var statusText by remember { mutableStateOf("Waiting for file...") }
@@ -31,15 +35,13 @@ fun ImportScreen(onBack: () -> Unit) {
             scope.launch {
                 // Simulate steps
                 delay(1000)
-                progress = 0.2f
-                statusText = "Extracting geometry..."
-                delay(1000)
                 progress = 0.5f
-                statusText = "Running ML Fit..."
-                delay(1500)
-                progress = 0.8f
-                statusText = "Synthesizing sliders..."
-                delay(1000)
+                statusText = "Generating Test Asset..."
+                
+                // Actually save a test character to DB
+                viewModel.importTestCharacter()
+                
+                delay(500)
                 progress = 1.0f
                 statusText = "Done!"
                 delay(500)
@@ -87,7 +89,7 @@ fun ImportScreen(onBack: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = { filePicker.launch("*/*") }) {
-                    Text("Select File")
+                    Text("Select File (Creates Test Cube)")
                 }
             }
         }

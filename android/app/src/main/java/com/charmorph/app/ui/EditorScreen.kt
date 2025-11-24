@@ -24,6 +24,7 @@ fun EditorScreen(
     viewModel: EditorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val mesh = viewModel.getCharacterMesh()
     
     // Categories derived from morphs
     val categories = remember(uiState.morphs) {
@@ -55,20 +56,26 @@ fun EditorScreen(
                     .fillMaxWidth()
                     .background(Color.DarkGray)
             ) {
-                 AndroidView(
-                    modifier = Modifier.fillMaxSize(),
-                    factory = { context ->
-                        FilamentView(context).apply {
-                            // loadMesh(...)
+                 if (mesh != null) {
+                     AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { context ->
+                            FilamentView(context).apply {
+                                loadMesh(mesh)
+                            }
+                        },
+                        update = { view ->
+                            // Apply all current morph weights
+                            uiState.morphs.forEach { morph ->
+                                 view.updateMorphWeight(morph.name, morph.value)
+                            }
                         }
-                    },
-                    update = { view ->
-                        // Apply all current morph weights
-                        uiState.morphs.forEach { morph ->
-                             view.updateMorphWeight(morph.name, morph.value)
-                        }
-                    }
-                 )
+                     )
+                 } else {
+                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                         CircularProgressIndicator()
+                     }
+                 }
             }
 
             // Controls (taking lower half)
@@ -79,7 +86,7 @@ fun EditorScreen(
                 Column {
                     // Category Tabs
                     ScrollableTabRow(
-                        selectedTabIndex = categories.indexOf(uiState.activeCategory),
+                        selectedTabIndex = categories.indexOf(uiState.activeCategory).coerceAtLeast(0),
                         edgePadding = 16.dp
                     ) {
                         categories.forEach { category ->

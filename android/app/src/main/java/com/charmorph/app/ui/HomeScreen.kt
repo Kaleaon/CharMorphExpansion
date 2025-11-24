@@ -3,15 +3,20 @@ package com.charmorph.app.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.charmorph.core.model.Character
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,8 +24,11 @@ fun HomeScreen(
     onImportClick: () -> Unit,
     onPhotoImportClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onCharacterClick: (String) -> Unit
+    onCharacterClick: (String) -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val characters by viewModel.characters.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,38 +56,41 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Welcome to CharMorph", style = MaterialTheme.typography.titleMedium)
-                        Text("No characters imported yet.", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
+        if (characters.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No characters yet. Tap + to start.", style = MaterialTheme.typography.bodyLarge)
             }
-            items(5) { index ->
-                CharacterListItem(index, onCharacterClick)
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(characters) { character ->
+                    CharacterListItem(character, onCharacterClick)
+                }
             }
         }
     }
 }
 
 @Composable
-fun CharacterListItem(index: Int, onClick: (String) -> Unit) {
+fun CharacterListItem(character: Character, onClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(index.toString()) }
+            .clickable { onClick(character.id) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Character #$index", style = MaterialTheme.typography.titleMedium)
-            Text("Last modified: Today", style = MaterialTheme.typography.bodySmall)
+            Text(character.baseMesh.name, style = MaterialTheme.typography.titleMedium)
+            Text("ID: ${character.id.take(8)}", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
