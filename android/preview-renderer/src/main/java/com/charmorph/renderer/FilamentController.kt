@@ -9,21 +9,15 @@ import com.google.android.filament.Camera
 import com.google.android.filament.Colors
 import com.google.android.filament.Engine
 import com.google.android.filament.EntityManager
-import com.google.android.filament.IndexBuffer
-import com.google.android.filament.IndirectLight
 import com.google.android.filament.LightManager
-import com.google.android.filament.RenderableManager
 import com.google.android.filament.Renderer
 import com.google.android.filament.Scene
 import com.google.android.filament.Skybox
 import com.google.android.filament.SwapChain
-import com.google.android.filament.VertexBuffer
 import com.google.android.filament.View
 import com.google.android.filament.Viewport
 import com.google.android.filament.utils.Manipulator
 import com.google.android.filament.utils.Utils
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 class FilamentController(
     private val context: Context,
@@ -96,13 +90,9 @@ class FilamentController(
         }
         entityMap.clear()
 
-        // 1. Create geometry buffers (Placeholder logic for VertexBuffer creation)
-        // In a real app, we would flatten mesh.vertices into a ByteBuffer
-        // and create a VertexBuffer and IndexBuffer.
-        
-        // For each group in the mesh, create an entity
+        // In a real app, we would create separate entities per group.
+        // For now, we simulate creating entities.
         if (mesh.groups.isEmpty()) {
-            // Treat whole mesh as one group if no groups
              createEntityForGroup("root", mesh.indices, emptyList())
         } else {
             mesh.groups.forEach { group ->
@@ -113,11 +103,9 @@ class FilamentController(
     
     private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>) {
         val entity = EntityManager.get().create()
-        
-        // Builder would go here:
+        // Real implementation would attach Renderable with Morphing enabled
         // RenderableManager.Builder(1)
-        //    .boundingBox(...)
-        //    .geometry(0, RenderableManager.PrimitiveType.TRIANGLES, vb, ib)
+        //    .morphing(true) 
         //    .build(engine, entity)
         
         // scene.addEntity(entity)
@@ -130,16 +118,27 @@ class FilamentController(
         val instance = rm.getInstance(entity)
         if (instance != 0) {
             rm.setLayerMask(instance, 0xff, if (visible) 0xff else 0x00) 
-            // Or simplified:
-            // scene.removeEntity(entity) / scene.addEntity(entity)
         }
+    }
+
+    fun setMorphWeight(targetName: String, weight: Float) {
+        // Filament requires setting morph weights by index.
+        // We need a mapping from "targetName" -> "index" which should be provided by the Asset/Mesh data.
+        // Assuming we have the index 'idx':
+        
+        // val idx = mesh.morphTargetMap[targetName]
+        // entityMap.values.forEach { entity ->
+        //     val instance = engine.renderableManager.getInstance(entity)
+        //     engine.renderableManager.setMorphWeights(instance, floatArrayOf(...))
+        // }
+        
+        // For now, this is a placeholder to indicate where the logic goes.
     }
 
     override fun doFrame(frameTimeNanos: Long) {
         choreographer.postFrameCallback(this)
         
         cameraManipulator?.update(frameTimeNanos.toFloat())
-        // Apply manipulator to camera... 
         
         if (view.viewport.width > 0 && view.viewport.height > 0) {
             if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {

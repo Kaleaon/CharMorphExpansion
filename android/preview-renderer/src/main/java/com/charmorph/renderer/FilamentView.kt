@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.SurfaceView
 import com.charmorph.core.model.Mesh
-import com.charmorph.core.model.MeshGroup
 import com.google.android.filament.utils.Utils
 
 class FilamentView @JvmOverloads constructor(
@@ -29,6 +28,7 @@ class FilamentView @JvmOverloads constructor(
     
     fun loadMesh(mesh: Mesh) {
         currentMesh = mesh
+        controller?.loadMesh(mesh)
         updateVisibility()
     }
 
@@ -38,18 +38,17 @@ class FilamentView @JvmOverloads constructor(
             updateVisibility()
         }
     }
+    
+    fun updateMorphWeight(targetName: String, weight: Float) {
+        controller?.setMorphWeight(targetName, weight)
+    }
 
     private fun updateVisibility() {
         val mesh = currentMesh ?: return
-        
-        // In a real implementation, we would traverse the Renderables created for this mesh
-        // and hide/show entities based on the group tags.
-        // 
-        // Example logic:
-        // mesh.groups.forEach { group ->
-        //     val isSensitive = group.tags.contains("genitalia")
-        //     val shouldRender = !isSensitive || showAnatomicalDetails
-        //     controller?.setEntityVisible(group.name, shouldRender)
-        // }
+        mesh.groups.forEach { group ->
+             val isSensitive = group.tags.contains("anatomical") || group.tags.contains("genitalia")
+             val shouldRender = !isSensitive || showAnatomicalDetails
+             controller?.setGroupVisibility(group.name, shouldRender)
+        }
     }
 }

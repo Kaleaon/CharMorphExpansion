@@ -1,5 +1,6 @@
 package com.charmorph.app.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -17,7 +18,8 @@ import androidx.compose.ui.unit.dp
 fun HomeScreen(
     onImportClick: () -> Unit,
     onPhotoImportClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onCharacterClick: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -62,15 +64,19 @@ fun HomeScreen(
                 }
             }
             items(5) { index ->
-                CharacterListItem(index)
+                CharacterListItem(index, onCharacterClick)
             }
         }
     }
 }
 
 @Composable
-fun CharacterListItem(index: Int) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+fun CharacterListItem(index: Int, onClick: (String) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(index.toString()) }
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Character #$index", style = MaterialTheme.typography.titleMedium)
             Text("Last modified: Today", style = MaterialTheme.typography.bodySmall)
