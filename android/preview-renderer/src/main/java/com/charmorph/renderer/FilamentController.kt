@@ -5,8 +5,8 @@ import android.view.Choreographer
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.charmorph.core.model.Mesh
+import com.charmorph.nativebridge.NativeLib
 import com.google.android.filament.Camera
-import com.google.android.filament.Colors
 import com.google.android.filament.Engine
 import com.google.android.filament.EntityManager
 import com.google.android.filament.IndexBuffer
@@ -20,7 +20,6 @@ import com.google.android.filament.VertexBuffer
 import com.google.android.filament.View
 import com.google.android.filament.Viewport
 import com.google.android.filament.utils.Manipulator
-import com.google.android.filament.utils.Utils
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -40,6 +39,10 @@ class FilamentController(
     private val entityMap = mutableMapOf<String, Int>()
     private val bufferMap = mutableMapOf<String, Pair<VertexBuffer, IndexBuffer>>()
     private var cameraManipulator: Manipulator? = null
+    
+    // Native Mesh Pointer
+    private var nativeMeshPtr: Long = 0
+    private val nativeLib = NativeLib()
 
     init {
         view.scene = scene
@@ -88,19 +91,21 @@ class FilamentController(
     fun loadMesh(mesh: Mesh) {
         cleanup()
 
-        // Create Buffers
-        // 1. Flatten Vertices
+        // 1. Initialize Native Mesh for CPU Morphing
+        val flatVertices = FloatArray(mesh.vertices.size * 3)
+        mesh.vertices.forEachIndexed { i, v ->
+            flatVertices[i*3] = v.x
+            flatVertices[i*3+1] = v.y
+            flatVertices[i*3+2] = v.z
+        }
+        nativeMeshPtr = nativeLib.createMesh(flatVertices)
+        
+        // 2. Create Initial Vertex Buffer
         val vertexCount = mesh.vertices.size
         val vertexBufferData = ByteBuffer.allocateDirect(vertexCount * 3 * 4)
             .order(ByteOrder.nativeOrder())
-        mesh.vertices.forEach { v ->
-            vertexBufferData.putFloat(v.x)
-            vertexBufferData.putFloat(v.y)
-            vertexBufferData.putFloat(v.z)
-        }
-        vertexBufferData.flip()
-
-        // 2. Create VertexBuffer
+        vertexBufferData.asFloatBuffer().put(flatVertices)
+        
         val vb = VertexBuffer.Builder()
             .bufferCount(1)
             .vertexCount(vertexCount)
@@ -108,7 +113,7 @@ class FilamentController(
             .build(engine)
         vb.setBufferAt(engine, 0, vertexBufferData)
 
-        // 3. Create Entities per Group
+        // 3. Create Entities
         if (mesh.groups.isEmpty()) {
             createEntityForGroup("root", mesh.indices, emptyList(), vb)
         } else {
@@ -119,7 +124,6 @@ class FilamentController(
     }
     
     private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>, vb: VertexBuffer) {
-        // Create IndexBuffer for this group
         val indexCount = indices.size
         val indexBufferData = ByteBuffer.allocateDirect(indexCount * 4)
             .order(ByteOrder.nativeOrder())
@@ -132,34 +136,51 @@ class FilamentController(
             .build(engine)
         ib.setBuffer(engine, indexBufferData)
         
-        // Track buffers for cleanup
         bufferMap[name] = Pair(vb, ib)
 
         val entity = EntityManager.get().create()
         RenderableManager.Builder(1)
-            .boundingBox(com.google.android.filament.Box(0f, 0f, 0f, 2f, 2f, 2f))
+            .boundingBox(com.google.android.filament.Box(-2f, -2f, -2f, 2f, 2f, 2f))
             .geometry(0, RenderableManager.PrimitiveType.TRIANGLES, vb, ib)
             .culling(false)
-            // .material(0, materialInstance) // TODO: Add material support
             .build(engine, entity)
         
         scene.addEntity(entity)
         entityMap[name] = entity
     }
     
+    fun updateMorphWeights(weights: Map<Int, Float>) {
+        if (nativeMeshPtr == 0L || bufferMap.isEmpty()) return
+        
+        val vertexBuffer = bufferMap.values.first().first // Shared VB
+        val vertexCount = vertexBuffer.vertexCount
+        
+        // Prepare output buffer
+        val outputBuffer = ByteBuffer.allocateDirect(vertexCount * 3 * 4).order(ByteOrder.nativeOrder())
+        
+        val ids = weights.keys.toIntArray()
+        val values = weights.values.toFloatArray()
+        
+        // Call Native
+        nativeLib.updateMorphs(nativeMeshPtr, ids, values, outputBuffer)
+        
+        // Update Filament Buffer
+        // Note: For performance, we should double-buffer or use a dynamic buffer.
+        // For now, simply updating via setBufferAt.
+        vertexBuffer.setBufferAt(engine, 0, outputBuffer)
+    }
+    
     private fun cleanup() {
+        if (nativeMeshPtr != 0L) {
+            nativeLib.destroyMesh(nativeMeshPtr)
+            nativeMeshPtr = 0
+        }
         entityMap.values.forEach { 
             scene.removeEntity(it)
             engine.destroyEntity(it) 
         }
         entityMap.clear()
-        
-        // Clean up buffers (except VB which might be shared, but here we simplified)
-        // In this simplified logic we recreate VB every time, so we should destroy it.
-        bufferMap.values.forEach { (vb, ib) ->
-             // vb might be duplicated in map, handle carefuly in real app
-             engine.destroyIndexBuffer(ib)
-        }
+        bufferMap.values.forEach { (_, ib) -> engine.destroyIndexBuffer(ib) }
         if (bufferMap.isNotEmpty()) {
             engine.destroyVertexBuffer(bufferMap.values.first().first)
         }
@@ -173,10 +194,6 @@ class FilamentController(
         if (instance != 0) {
             rm.setLayerMask(instance, 0xff, if (visible) 0xff else 0x00) 
         }
-    }
-
-    fun setMorphWeight(targetName: String, weight: Float) {
-        // Implementation depends on having morph targets compiled into the mesh
     }
 
     override fun doFrame(frameTimeNanos: Long) {

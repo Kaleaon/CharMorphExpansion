@@ -1,5 +1,7 @@
 package com.charmorph.nativebridge
 
+import java.nio.ByteBuffer
+
 class NativeLib {
     companion object {
         init {
@@ -9,18 +11,28 @@ class NativeLib {
 
     external fun stringFromJNI(): String
     
-    /**
-     * Solves for morph weights given a set of 2D landmarks and a base mesh.
-     * 
-     * @param landmarks Array of floats [x0, y0, x1, y1, ...]
-     * @param baseVertices Array of floats [x0, y0, z0, x1, y1, z1, ...]
-     * @param morphDeltas Flattened array of morph targets (simplified for JNI passing)
-     * @return Array of floats representing weights for each morph target
-     */
     external fun solveMorphWeights(
         landmarks: FloatArray,
         baseVertices: FloatArray,
         morphIndices: IntArray,
         morphDeltas: FloatArray
     ): FloatArray
+
+    // New Mesh API
+    external fun createMesh(vertices: FloatArray): Long
+    
+    external fun destroyMesh(meshPtr: Long)
+    
+    external fun addMorphTarget(meshPtr: Long, morphId: Int, indices: IntArray, deltas: FloatArray)
+    
+    /**
+     * Updates the mesh with new morph weights and writes the result into the outputBuffer.
+     * outputBuffer must be a DirectByteBuffer with capacity >= vertex_count * 3 * 4 bytes.
+     */
+    external fun updateMorphs(
+        meshPtr: Long, 
+        morphIds: IntArray, 
+        morphWeights: FloatArray, 
+        outputBuffer: ByteBuffer
+    )
 }

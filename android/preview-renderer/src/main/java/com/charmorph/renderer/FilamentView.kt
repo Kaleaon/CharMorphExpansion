@@ -15,6 +15,9 @@ class FilamentView @JvmOverloads constructor(
     private var controller: FilamentController? = null
     private var currentMesh: Mesh? = null
     private var showAnatomicalDetails: Boolean = false
+    
+    // Cache current weights to batch updates if needed
+    private val currentWeights = mutableMapOf<Int, Float>()
 
     init {
         Utils.init() // Ensure Filament JNI is loaded
@@ -40,7 +43,11 @@ class FilamentView @JvmOverloads constructor(
     }
     
     fun updateMorphWeight(targetName: String, weight: Float) {
-        controller?.setMorphWeight(targetName, weight)
+        // For now, use a dummy ID mapping since we don't have real Morph definitions loaded yet.
+        // In reality, Mesh would contain a list of MorphTargets with IDs.
+        val morphId = targetName.hashCode() 
+        currentWeights[morphId] = weight
+        controller?.updateMorphWeights(currentWeights)
     }
 
     private fun updateVisibility() {
