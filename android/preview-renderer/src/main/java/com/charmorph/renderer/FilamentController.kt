@@ -2,19 +2,28 @@ package com.charmorph.renderer
 
 import android.content.Context
 import android.view.Choreographer
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.charmorph.core.model.Mesh
 import com.google.android.filament.Camera
+import com.google.android.filament.Colors
 import com.google.android.filament.Engine
 import com.google.android.filament.EntityManager
+import com.google.android.filament.IndexBuffer
+import com.google.android.filament.IndirectLight
+import com.google.android.filament.LightManager
+import com.google.android.filament.RenderableManager
 import com.google.android.filament.Renderer
 import com.google.android.filament.Scene
 import com.google.android.filament.Skybox
 import com.google.android.filament.SwapChain
+import com.google.android.filament.VertexBuffer
 import com.google.android.filament.View
 import com.google.android.filament.Viewport
+import com.google.android.filament.utils.Manipulator
 import com.google.android.filament.utils.Utils
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class FilamentController(
     private val context: Context,
@@ -28,13 +37,17 @@ class FilamentController(
     private var camera: Camera = engine.createCamera(engine.entityManager.create())
     private var swapChain: SwapChain? = null
     private var choreographer: Choreographer = Choreographer.getInstance()
+    
+    private val entityMap = mutableMapOf<String, Int>() // Maps Group Name to Entity ID
+    private var cameraManipulator: Manipulator? = null
 
     init {
         view.scene = scene
         view.camera = camera
         
-        // Basic setup
-        scene.skybox = Skybox.Builder().color(0.1f, 0.1f, 0.1f, 1.0f).build(engine)
+        // Lighting Setup
+        setupLighting()
+        setupManipulator()
         
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -46,6 +59,7 @@ class FilamentController(
                 view.viewport = Viewport(0, 0, width, height)
                 val aspect = width.toDouble() / height.toDouble()
                 camera.setProjection(45.0, aspect, 0.1, 20.0, Camera.Fov.VERTICAL)
+                cameraManipulator?.setViewport(width, height)
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -55,9 +69,77 @@ class FilamentController(
             }
         })
     }
+    
+    private fun setupLighting() {
+        scene.skybox = Skybox.Builder().color(0.1f, 0.1f, 0.1f, 1.0f).build(engine)
+        
+        val light = EntityManager.get().create()
+        LightManager.Builder(LightManager.Type.DIRECTIONAL)
+            .color(1.0f, 0.95f, 0.9f)
+            .intensity(100000.0f)
+            .direction(1.0f, -0.5f, -1.0f)
+            .build(engine, light)
+        scene.addEntity(light)
+    }
+    
+    private fun setupManipulator() {
+        cameraManipulator = Manipulator.Builder()
+            .targetPosition(0.0f, 1.0f, 0.0f)
+            .build(Manipulator.Mode.ORBIT)
+    }
+
+    fun loadMesh(mesh: Mesh) {
+        // Clear existing
+        entityMap.values.forEach { 
+            scene.removeEntity(it)
+            engine.destroyEntity(it) 
+        }
+        entityMap.clear()
+
+        // 1. Create geometry buffers (Placeholder logic for VertexBuffer creation)
+        // In a real app, we would flatten mesh.vertices into a ByteBuffer
+        // and create a VertexBuffer and IndexBuffer.
+        
+        // For each group in the mesh, create an entity
+        if (mesh.groups.isEmpty()) {
+            // Treat whole mesh as one group if no groups
+             createEntityForGroup("root", mesh.indices, emptyList())
+        } else {
+            mesh.groups.forEach { group ->
+                createEntityForGroup(group.name, group.indices, group.tags)
+            }
+        }
+    }
+    
+    private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>) {
+        val entity = EntityManager.get().create()
+        
+        // Builder would go here:
+        // RenderableManager.Builder(1)
+        //    .boundingBox(...)
+        //    .geometry(0, RenderableManager.PrimitiveType.TRIANGLES, vb, ib)
+        //    .build(engine, entity)
+        
+        // scene.addEntity(entity)
+        entityMap[name] = entity
+    }
+    
+    fun setGroupVisibility(name: String, visible: Boolean) {
+        val entity = entityMap[name] ?: return
+        val rm = engine.renderableManager
+        val instance = rm.getInstance(entity)
+        if (instance != 0) {
+            rm.setLayerMask(instance, 0xff, if (visible) 0xff else 0x00) 
+            // Or simplified:
+            // scene.removeEntity(entity) / scene.addEntity(entity)
+        }
+    }
 
     override fun doFrame(frameTimeNanos: Long) {
         choreographer.postFrameCallback(this)
+        
+        cameraManipulator?.update(frameTimeNanos.toFloat())
+        // Apply manipulator to camera... 
         
         if (view.viewport.width > 0 && view.viewport.height > 0) {
             if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
