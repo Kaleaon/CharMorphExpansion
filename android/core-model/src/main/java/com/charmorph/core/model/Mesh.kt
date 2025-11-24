@@ -9,13 +9,22 @@ data class Vector3(val x: Float, val y: Float, val z: Float)
 data class Vector2(val u: Float, val v: Float)
 
 @Serializable
+data class MeshGroup(
+    val name: String,
+    val indices: List<Int>,
+    val materialIndex: Int,
+    val tags: List<String> = emptyList() // e.g. "anatomical", "genitalia"
+)
+
+@Serializable
 data class Mesh(
     val id: String,
     val name: String,
     val vertices: List<Vector3>,
     val normals: List<Vector3>,
     val uvs: List<Vector2>,
-    val indices: List<Int>
+    val indices: List<Int>,
+    val groups: List<MeshGroup> = emptyList() // Sub-parts of the mesh
 )
 
 @Serializable

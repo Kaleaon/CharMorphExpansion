@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.charmorph.app.ui.HomeScreen
 import com.charmorph.app.ui.ImportScreen
+import com.charmorph.app.ui.SettingsScreen
 import com.charmorph.feature.photoimport.ui.PhotoImportScreen
 
 @Composable
@@ -16,7 +17,8 @@ fun CharMorphNavHost() {
         composable("home") {
             HomeScreen(
                 onImportClick = { navController.navigate("import") },
-                onPhotoImportClick = { navController.navigate("photo_import") }
+                onPhotoImportClick = { navController.navigate("photo_import") },
+                onSettingsClick = { navController.navigate("settings") }
             )
         }
         composable("import") {
@@ -26,6 +28,11 @@ fun CharMorphNavHost() {
         }
         composable("photo_import") {
             PhotoImportScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
                 onBack = { navController.popBackStack() }
             )
         }
