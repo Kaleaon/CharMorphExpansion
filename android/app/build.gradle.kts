@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":ingest-pipeline"))
     implementation(project(":storage"))
     implementation(project(":preview-renderer"))
+    implementation(project(":feature-photo-import"))
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
@@ -85,4 +86,3 @@ dependencies {
 kapt {
     correctErrorTypes = true
 }
-

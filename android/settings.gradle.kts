@@ -9,5 +9,5 @@ include(
     ":native-bridge",
     ":storage",
     ":preview-renderer",
+    ":feature-photo-import",
 )
-
