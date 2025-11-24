@@ -25,13 +25,13 @@ fun EditorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val mesh = viewModel.getCharacterMesh()
+    val skeleton = viewModel.getCharacterSkeleton()
     
     // Categories derived from morphs
     val categories = remember(uiState.morphs) {
         uiState.morphs.map { it.category }.distinct().sorted()
     }
     
-    // Filtered morphs for active category
     val activeMorphs = remember(uiState.morphs, uiState.activeCategory) {
         uiState.morphs.filter { it.category == uiState.activeCategory }
     }
@@ -61,13 +61,21 @@ fun EditorScreen(
                         modifier = Modifier.fillMaxSize(),
                         factory = { context ->
                             FilamentView(context).apply {
-                                loadMesh(mesh)
+                                loadMesh(mesh, skeleton)
                             }
                         },
                         update = { view ->
-                            // Apply all current morph weights
+                            // Apply Morphs
                             uiState.morphs.forEach { morph ->
                                  view.updateMorphWeight(morph.name, morph.value)
+                            }
+                            
+                            // Apply Pose
+                            uiState.bones.forEach { bone ->
+                                val quat = viewModel.getBoneRotation(bone.id)
+                                if (quat != null) {
+                                    view.updateBoneRotation(bone.id, quat)
+                                }
                             }
                         }
                      )
@@ -84,30 +92,51 @@ fun EditorScreen(
                 tonalElevation = 2.dp
             ) {
                 Column {
-                    // Category Tabs
-                    ScrollableTabRow(
-                        selectedTabIndex = categories.indexOf(uiState.activeCategory).coerceAtLeast(0),
-                        edgePadding = 16.dp
-                    ) {
-                        categories.forEach { category ->
-                            Tab(
-                                selected = category == uiState.activeCategory,
-                                onClick = { viewModel.setCategory(category) },
-                                text = { Text(category) }
-                            )
-                        }
+                    // Mode Tabs
+                    TabRow(selectedTabIndex = if (uiState.mode == EditorMode.MORPHS) 0 else 1) {
+                        Tab(selected = uiState.mode == EditorMode.MORPHS, onClick = { viewModel.setMode(EditorMode.MORPHS) }, text = { Text("Morphs") })
+                        Tab(selected = uiState.mode == EditorMode.POSE, onClick = { viewModel.setMode(EditorMode.POSE) }, text = { Text("Pose") })
                     }
 
-                    // Sliders List
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(activeMorphs) { morph ->
-                            MorphSlider(
-                                morph = morph,
-                                onValueChange = { viewModel.updateMorph(morph.name, it) }
-                            )
+                    if (uiState.mode == EditorMode.MORPHS) {
+                        // Category Tabs
+                        ScrollableTabRow(
+                            selectedTabIndex = categories.indexOf(uiState.activeCategory).coerceAtLeast(0),
+                            edgePadding = 16.dp
+                        ) {
+                            categories.forEach { category ->
+                                Tab(
+                                    selected = category == uiState.activeCategory,
+                                    onClick = { viewModel.setCategory(category) },
+                                    text = { Text(category) }
+                                )
+                            }
+                        }
+
+                        // Sliders List
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(activeMorphs) { morph ->
+                                MorphSlider(
+                                    morph = morph,
+                                    onValueChange = { viewModel.updateMorph(morph.name, it) }
+                                )
+                            }
+                        }
+                    } else {
+                        // Pose Editor
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(uiState.bones) { bone ->
+                                BoneControl(
+                                    bone = bone,
+                                    onUpdate = { p, y, r -> viewModel.updateBone(bone.id, p, y, r) }
+                                )
+                            }
                         }
                     }
                 }
@@ -134,5 +163,31 @@ fun MorphSlider(
             onValueChange = onValueChange,
             valueRange = morph.min..morph.max
         )
+    }
+}
+
+@Composable
+fun BoneControl(
+    bone: BoneState,
+    onUpdate: (Float, Float, Float) -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = bone.name, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("X", modifier = Modifier.width(20.dp))
+                Slider(value = bone.pitch, onValueChange = { onUpdate(it, bone.yaw, bone.roll) }, valueRange = -90f..90f, modifier = Modifier.weight(1f))
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Y", modifier = Modifier.width(20.dp))
+                Slider(value = bone.yaw, onValueChange = { onUpdate(bone.pitch, it, bone.roll) }, valueRange = -90f..90f, modifier = Modifier.weight(1f))
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Z", modifier = Modifier.width(20.dp))
+                Slider(value = bone.roll, onValueChange = { onUpdate(bone.pitch, bone.yaw, it) }, valueRange = -90f..90f, modifier = Modifier.weight(1f))
+            }
+        }
     }
 }

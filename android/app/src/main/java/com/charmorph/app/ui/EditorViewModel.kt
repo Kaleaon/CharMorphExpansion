@@ -3,7 +3,9 @@ package com.charmorph.app.ui
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.charmorph.core.math.MathUtils
 import com.charmorph.core.model.Character
+import com.charmorph.core.model.Vector4
 import com.charmorph.storage.CharacterRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +14,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// MorphState and EditorUiState defined in previous turn
+data class BoneState(
+    val id: Int,
+    val name: String,
+    val pitch: Float = 0f,
+    val yaw: Float = 0f,
+    val roll: Float = 0f
+)
+
+data class EditorUiState(
+    val morphs: List<MorphState> = emptyList(),
+    val bones: List<BoneState> = emptyList(),
+    val activeCategory: String = "Body",
+    val mode: EditorMode = EditorMode.MORPHS
+)
+
+enum class EditorMode {
+    MORPHS, POSE
+}
 
 @HiltViewModel
 class EditorViewModel @Inject constructor(
@@ -37,21 +56,26 @@ class EditorViewModel @Inject constructor(
             if (character != null) {
                 currentCharacter = character
                 
-                // In a real app, we would derive available morphs from the character data (asset files)
-                // For now, we'll merge the mock list with active values
-                
                 val activeWeights = character.activeMorphs
                 val morphs = getAvailableMorphs().map { morph ->
                     morph.copy(value = activeWeights[morph.name] ?: morph.value)
                 }
                 
-                _uiState.value = _uiState.value.copy(morphs = morphs)
+                val bones = character.skeleton.bones.map { bone ->
+                    BoneState(bone.id, bone.name)
+                }
+                
+                _uiState.value = _uiState.value.copy(morphs = morphs, bones = bones)
             }
         }
     }
 
     fun setCategory(category: String) {
         _uiState.value = _uiState.value.copy(activeCategory = category)
+    }
+    
+    fun setMode(mode: EditorMode) {
+        _uiState.value = _uiState.value.copy(mode = mode)
     }
 
     fun updateMorph(name: String, value: Float) {
@@ -60,10 +84,23 @@ class EditorViewModel @Inject constructor(
         if (index != -1) {
             currentMorphs[index] = currentMorphs[index].copy(value = value)
             _uiState.value = _uiState.value.copy(morphs = currentMorphs)
-            
-            // Auto-save on change (debounce would be better in prod)
             saveCurrentState()
         }
+    }
+    
+    fun updateBone(boneId: Int, pitch: Float, yaw: Float, roll: Float) {
+        val currentBones = _uiState.value.bones.toMutableList()
+        val index = currentBones.indexOfFirst { it.id == boneId }
+        if (index != -1) {
+            currentBones[index] = currentBones[index].copy(pitch = pitch, yaw = yaw, roll = roll)
+            _uiState.value = _uiState.value.copy(bones = currentBones)
+            // Note: Posing is typically transient in editor, but we could save it if `Character` model supported pose data
+        }
+    }
+    
+    fun getBoneRotation(boneId: Int): Vector4? {
+        val bone = _uiState.value.bones.find { it.id == boneId } ?: return null
+        return MathUtils.eulerToQuaternion(bone.pitch, bone.yaw, bone.roll)
     }
     
     private fun saveCurrentState() {
@@ -74,17 +111,12 @@ class EditorViewModel @Inject constructor(
     }
     
     fun getCharacterMesh() = currentCharacter?.baseMesh
+    fun getCharacterSkeleton() = currentCharacter?.skeleton
 
     private fun getAvailableMorphs(): List<MorphState> {
-        // This should eventually come from a "MorphDefinition" asset associated with the character
         return listOf(
             MorphState("body_fat", "Fatness", "Body"),
             MorphState("body_muscle", "Muscle", "Body"),
-            MorphState("arm_length", "Arm Length", "Body"),
-            MorphState("leg_length", "Leg Length", "Body"),
-            MorphState("face_width", "Face Width", "Face"),
-            MorphState("nose_size", "Nose Size", "Face"),
-            MorphState("lips_thickness", "Lips Thickness", "Face"),
             MorphState("genital_size", "Size", "Genitalia", min=0f, max=2f),
             MorphState("breast_size", "Breast Size", "Body", min=0f, max=2f)
         )

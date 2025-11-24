@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.SurfaceView
 import com.charmorph.core.model.Mesh
+import com.charmorph.core.model.Skeleton
+import com.charmorph.core.model.Vector4
 import com.google.android.filament.utils.Utils
 
 class FilamentView @JvmOverloads constructor(
@@ -29,9 +31,9 @@ class FilamentView @JvmOverloads constructor(
         controller = null
     }
     
-    fun loadMesh(mesh: Mesh) {
+    fun loadMesh(mesh: Mesh, skeleton: Skeleton? = null) {
         currentMesh = mesh
-        controller?.loadMesh(mesh)
+        controller?.loadMesh(mesh, skeleton)
         updateVisibility()
     }
 
@@ -43,11 +45,13 @@ class FilamentView @JvmOverloads constructor(
     }
     
     fun updateMorphWeight(targetName: String, weight: Float) {
-        // For now, use a dummy ID mapping since we don't have real Morph definitions loaded yet.
-        // In reality, Mesh would contain a list of MorphTargets with IDs.
         val morphId = targetName.hashCode() 
         currentWeights[morphId] = weight
         controller?.updateMorphWeights(currentWeights)
+    }
+    
+    fun updateBoneRotation(boneId: Int, rotation: Vector4) {
+        controller?.updateBoneRotation(boneId, rotation)
     }
 
     private fun updateVisibility() {
