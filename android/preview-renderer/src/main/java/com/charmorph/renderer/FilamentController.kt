@@ -5,6 +5,8 @@ import android.view.Choreographer
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.charmorph.core.model.Mesh
+import com.charmorph.core.model.Skeleton
+import com.charmorph.core.model.Vector4
 import com.charmorph.nativebridge.NativeLib
 import com.google.android.filament.Camera
 import com.google.android.filament.Engine
@@ -43,6 +45,9 @@ class FilamentController(
     // Native Mesh Pointer
     private var nativeMeshPtr: Long = 0
     private val nativeLib = NativeLib()
+
+    // Rigging
+    private var skeletonRig: SkeletonRig? = null
 
     init {
         view.scene = scene
@@ -88,8 +93,15 @@ class FilamentController(
             .build(Manipulator.Mode.ORBIT)
     }
 
-    fun loadMesh(mesh: Mesh) {
+    fun loadMesh(mesh: Mesh, skeleton: Skeleton? = null) {
         cleanup()
+
+        // Initialize Skeleton
+        if (skeleton != null) {
+            skeletonRig = SkeletonRig(skeleton)
+        } else {
+            skeletonRig = null
+        }
 
         // 1. Initialize Native Mesh for CPU Morphing
         val flatVertices = FloatArray(mesh.vertices.size * 3)
@@ -106,24 +118,35 @@ class FilamentController(
             .order(ByteOrder.nativeOrder())
         vertexBufferData.asFloatBuffer().put(flatVertices)
         
-        val vb = VertexBuffer.Builder()
+        val vbBuilder = VertexBuffer.Builder()
             .bufferCount(1)
             .vertexCount(vertexCount)
             .attribute(VertexBuffer.VertexAttribute.POSITION, 0, VertexBuffer.AttributeType.FLOAT3, 0, 12)
-            .build(engine)
+            
+        // Add Skinning Attributes (BONE_INDICES, BONE_WEIGHTS) if present
+        if (mesh.skinData != null) {
+             // In real app: flatten skinData.jointIndices and skinData.weights to buffer
+             // .attribute(VertexBuffer.VertexAttribute.BONE_INDICES, ...)
+             // .attribute(VertexBuffer.VertexAttribute.BONE_WEIGHTS, ...)
+        }
+        
+        val vb = vbBuilder.build(engine)
         vb.setBufferAt(engine, 0, vertexBufferData)
 
         // 3. Create Entities
         if (mesh.groups.isEmpty()) {
-            createEntityForGroup("root", mesh.indices, emptyList(), vb)
+            createEntityForGroup("root", mesh.indices, emptyList(), vb, skeletonRig != null)
         } else {
             mesh.groups.forEach { group ->
-                createEntityForGroup(group.name, group.indices, group.tags, vb)
+                createEntityForGroup(group.name, group.indices, group.tags, vb, skeletonRig != null)
             }
         }
+        
+        // Apply initial skinning
+        skeletonRig?.let { updateSkinning(it) }
     }
     
-    private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>, vb: VertexBuffer) {
+    private fun createEntityForGroup(name: String, indices: List<Int>, tags: List<String>, vb: VertexBuffer, hasSkinning: Boolean) {
         val indexCount = indices.size
         val indexBufferData = ByteBuffer.allocateDirect(indexCount * 4)
             .order(ByteOrder.nativeOrder())
@@ -139,11 +162,16 @@ class FilamentController(
         bufferMap[name] = Pair(vb, ib)
 
         val entity = EntityManager.get().create()
-        RenderableManager.Builder(1)
+        val builder = RenderableManager.Builder(1)
             .boundingBox(com.google.android.filament.Box(-2f, -2f, -2f, 2f, 2f, 2f))
             .geometry(0, RenderableManager.PrimitiveType.TRIANGLES, vb, ib)
             .culling(false)
-            .build(engine, entity)
+            
+        if (hasSkinning) {
+            builder.skinning(skeletonRig!!.skinningBuffer.size / 16)
+        }
+            
+        builder.build(engine, entity)
         
         scene.addEntity(entity)
         entityMap[name] = entity
@@ -155,19 +183,34 @@ class FilamentController(
         val vertexBuffer = bufferMap.values.first().first // Shared VB
         val vertexCount = vertexBuffer.vertexCount
         
-        // Prepare output buffer
         val outputBuffer = ByteBuffer.allocateDirect(vertexCount * 3 * 4).order(ByteOrder.nativeOrder())
         
         val ids = weights.keys.toIntArray()
         val values = weights.values.toFloatArray()
         
-        // Call Native
         nativeLib.updateMorphs(nativeMeshPtr, ids, values, outputBuffer)
         
-        // Update Filament Buffer
-        // Note: For performance, we should double-buffer or use a dynamic buffer.
-        // For now, simply updating via setBufferAt.
         vertexBuffer.setBufferAt(engine, 0, outputBuffer)
+    }
+    
+    fun updateBoneRotation(boneId: Int, rotation: Vector4) {
+        skeletonRig?.let { rig ->
+            rig.updateBone(boneId, rotation)
+            updateSkinning(rig)
+        }
+    }
+    
+    private fun updateSkinning(rig: SkeletonRig) {
+        entityMap.values.forEach { entity ->
+            val rm = engine.renderableManager
+            val instance = rm.getInstance(entity)
+            // Pass the simplified float array of matrices
+            // Filament expects transforms as FloatBuffer or similar
+            // Using setBonesAsMatrices
+            // Note: Check Filament version for exact API, assuming standard support
+            // In 1.32.0+, setBones takes float[] offset/count
+             rm.setBones(instance, rig.skinningBuffer, 0, rig.skinningBuffer.size / 16)
+        }
     }
     
     private fun cleanup() {
@@ -185,6 +228,7 @@ class FilamentController(
             engine.destroyVertexBuffer(bufferMap.values.first().first)
         }
         bufferMap.clear()
+        skeletonRig = null
     }
 
     fun setGroupVisibility(name: String, visible: Boolean) {

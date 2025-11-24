@@ -6,7 +6,15 @@ import kotlinx.serialization.Serializable
 data class Vector3(val x: Float, val y: Float, val z: Float)
 
 @Serializable
+data class Vector4(val x: Float, val y: Float, val z: Float, val w: Float)
+
+@Serializable
 data class Vector2(val u: Float, val v: Float)
+
+@Serializable
+data class Matrix4(
+    val values: List<Float> // 16 floats, column-major
+)
 
 @Serializable
 data class MeshGroup(
@@ -17,6 +25,12 @@ data class MeshGroup(
 )
 
 @Serializable
+data class SkinData(
+    val jointIndices: List<Vector4>, // 4 ints per vertex (stored as floats for simplicity in serialization, or Int Vector4)
+    val weights: List<Vector4>       // 4 weights per vertex
+)
+
+@Serializable
 data class Mesh(
     val id: String,
     val name: String,
@@ -24,7 +38,8 @@ data class Mesh(
     val normals: List<Vector3>,
     val uvs: List<Vector2>,
     val indices: List<Int>,
-    val groups: List<MeshGroup> = emptyList() // Sub-parts of the mesh
+    val groups: List<MeshGroup> = emptyList(),
+    val skinData: SkinData? = null // Optional skinning data
 )
 
 @Serializable
@@ -37,11 +52,15 @@ data class MorphTarget(
 
 @Serializable
 data class Bone(
+    val id: Int,
     val name: String,
-    val parentName: String?,
-    val head: Vector3,
-    val tail: Vector3,
-    val rotation: List<Float> // Quaternion?
+    val parentId: Int, // -1 if root
+    // Transform relative to parent (Bind Pose)
+    val localPosition: Vector3,
+    val localRotation: Vector4, // Quaternion (x,y,z,w)
+    val localScale: Vector3,
+    // Inverse Bind Matrix (Model Space -> Bone Space)
+    val inverseBindMatrix: Matrix4? = null
 )
 
 @Serializable
