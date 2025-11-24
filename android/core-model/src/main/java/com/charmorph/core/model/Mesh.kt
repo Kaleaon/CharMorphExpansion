@@ -1,0 +1,49 @@
+package com.charmorph.core.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Vector3(val x: Float, val y: Float, val z: Float)
+
+@Serializable
+data class Vector2(val u: Float, val v: Float)
+
+@Serializable
+data class Mesh(
+    val id: String,
+    val name: String,
+    val vertices: List<Vector3>,
+    val normals: List<Vector3>,
+    val uvs: List<Vector2>,
+    val indices: List<Int>
+)
+
+@Serializable
+data class MorphTarget(
+    val name: String,
+    val deltas: Map<Int, Vector3>, // Map vertex index to delta vector for sparse storage
+    val minValue: Float = 0f,
+    val maxValue: Float = 1f
+)
+
+@Serializable
+data class Bone(
+    val name: String,
+    val parentName: String?,
+    val head: Vector3,
+    val tail: Vector3,
+    val rotation: List<Float> // Quaternion?
+)
+
+@Serializable
+data class Skeleton(
+    val bones: List<Bone>
+)
+
+@Serializable
+data class Character(
+    val id: String,
+    val baseMesh: Mesh,
+    val skeleton: Skeleton,
+    val activeMorphs: Map<String, Float> = emptyMap()
+)
