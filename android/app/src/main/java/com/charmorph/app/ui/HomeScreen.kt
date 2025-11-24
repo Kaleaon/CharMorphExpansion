@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,14 +13,27 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onImportClick: () -> Unit) {
+fun HomeScreen(
+    onImportClick: () -> Unit,
+    onPhotoImportClick: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("CharMorph Library") })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onImportClick) {
-                Icon(Icons.Default.Add, contentDescription = "Import Character")
+            Column(horizontalAlignment = Alignment.End) {
+                SmallFloatingActionButton(
+                    onClick = onPhotoImportClick,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ) {
+                    Icon(Icons.Default.Face, contentDescription = "Photo Import")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                FloatingActionButton(onClick = onImportClick) {
+                    Icon(Icons.Default.Add, contentDescription = "Import Character")
+                }
             }
         }
     ) { paddingValues ->
@@ -34,11 +48,10 @@ fun HomeScreen(onImportClick: () -> Unit) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Welcome to CharMorph", style = MaterialTheme.typography.titleMedium)
-                        Text("No characters imported yet. Tap + to start.", style = MaterialTheme.typography.bodyMedium)
+                        Text("No characters imported yet.", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
-            // Placeholder for list items
             items(5) { index ->
                 CharacterListItem(index)
             }

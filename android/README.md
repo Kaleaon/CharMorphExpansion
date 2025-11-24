@@ -9,16 +9,22 @@ The app follows a modular architecture:
 - **app**: The main application module containing UI (Compose) and navigation.
 - **core-model**: Shared data structures (`Mesh`, `Skeleton`, `MorphTarget`) and domain entities.
 - **ingest-pipeline**: WorkManager tasks for importing and processing 3D assets.
-  - `PrepareUploadsWorker`: Handles file copying.
-  - `ParseMeshWorker`: Parses 3D formats (OBJ/GLTF) via JNI.
-  - `FeatureExtractionWorker`: Prepares data for ML.
-  - `MLFittingWorker`: Runs TFLite models to fit clothes/skin.
-  - `SliderSynthesisWorker`: Generates UI sliders from morph data.
 - **ml-engine**: TensorFlow Lite wrappers and inference logic.
 - **asset-base**: Manages built-in assets (base meshes, skeletons).
 - **storage**: Room database for persisting character metadata and import history.
 - **native-bridge**: JNI interface to C++ libraries (Assimp, Eigen) for heavy geometry processing.
-- **preview-renderer**: A lightweight 3D renderer (likely Filament or Sceneform based) for previewing characters.
+- **preview-renderer**: 3D rendering module using **Google Filament**.
+  - Provides `FilamentView` for high-fidelity PBR rendering.
+- **feature-photo-import**: Module for "Photo to Character" functionality.
+  - Uses ML Kit (Face Mesh) to detect landmarks.
+  - Implements a parametric solver to map 2D landmarks to 3D morph sliders.
+
+## Key Features
+
+1.  **Detailed Morphing**: Inherits the Python core's logic (parametric modeling).
+2.  **Real-time Preview**: Uses Filament for physically based rendering on mobile.
+3.  **Photo Import**: "Rapid Photo to 3D" via landmark-based morph fitting.
+4.  **Offline First**: All processing happens on-device (MediaTek target).
 
 ## Development Status
 
@@ -26,11 +32,13 @@ The app follows a modular architecture:
 - [x] Core data models
 - [x] Basic UI shell (Home, Import screens)
 - [x] Ingestion pipeline worker stubs
-- [ ] JNI implementation for mesh parsing
+- [x] **Filament Integration** (Renderer setup)
+- [x] **Photo Import Module** (UI & Solver stub)
+- [x] JNI/CMake setup
 - [ ] TFLite model integration
-- [ ] 3D Preview rendering
+- [ ] Full Mesh Parsing implementation
 
 ## References
 
 - **MakeHuman**: The morphing system is inspired by MakeHuman's target-based approach.
-- **Shape Atlas**: Anatomical accuracy is a key goal, ensuring muscle deformers respect realistic biomechanics.
+- **Shape Atlas**: Anatomical accuracy is a key goal.
