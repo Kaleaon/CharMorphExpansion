@@ -1,6 +1,7 @@
 package com.charmorph.renderer
 
 import android.content.Context
+import android.net.Uri
 import android.util.AttributeSet
 import android.view.SurfaceView
 import com.charmorph.core.model.Mesh
@@ -17,12 +18,10 @@ class FilamentView @JvmOverloads constructor(
     private var controller: FilamentController? = null
     private var currentMesh: Mesh? = null
     private var showAnatomicalDetails: Boolean = false
-    
-    // Cache current weights to batch updates if needed
     private val currentWeights = mutableMapOf<Int, Float>()
 
     init {
-        Utils.init() // Ensure Filament JNI is loaded
+        Utils.init() 
         controller = FilamentController(context, this)
     }
 
@@ -35,6 +34,10 @@ class FilamentView @JvmOverloads constructor(
         currentMesh = mesh
         controller?.loadMesh(mesh, skeleton)
         updateVisibility()
+    }
+    
+    fun loadTexture(uri: Uri, type: TextureType) {
+        controller?.loadTexture(uri, type)
     }
 
     fun setAnatomicalDetailsVisible(visible: Boolean) {

@@ -1,5 +1,8 @@
 package com.charmorph.app.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.charmorph.renderer.FilamentView
+import com.charmorph.renderer.TextureType
+
+data class TextureSlot(
+    val type: TextureType,
+    val name: String,
+    val hasTexture: Boolean = false
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,13 +37,22 @@ fun EditorScreen(
     val mesh = viewModel.getCharacterMesh()
     val skeleton = viewModel.getCharacterSkeleton()
     
-    // Categories derived from morphs
+    var filamentView: FilamentView? by remember { mutableStateOf(null) }
+    
     val categories = remember(uiState.morphs) {
         uiState.morphs.map { it.category }.distinct().sorted()
     }
     
     val activeMorphs = remember(uiState.morphs, uiState.activeCategory) {
         uiState.morphs.filter { it.category == uiState.activeCategory }
+    }
+    
+    val texturePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null && filamentView != null) {
+            filamentView?.loadTexture(uri, uiState.selectedTextureSlot)
+        }
     }
 
     Scaffold(
@@ -62,6 +81,7 @@ fun EditorScreen(
                         factory = { context ->
                             FilamentView(context).apply {
                                 loadMesh(mesh, skeleton)
+                                filamentView = this
                             }
                         },
                         update = { view ->
@@ -93,49 +113,70 @@ fun EditorScreen(
             ) {
                 Column {
                     // Mode Tabs
-                    TabRow(selectedTabIndex = if (uiState.mode == EditorMode.MORPHS) 0 else 1) {
+                    TabRow(selectedTabIndex = uiState.mode.ordinal) {
                         Tab(selected = uiState.mode == EditorMode.MORPHS, onClick = { viewModel.setMode(EditorMode.MORPHS) }, text = { Text("Morphs") })
                         Tab(selected = uiState.mode == EditorMode.POSE, onClick = { viewModel.setMode(EditorMode.POSE) }, text = { Text("Pose") })
+                        Tab(selected = uiState.mode == EditorMode.MATERIALS, onClick = { viewModel.setMode(EditorMode.MATERIALS) }, text = { Text("Material") })
                     }
 
-                    if (uiState.mode == EditorMode.MORPHS) {
-                        // Category Tabs
-                        ScrollableTabRow(
-                            selectedTabIndex = categories.indexOf(uiState.activeCategory).coerceAtLeast(0),
-                            edgePadding = 16.dp
-                        ) {
-                            categories.forEach { category ->
-                                Tab(
-                                    selected = category == uiState.activeCategory,
-                                    onClick = { viewModel.setCategory(category) },
-                                    text = { Text(category) }
-                                )
+                    when (uiState.mode) {
+                        EditorMode.MORPHS -> {
+                            ScrollableTabRow(
+                                selectedTabIndex = categories.indexOf(uiState.activeCategory).coerceAtLeast(0),
+                                edgePadding = 16.dp
+                            ) {
+                                categories.forEach { category ->
+                                    Tab(
+                                        selected = category == uiState.activeCategory,
+                                        onClick = { viewModel.setCategory(category) },
+                                        text = { Text(category) }
+                                    )
+                                }
                             }
-                        }
 
-                        // Sliders List
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            items(activeMorphs) { morph ->
-                                MorphSlider(
-                                    morph = morph,
-                                    onValueChange = { viewModel.updateMorph(morph.name, it) }
-                                )
+                            LazyColumn(
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                items(activeMorphs) { morph ->
+                                    MorphSlider(
+                                        morph = morph,
+                                        onValueChange = { viewModel.updateMorph(morph.name, it) }
+                                    )
+                                }
                             }
                         }
-                    } else {
-                        // Pose Editor
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            items(uiState.bones) { bone ->
-                                BoneControl(
-                                    bone = bone,
-                                    onUpdate = { p, y, r -> viewModel.updateBone(bone.id, p, y, r) }
-                                )
+                        EditorMode.POSE -> {
+                            LazyColumn(
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                items(uiState.bones) { bone ->
+                                    BoneControl(
+                                        bone = bone,
+                                        onUpdate = { p, y, r -> viewModel.updateBone(bone.id, p, y, r) }
+                                    )
+                                }
+                            }
+                        }
+                        EditorMode.MATERIALS -> {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Texture Maps", style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                
+                                Button(onClick = { 
+                                    viewModel.selectTextureSlot(TextureType.ALBEDO)
+                                    texturePicker.launch("image/*") 
+                                }) {
+                                    Text("Load Albedo / Color")
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(onClick = { 
+                                    viewModel.selectTextureSlot(TextureType.NORMAL)
+                                    texturePicker.launch("image/*") 
+                                }) {
+                                    Text("Load Normal Map")
+                                }
                             }
                         }
                     }

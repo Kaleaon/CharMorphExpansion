@@ -34,4 +34,6 @@ dependencies {
     implementation("com.google.android.filament:filament-android:$filamentVersion")
     implementation("com.google.android.filament:utils-android:$filamentVersion")
     implementation("com.google.android.filament:gltfio-android:$filamentVersion")
+    // Add Filamat for material compilation
+    implementation("com.google.android.filament:filamat-android:$filamentVersion")
 }

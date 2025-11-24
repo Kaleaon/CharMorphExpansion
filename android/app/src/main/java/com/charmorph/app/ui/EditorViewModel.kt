@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.charmorph.core.math.MathUtils
 import com.charmorph.core.model.Character
 import com.charmorph.core.model.Vector4
+import com.charmorph.renderer.TextureType
 import com.charmorph.storage.CharacterRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,11 +27,12 @@ data class EditorUiState(
     val morphs: List<MorphState> = emptyList(),
     val bones: List<BoneState> = emptyList(),
     val activeCategory: String = "Body",
-    val mode: EditorMode = EditorMode.MORPHS
+    val mode: EditorMode = EditorMode.MORPHS,
+    val selectedTextureSlot: TextureType = TextureType.ALBEDO
 )
 
 enum class EditorMode {
-    MORPHS, POSE
+    MORPHS, POSE, MATERIALS
 }
 
 @HiltViewModel
@@ -77,6 +79,10 @@ class EditorViewModel @Inject constructor(
     fun setMode(mode: EditorMode) {
         _uiState.value = _uiState.value.copy(mode = mode)
     }
+    
+    fun selectTextureSlot(type: TextureType) {
+        _uiState.value = _uiState.value.copy(selectedTextureSlot = type)
+    }
 
     fun updateMorph(name: String, value: Float) {
         val currentMorphs = _uiState.value.morphs.toMutableList()
@@ -94,7 +100,6 @@ class EditorViewModel @Inject constructor(
         if (index != -1) {
             currentBones[index] = currentBones[index].copy(pitch = pitch, yaw = yaw, roll = roll)
             _uiState.value = _uiState.value.copy(bones = currentBones)
-            // Note: Posing is typically transient in editor, but we could save it if `Character` model supported pose data
         }
     }
     
