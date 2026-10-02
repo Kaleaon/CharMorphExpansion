@@ -120,6 +120,24 @@ class RigHandler(utils.ObjTracker):
         finally:
             bpy.ops.object.mode_set(mode="OBJECT")
 
+    def update_rest_joints(self, rigger: "Rigger"):
+        if not self.check_obj():
+            return
+        vl = getattr(bpy.context, "view_layer", None)
+        active_obj = vl.objects.active if vl else None
+        mode = bpy.context.object.mode if (bpy.context.object and hasattr(bpy.context.object, "mode")) else "OBJECT"
+        if vl:
+            vl.objects.active = self.obj
+        if hasattr(bpy.ops.object, "mode_set"):
+            bpy.ops.object.mode_set(mode="EDIT")
+            try:
+                rigger.run(self.get_bones())
+            finally:
+                if mode != "EDIT" or (vl and vl.objects.active != self.obj):
+                    bpy.ops.object.mode_set(mode=mode)
+                if vl and active_obj:
+                    vl.objects.active = active_obj
+
     def after_update(self):
         pass
 
@@ -322,6 +340,13 @@ class Rigger:
         if self.opts or self.default_opts:
             bo = self.opts.get(bone.name)
             if bo is None:
+                bname = bone.name
+                for prefix in ("ORG-", "DEF-", "MCH-"):
+                    if bname.startswith(prefix):
+                        bo = self.opts.get(bname[len(prefix):])
+                        if bo is not None:
+                            break
+            if bo is None:
                 bo = self.default_opts
             if bo:
                 val = bo.get(opt)
@@ -360,8 +385,22 @@ class Rigger:
             attr = "tail"
         item = self.jdata.get(f"joint_{bone.name}_{attr}")
         if not item or item[0] < 1e-10:
-            if bone.name in DEFAULT_SUPERMESH_BONES:
-                bdef = DEFAULT_SUPERMESH_BONES[bone.name]
+            bname = bone.name
+            for prefix in ("ORG-", "DEF-", "MCH-"):
+                if bname.startswith(prefix):
+                    item = self.jdata.get(f"joint_{bname[len(prefix):]}_{attr}")
+                    if item and item[0] >= 1e-10:
+                        break
+        if not item or item[0] < 1e-10:
+            bname = bone.name
+            bdef = DEFAULT_SUPERMESH_BONES.get(bname)
+            if not bdef:
+                for prefix in ("ORG-", "DEF-", "MCH-"):
+                    if bname.startswith(prefix):
+                        bdef = DEFAULT_SUPERMESH_BONES.get(bname[len(prefix):])
+                        if bdef:
+                            break
+            if bdef:
                 vec = bdef.get(attr)
                 if vec:
                     return Vector(vec)
@@ -375,13 +414,15 @@ class Rigger:
     def _set_bone_pos(self, lst):
         edit_bones = self.context.object.data.edit_bones
         for bone, _ in lst:
-            edit_bone = edit_bones[bone.name]
-            self._save_bone_data(edit_bone)
+            edit_bone = edit_bones.get(bone.name)
+            if edit_bone:
+                self._save_bone_data(edit_bone)
         for bone, attr in lst:
             pos = self.joint_position(bone, attr)
             if pos:
-                edit_bone = edit_bones[bone.name]
-                setattr(edit_bone, attr, pos)
+                edit_bone = edit_bones.get(bone.name)
+                if edit_bone:
+                    setattr(edit_bone, attr, pos)
             else:
                 logger.error("No data for joint %s_%s", bone.name, attr)
                 self.result = False

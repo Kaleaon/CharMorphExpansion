@@ -323,7 +323,11 @@ class Morpher:
     def update_rig(self):
         if self.rig is None:
             return
-        self.run_rigger(run_func=self.rig_handler.on_update)
+        if self.rig_handler is None:
+            self.rig_handler = self._get_rig_handler()
+        if self.rig_handler is None:
+            return
+        self.run_rigger(run_func=self.rig_handler.update_rest_joints)
 
     def _run_rigger(self, rigger):
         bpy.context.view_layer.objects.active = self.rig
