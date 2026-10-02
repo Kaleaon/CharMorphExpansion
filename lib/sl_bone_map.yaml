@@ -1,0 +1,245 @@
+# Second Life and OpenSim bone mapping configuration
+
+sl_hierarchy:
+  mPelvis:
+    parent: null
+    children: [mTorso, mHipLeft, mHipRight, PELVIS, BUTT_L, BUTT_R]
+  mTorso:
+    parent: mPelvis
+    children: [mChest, TORSO, BELLY, LOWER_BACK]
+  mChest:
+    parent: mTorso
+    children: [mNeck, mCollarLeft, mCollarRight, CHEST, Pectoral_L, Pectoral_R, UPPER_BACK]
+  mNeck:
+    parent: mChest
+    children: [mHead, NECK]
+  mHead:
+    parent: mNeck
+    children: [HEAD]
+  mCollarLeft:
+    parent: mChest
+    children: [mShoulderLeft]
+  mShoulderLeft:
+    parent: mCollarLeft
+    children: [mElbowLeft, UPPER_ARM_L]
+  mElbowLeft:
+    parent: mShoulderLeft
+    children: [mWristLeft, LOWER_ARM_L]
+  mWristLeft:
+    parent: mElbowLeft
+    children: [HAND_L]
+  mCollarRight:
+    parent: mChest
+    children: [mShoulderRight]
+  mShoulderRight:
+    parent: mCollarRight
+    children: [mElbowRight, UPPER_ARM_R]
+  mElbowRight:
+    parent: mShoulderRight
+    children: [mWristRight, LOWER_ARM_R]
+  mWristRight:
+    parent: mElbowRight
+    children: [HAND_R]
+  mHipLeft:
+    parent: mPelvis
+    children: [mKneeLeft, HIP_L]
+  mKneeLeft:
+    parent: mHipLeft
+    children: [mAnkleLeft, THIGH_L]
+  mAnkleLeft:
+    parent: mKneeLeft
+    children: [mToeLeft, SHIN_L, FOOT_L]
+  mToeLeft:
+    parent: mAnkleLeft
+    children: []
+  mHipRight:
+    parent: mPelvis
+    children: [mKneeRight, HIP_R]
+  mKneeRight:
+    parent: mHipRight
+    children: [mAnkleRight, THIGH_R]
+  mAnkleRight:
+    parent: mKneeRight
+    children: [mToeRight, SHIN_R, FOOT_R]
+  mToeRight:
+    parent: mAnkleRight
+    children: []
+
+  # Collision Volume bones
+  PELVIS: { parent: mPelvis, collision_volume: true }
+  TORSO: { parent: mTorso, collision_volume: true }
+  CHEST: { parent: mChest, collision_volume: true }
+  NECK: { parent: mNeck, collision_volume: true }
+  HEAD: { parent: mHead, collision_volume: true }
+  UPPER_ARM_L: { parent: mShoulderLeft, collision_volume: true }
+  LOWER_ARM_L: { parent: mElbowLeft, collision_volume: true }
+  HAND_L: { parent: mWristLeft, collision_volume: true }
+  UPPER_ARM_R: { parent: mShoulderRight, collision_volume: true }
+  LOWER_ARM_R: { parent: mElbowRight, collision_volume: true }
+  HAND_R: { parent: mWristRight, collision_volume: true }
+  THIGH_L: { parent: mHipLeft, collision_volume: true }
+  SHIN_L: { parent: mKneeLeft, collision_volume: true }
+  FOOT_L: { parent: mAnkleLeft, collision_volume: true }
+  THIGH_R: { parent: mHipRight, collision_volume: true }
+  SHIN_R: { parent: mKneeRight, collision_volume: true }
+  FOOT_R: { parent: mAnkleRight, collision_volume: true }
+  Pectoral_L: { parent: mChest, collision_volume: true }
+  Pectoral_R: { parent: mChest, collision_volume: true }
+  BUTT_L: { parent: mPelvis, collision_volume: true }
+  BUTT_R: { parent: mPelvis, collision_volume: true }
+  HIP_L: { parent: mHipLeft, collision_volume: true }
+  HIP_R: { parent: mHipRight, collision_volume: true }
+  BELLY: { parent: mTorso, collision_volume: true }
+  LOWER_BACK: { parent: mTorso, collision_volume: true }
+  UPPER_BACK: { parent: mChest, collision_volume: true }
+
+direct_mappings:
+  # Rigify / MB-Lab / Standard armature bone names
+  DEF-pelvis: mPelvis
+  pelvis: mPelvis
+  root: mPelvis
+  mPelvis: mPelvis
+
+  DEF-spine: mTorso
+  spine: mTorso
+  DEF-spine.001: mTorso
+  spine.001: mTorso
+  DEF-spine.002: mTorso
+  spine.002: mTorso
+
+  DEF-spine.003: mChest
+  spine.003: mChest
+  DEF-spine.004: mChest
+  spine.004: mChest
+  chest: mChest
+
+  DEF-spine.005: mNeck
+  spine.005: mNeck
+  DEF-neck: mNeck
+  neck: mNeck
+
+  DEF-spine.006: mHead
+  spine.006: mHead
+  DEF-head: mHead
+  head: mHead
+
+  DEF-shoulder.L: mCollarLeft
+  shoulder.L: mCollarLeft
+  clavicle.L: mCollarLeft
+
+  DEF-upper_arm.L: mShoulderLeft
+  upper_arm.L: mShoulderLeft
+  DEF-upper_arm.L.001: mShoulderLeft
+  upper_arm.L.001: mShoulderLeft
+
+  DEF-forearm.L: mElbowLeft
+  forearm.L: mElbowLeft
+  DEF-forearm.L.001: mElbowLeft
+  forearm.L.001: mElbowLeft
+
+  DEF-hand.L: mWristLeft
+  hand.L: mWristLeft
+
+  DEF-thigh.L: mHipLeft
+  thigh.L: mHipLeft
+  DEF-thigh.L.001: mHipLeft
+  thigh.L.001: mHipLeft
+
+  DEF-shin.L: mKneeLeft
+  shin.L: mKneeLeft
+  DEF-shin.L.001: mKneeLeft
+  shin.L.001: mKneeLeft
+
+  DEF-foot.L: mAnkleLeft
+  foot.L: mAnkleLeft
+
+  DEF-toe.L: mToeLeft
+  toe.L: mToeLeft
+
+  DEF-shoulder.R: mCollarRight
+  shoulder.R: mCollarRight
+  clavicle.R: mCollarRight
+
+  DEF-upper_arm.R: mShoulderRight
+  upper_arm.R: mShoulderRight
+  DEF-upper_arm.R.001: mShoulderRight
+  upper_arm.R.001: mShoulderRight
+
+  DEF-forearm.R: mElbowRight
+  forearm.R: mElbowRight
+  DEF-forearm.R.001: mElbowRight
+  forearm.R.001: mElbowRight
+
+  DEF-hand.R: mWristRight
+  hand.R: mWristRight
+
+  DEF-thigh.R: mHipRight
+  thigh.R: mHipRight
+  DEF-thigh.R.001: mHipRight
+  thigh.R.001: mHipRight
+
+  DEF-shin.R: mKneeRight
+  shin.R: mKneeRight
+  DEF-shin.R.001: mKneeRight
+  shin.R.001: mKneeRight
+
+  DEF-foot.R: mAnkleRight
+  foot.R: mAnkleRight
+
+  DEF-toe.R: mToeRight
+  toe.R: mToeRight
+
+  # Muscle / Collision Volume mappings
+  pct_muscle.L: Pectoral_L
+  DEF-pct_muscle.L: Pectoral_L
+  pectoral.L: Pectoral_L
+  pct_muscle.R: Pectoral_R
+  DEF-pct_muscle.R: Pectoral_R
+  pectoral.R: Pectoral_R
+
+  butt_muscle.L: BUTT_L
+  DEF-butt_muscle.L: BUTT_L
+  butt.L: BUTT_L
+  glute.L: BUTT_L
+
+  butt_muscle.R: BUTT_R
+  DEF-butt_muscle.R: BUTT_R
+  butt.R: BUTT_R
+  glute.R: BUTT_R
+
+  belly_muscle: BELLY
+  DEF-belly_muscle: BELLY
+  belly: BELLY
+  abs: BELLY
+
+  hip_muscle.L: HIP_L
+  DEF-hip_muscle.L: HIP_L
+  hip.L: HIP_L
+
+  hip_muscle.R: HIP_R
+  DEF-hip_muscle.R: HIP_R
+  hip.R: HIP_R
+
+pattern_mappings:
+  - pattern: ".*pct_muscle.*\\.L.*"
+    target: Pectoral_L
+  - pattern: ".*pct_muscle.*\\.R.*"
+    target: Pectoral_R
+  - pattern: ".*butt.*\\.L.*"
+    target: BUTT_L
+  - pattern: ".*butt.*\\.R.*"
+    target: BUTT_R
+  - pattern: ".*belly.*"
+    target: BELLY
+  - pattern: ".*head.*"
+    target: mHead
+  - pattern: ".*neck.*"
+    target: mNeck
+  - pattern: ".*hand.*\\.L.*"
+    target: mWristLeft
+  - pattern: ".*hand.*\\.R.*"
+    target: mWristRight
+  - pattern: ".*foot.*\\.L.*"
+    target: mAnkleLeft
+  - pattern: ".*foot.*\\.R.*"
+    target: mAnkleRight
