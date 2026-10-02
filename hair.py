@@ -390,6 +390,8 @@ class CHARMORPH_PT_Hair(bpy.types.Panel):
                     prop == "hair_scalp" and char.force_hair_scalp):
                 continue
             l.prop(ui, prop)
+        op = l.operator("charmorph.asset_picker", text="Open Visual Browser", icon='VIEW_ZOOM')
+        op.mode = 'HAIR'
         l.operator("charmorph.hair_create")
         l.operator("charmorph.hair_refit")
         l.operator("charmorph.hair_recolor")

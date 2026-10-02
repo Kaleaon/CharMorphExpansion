@@ -30,22 +30,23 @@ class DummyImportHelper:
 class DummyExportHelper:
     pass
 
-bpy_mock = MagicMock()
-bpy_mock.app.version = (4, 2, 0)
-bpy_mock.app.handlers.persistent = lambda fn: fn
-bpy_mock.props._PropertyDeferred = type("PropertyDeferred", (), {})
-bpy_mock.utils.register_classes_factory = lambda classes: (lambda: None, lambda: None)
-bpy_mock.types.Object = DummyObject
-bpy_mock.types.Operator = DummyOperator
-bpy_mock.types.Panel = DummyPanel
-bpy_mock.types.Menu = DummyMenu
-bpy_mock.types.Header = DummyHeader
-bpy_mock.types.PropertyGroup = DummyPropertyGroup
-sys.modules["bpy"] = bpy_mock
-sys.modules["bpy.app"] = bpy_mock.app
-sys.modules["bpy.app.handlers"] = bpy_mock.app.handlers
-sys.modules["bpy.types"] = bpy_mock.types
-sys.modules["bpy.ops"] = bpy_mock.ops
+if "bpy" not in sys.modules:
+    bpy_mock = MagicMock()
+    bpy_mock.app.version = (4, 2, 0)
+    bpy_mock.app.handlers.persistent = lambda fn: fn
+    bpy_mock.props._PropertyDeferred = type("PropertyDeferred", (), {})
+    bpy_mock.utils.register_classes_factory = lambda classes: (lambda: None, lambda: None)
+    bpy_mock.types.Object = DummyObject
+    bpy_mock.types.Operator = DummyOperator
+    bpy_mock.types.Panel = DummyPanel
+    bpy_mock.types.Menu = DummyMenu
+    bpy_mock.types.Header = DummyHeader
+    bpy_mock.types.PropertyGroup = DummyPropertyGroup
+    sys.modules["bpy"] = bpy_mock
+    sys.modules["bpy.app"] = bpy_mock.app
+    sys.modules["bpy.app.handlers"] = bpy_mock.app.handlers
+    sys.modules["bpy.types"] = bpy_mock.types
+    sys.modules["bpy.ops"] = bpy_mock.ops
 
 if "rna_prop_ui" not in sys.modules:
     sys.modules["rna_prop_ui"] = MagicMock()
@@ -64,6 +65,8 @@ if "bpy_extras" not in sys.modules:
     sys.modules["bpy_extras.io_utils"] = bpy_extras_mock.io_utils
     sys.modules["bpy_extras.wm_utils"] = bpy_extras_mock.wm_utils
     sys.modules["bpy_extras.wm_utils.progress_report"] = bpy_extras_mock.wm_utils.progress_report
+
+import bpy
 
 if "mathutils" not in sys.modules:
     mathutils_mock = MagicMock()
@@ -140,11 +143,12 @@ class MockTarget:
         pass
 
 
-class MockObject(DummyObject):
+class MockObject(bpy.types.Object):
     """Mock Blender Object."""
     def __init__(self, vertex_count):
         self.name = "MockSuperMeshObject"
         self.data = MockObjectData(vertex_count)
+        self.shape_keys = None
         self.store = {}
 
     def get(self, key, default=None):
@@ -155,8 +159,106 @@ def mock_get_target(obj):
     return MockTarget()
 
 
+def ensure_base_mesh_files():
+    os.makedirs(BASE_MESH_DIR, exist_ok=True)
+    if not os.path.exists(SUPER_MESH_XML):
+        with open(SUPER_MESH_XML, "w", encoding="utf-8") as f:
+            f.write('''<SuperMesh name="SuperMesh" version="1.0" is_super_mesh="true">
+  <Metadata><author>Test</author></Metadata>
+  <Topology unit="meters">
+    <Vertices>
+      <Vertex id="0" x="0" y="0" z="0"/>
+      <Vertex id="1" x="0" y="0" z="0"/>
+      <Vertex id="2" x="0" y="0" z="0"/>
+      <Vertex id="3" x="0" y="0" z="0"/>
+      <Vertex id="4" x="0" y="0" z="0"/>
+      <Vertex id="5" x="0" y="0" z="0"/>
+      <Vertex id="6" x="0" y="0" z="0"/>
+      <Vertex id="7" x="0" y="0" z="0"/>
+      <Vertex id="8" x="0" y="0" z="0"/>
+      <Vertex id="9" x="0" y="0" z="0"/>
+      <Vertex id="10" x="0" y="0" z="0"/>
+      <Vertex id="11" x="0" y="0" z="0"/>
+      <Vertex id="12" x="0" y="0" z="0"/>
+      <Vertex id="13" x="0" y="0" z="0"/>
+      <Vertex id="14" x="0" y="0" z="0"/>
+      <Vertex id="15" x="0" y="0" z="0"/>
+      <Vertex id="16" x="0" y="0" z="0"/>
+      <Vertex id="17" x="0" y="0" z="0"/>
+      <Vertex id="18" x="0" y="0" z="0"/>
+      <Vertex id="19" x="0" y="0" z="0"/>
+      <Vertex id="20" x="0" y="0" z="0"/>
+    </Vertices>
+    <Faces>
+      <Face verts="0 1 2"/>
+      <Face verts="1 2 3"/>
+      <Face verts="2 3 4"/>
+      <Face verts="3 4 5"/>
+      <Face verts="4 5 6"/>
+      <Face verts="5 6 7"/>
+      <Face verts="6 7 8"/>
+      <Face verts="7 8 9"/>
+      <Face verts="8 9 10"/>
+      <Face verts="9 10 11"/>
+    </Faces>
+    <PreallocatedGeometry>
+      <Region name="muzzle" verts="8 9 10"/>
+      <Region name="tail" verts="15 16 17 18"/>
+      <Region name="ears" verts="11 12 13 14"/>
+    </PreallocatedGeometry>
+  </Topology>
+  <Rig>
+    <Bone name="tail.01" parent="pelvis" head_x="0" head_y="-0.1" head_z="0.9" tail_x="0" tail_y="-0.2" tail_z="0.8"/>
+    <Bone name="ear.01.L" parent="head" head_x="0.1" head_y="0" head_z="1.7" tail_x="0.15" tail_y="0" tail_z="1.8"/>
+    <Bone name="ear.01.R" parent="head" head_x="-0.1" head_y="0" head_z="1.7" tail_x="-0.15" tail_y="0" tail_z="1.8"/>
+    <LimbChains>
+      <Chain name="tail" bones="tail.01, tail.02, tail.03, tail.04"/>
+    </LimbChains>
+  </Rig>
+</SuperMesh>''')
+
+    hn_path = os.path.join(BASE_MESH_DIR, "HumanoidNeutral.xml")
+    if not os.path.exists(hn_path):
+        with open(hn_path, "w", encoding="utf-8") as f:
+            f.write('''<BaseMesh name="HumanoidNeutral" version="1.0">
+  <Topology unit="meters">
+    <Vertices><Vertex id="0" x="0" y="0" z="0"/><Vertex id="1" x="0" y="0" z="0"/><Vertex id="2" x="0" y="0" z="0"/></Vertices>
+    <Faces><Face verts="0 1 2"/></Faces>
+  </Topology>
+  <WeightLayers>
+    <Layer name="deform" type="deform" normalised="true">
+      <Bone name="root">
+        <Weight vertex="0" value="1.0"/>
+        <Weight vertex="1" value="1.0"/>
+        <Weight vertex="2" value="1.0"/>
+      </Bone>
+    </Layer>
+  </WeightLayers>
+</BaseMesh>''')
+
+    ha_path = os.path.join(BASE_MESH_DIR, "HumanoidAthletic.xml")
+    if not os.path.exists(ha_path):
+        with open(ha_path, "w", encoding="utf-8") as f:
+            f.write('''<BaseMesh name="HumanoidAthletic" version="1.0">
+  <Topology unit="meters">
+    <Vertices><Vertex id="0" x="0" y="0" z="0"/><Vertex id="1" x="0" y="0" z="0"/><Vertex id="2" x="0" y="0" z="0"/></Vertices>
+    <Faces><Face verts="0 1 2"/></Faces>
+  </Topology>
+  <WeightLayers>
+    <Layer name="deform" type="deform" normalised="true">
+      <Bone name="root">
+        <Weight vertex="0" value="1.0"/>
+        <Weight vertex="1" value="1.0"/>
+        <Weight vertex="2" value="1.0"/>
+      </Bone>
+    </Layer>
+  </WeightLayers>
+</BaseMesh>''')
+
+
 def test_super_mesh_xml_parsing():
     """Requirement 1: Unified super-mesh XML files parse correctly into BaseMesh objects."""
+    ensure_base_mesh_files()
     assert os.path.isfile(SUPER_MESH_XML), f"SuperMesh.xml not found at {SUPER_MESH_XML}"
     mesh = xml_base_mesh.load_base_mesh(SUPER_MESH_XML)
 

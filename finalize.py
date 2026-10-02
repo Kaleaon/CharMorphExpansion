@@ -268,10 +268,7 @@ def _import_expresions(add_assets):
 
 def _process_vertex_weights(vertices, deform_indices):
     for v in vertices:
-        try:
-            groups = v.groups
-        except AttributeError:
-            continue
+        groups = getattr(v, "groups", None)
         if not groups:
             continue
         total_w = 0.0
