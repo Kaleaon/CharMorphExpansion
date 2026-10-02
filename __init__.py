@@ -22,10 +22,10 @@ import logging
 try:
     import bpy  # pylint: disable=import-error
 except ImportError:
-    pass
+    bpy = None
 
 from . import addon_updater_ops
-from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit
+from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit, preview_manager
 from .lib import charlib
 
 logger = logging.getLogger(__name__)
@@ -110,6 +110,7 @@ def register():
     # so that users can revert back to a working version
     addon_updater_ops.register(bl_info)
     logger.debug("Charmorph register")
+    preview_manager.register()
     charlib.library.load()
     class_register()
     common.register()
@@ -142,6 +143,7 @@ def unregister():
     del bpy.types.WindowManager.charmorph_ui
     common.manager.del_charmorphs()
 
+    preview_manager.unregister()
     common.unregister()
     class_unregister()
 

@@ -22,7 +22,7 @@ import os, logging
 import bpy  # pylint: disable=import-error
 from bpy_extras.wm_utils.progress_report import ProgressReport  # pylint: disable=import-error, no-name-in-module
 
-from . import common, prefs
+from . import common, prefs, preview_manager
 from .lib import morpher, materials, morphs, utils
 from .lib.charlib import library, empty_char
 
@@ -155,6 +155,19 @@ def char_default_tex_set(char):
     return char.default_tex_set
 
 
+def get_base_models(_ui, _context):
+    items = []
+    if not library.chars:
+        return [("NONE", "None", "", preview_manager.get_icon_value("base_models", "none", None), 0)]
+
+    for idx, (name, char) in enumerate(library.chars.items()):
+        thumb_file = preview_manager.find_item_thumbnail(char.dirpath, name)
+        icon_val = preview_manager.get_icon_value("base_models", name, thumb_file)
+        items.append((name, char.title or name, char.description or "", icon_val, idx))
+
+    return items
+
+
 def update_base_model(ui, _):
     ui.tex_set = char_default_tex_set(library.chars.get(ui.base_model))
 
@@ -162,7 +175,7 @@ def update_base_model(ui, _):
 class UIProps:
     base_model: bpy.props.EnumProperty(
         name="Base",
-        items=lambda _ui, _: [(name, char.title, char.description) for name, char in library.chars.items()],
+        items=get_base_models,
         update=update_base_model,
         description="Choose a base model")
     material_mode: bpy.props.EnumProperty(
@@ -242,7 +255,7 @@ class CHARMORPH_PT_Library(bpy.types.Panel):
         if not library.chars:
             l.label(text=f"No characters found at {library.dirpath}. Nothing to import.")
             return
-        l.prop(ui, "base_model")
+        l.template_icon_view(ui, "base_model")
         char = library.chars.get(ui.base_model)
         if char:
             r = l.row()

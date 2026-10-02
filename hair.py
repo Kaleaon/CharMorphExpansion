@@ -23,7 +23,7 @@ import bpy, bmesh # pylint: disable=import-error
 
 from .lib import utils
 from .lib.charlib import library, empty_char
-from . import common, assets
+from . import common, assets, preview_manager
 
 logger = logging.getLogger(__name__)
 
@@ -342,11 +342,25 @@ def get_hair_colors(_ui, _context):
 
 
 def get_hairstyles(_, context):
-    char = library.obj_char(context.object)
-    result = [("default", "Default hair", "")]
-    if not char.name:
+    char = library.obj_char(context.object) if context and hasattr(context, "object") else None
+    def_icon = preview_manager.get_icon_value("hairstyles", "default", None)
+    result = [("default", "Default hair", "", def_icon, 0)]
+
+    if not char or not char.name:
         return result
-    result.extend([(name, name, "") for name in char.hairstyles])
+
+    idx = 1
+    for name in char.hairstyles:
+        thumb_file = preview_manager.find_item_thumbnail(char.dirpath, name, [
+            char.path("hairstyles", f"{name}.png"),
+            char.path("hairstyles", f"{name}.jpg"),
+            char.path("hairstyles", f"thumb_{name}.png"),
+            char.path("hair", f"{name}.png"),
+        ])
+        icon_val = preview_manager.get_icon_value("hairstyles", f"{char.name}_{name}", thumb_file)
+        result.append((name, name, "", icon_val, idx))
+        idx += 1
+
     return result
 
 
@@ -389,7 +403,10 @@ class CHARMORPH_PT_Hair(bpy.types.Panel):
             if (prop == "hair_shrinkwrap" and not char.hair_shrinkwrap) or (
                     prop == "hair_scalp" and char.force_hair_scalp):
                 continue
-            l.prop(ui, prop)
+            if prop == "hair_style":
+                l.template_icon_view(ui, prop)
+            else:
+                l.prop(ui, prop)
         l.operator("charmorph.hair_create")
         l.operator("charmorph.hair_refit")
         l.operator("charmorph.hair_recolor")
