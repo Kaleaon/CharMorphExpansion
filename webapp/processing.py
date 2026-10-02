@@ -323,17 +323,6 @@ class ModelIngestionPipeline:
         return metadata_path
 
 
-def persist_upload(files: Iterable[Tuple[str, bytes]], target_dir: Optional[Path] = None) -> Path:
-    """Persist uploaded file-like objects to disk for processing."""
-    target_dir = target_dir or Path(tempfile.mkdtemp(prefix="charmorph_upload_"))
-    Path(target_dir).mkdir(parents=True, exist_ok=True)
-    for original_name, data in files:
-        safe_name = Path(original_name).name or f"upload_{uuid.uuid4().hex}"
-        destination = target_dir / safe_name
-        destination.write_bytes(data)
-    return target_dir
-
-
 def available_base_mesh_ids() -> List[str]:
     """Return the list of base mesh identifiers discovered on disk."""
     return sorted(_load_base_mesh_catalog().keys())

@@ -97,7 +97,7 @@ class OpExportJson(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
 
     def execute(self, _):
         with open(self.filepath, "w", encoding="utf-8") as f:
-            json.dump(morphs.charmorph_to_mblab(morphs_to_data()), f, indent=4, sort_keys=True)
+            json.dump(morphs_to_data(), f, indent=4, sort_keys=True)
         return {"FINISHED"}
 
 
