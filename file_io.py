@@ -21,7 +21,7 @@
 import json
 import bpy, bpy_extras  # pylint: disable=import-error
 
-from .lib import morphs, utils
+from .lib import morphs, utils, pbr_baker
 from .common import manager as mm
 
 
@@ -33,8 +33,46 @@ class UIProps:
         items=[
             ("yaml", "CharMorph (yaml)", ""),
             ("json", "MB-Lab (json)", ""),
-            ("dae", "Collada (.dae)", "Second Life / OpenSim Collada format")
+            ("dae", "Collada (.dae)", "Second Life / OpenSim Collada format"),
+            ("gltf", "GLTF 2.0 (.glb)", "Baked PBR GLTF 2.0 Binary"),
+            ("fbx", "Autodesk FBX (.fbx)", "Baked PBR FBX Asset")
         ])
+
+    export_resolution: bpy.props.EnumProperty(
+        name="Resolution",
+        description="Bake texture resolution",
+        default="2048",
+        items=[
+            ("1024", "1024 x 1024", "1K resolution"),
+            ("2048", "2048 x 2048", "2K resolution"),
+            ("4096", "4096 x 4096", "4K resolution")
+        ])
+
+    export_image_format: bpy.props.EnumProperty(
+        name="Texture Format",
+        description="File format for baked texture maps",
+        default="PNG",
+        items=[
+            ("PNG", "PNG", "Portable Network Graphics"),
+            ("JPEG", "JPEG", "Joint Photographic Experts Group"),
+            ("TARGA", "Targa", "Truevision TGA")
+        ])
+
+    bake_mode: bpy.props.EnumProperty(
+        name="Bake Mode",
+        description="Hybrid dual-engine baking mode",
+        default="AUTO",
+        items=[
+            ("AUTO", "Auto Hybrid", "Fast compositing for 2D stacks, Cycles for 3D procedural nodes"),
+            ("COMPOSITOR", "Fast 2D Compositor", "Force fast 2D compositing for all channels"),
+            ("CYCLES", "Cycles Deep Bake", "Force Cycles 3D surface baking for all channels")
+        ])
+
+    restore_after_export: bpy.props.BoolProperty(
+        name="Restore Original Materials",
+        description="Restore original material node trees after export completes",
+        default=True
+    )
 
 
 class CHARMORPH_PT_ImportExport(bpy.types.Panel):
@@ -58,11 +96,27 @@ class CHARMORPH_PT_ImportExport(bpy.types.Panel):
         col = self.layout.column(align=True)
         if ui.export_format == "json":
             col.operator("charmorph.export_json")
+            col.operator("charmorph.import")
         elif ui.export_format == "yaml":
             col.operator("charmorph.export_yaml")
         elif ui.export_format == "dae":
             col.operator("charmorph.export_dae")
-        col.operator("charmorph.import")
+            col.operator("charmorph.import")
+        elif ui.export_format in {"gltf", "fbx"}:
+            box = self.layout.box()
+            box.label(text="PBR Baking & Export Settings:")
+            box.prop(ui, "export_resolution")
+            box.prop(ui, "export_image_format")
+            box.prop(ui, "bake_mode")
+            box.prop(ui, "restore_after_export")
+            col_exp = box.column(align=True)
+            op = col_exp.operator("charmorph.bake_and_export", text=f"Bake & Export ({ui.export_format.upper()})")
+            op.export_format = ui.export_format
+            op.resolution = ui.export_resolution
+            op.image_format = ui.export_image_format
+            op.bake_mode = ui.bake_mode
+            op.restore_after_export = ui.restore_after_export
+            box.operator("charmorph.restore_materials", text="Restore Original Materials")
 
 
 def morphs_to_data():
@@ -190,4 +244,94 @@ class OpImport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         return {"FINISHED"}
 
 
-classes = [OpImport, OpExportJson, OpExportYaml, OpExportCollada, CHARMORPH_PT_ImportExport]
+class OpBakeAndExport(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+    bl_idname = "charmorph.bake_and_export"
+    bl_label = "Bake & Export PBR Asset"
+    bl_description = "Bake character materials using hybrid dual engine and export to GLTF 2.0 or FBX"
+
+    export_format: bpy.props.StringProperty(default="gltf")
+    resolution: bpy.props.StringProperty(default="2048")
+    image_format: bpy.props.StringProperty(default="PNG")
+    bake_mode: bpy.props.StringProperty(default="AUTO")
+    restore_after_export: bpy.props.BoolProperty(default=True)
+
+    filename_ext: bpy.props.StringProperty(default=".glb")
+
+    filter_glob: bpy.props.StringProperty(default="*.glb;*.gltf;*.fbx", options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, context):
+        return bool(mm.morpher and mm.morpher.obj) or bool(context.object)
+
+    def invoke(self, context, event):
+        if self.export_format == "fbx":
+            self.filename_ext = ".fbx"
+            self.filter_glob = "*.fbx"
+        else:
+            self.filename_ext = ".glb"
+            self.filter_glob = "*.glb;*.gltf"
+        return super().invoke(context, event)
+
+    def execute(self, context):
+        obj = mm.morpher.obj if (mm.morpher and mm.morpher.obj) else context.object
+        if not obj:
+            self.report({'ERROR'}, "No active character object found for baking and export")
+            return {'CANCELLED'}
+
+        res = int(self.resolution) if self.resolution.isdigit() else 2048
+
+        # Execute hybrid PBR baker
+        pbr_baker.bake_character_materials(
+            obj=obj,
+            resolution=res,
+            image_format=self.image_format,
+            bake_mode=self.bake_mode
+        )
+
+        try:
+            if self.export_format == "fbx":
+                bpy.ops.export_scene.fbx(
+                    filepath=self.filepath,
+                    use_selection=True,
+                    embed_textures=True,
+                    path_mode='COPY'
+                )
+            else:
+                bpy.ops.export_scene.gltf(
+                    filepath=self.filepath,
+                    export_format='GLB',
+                    use_selection=True,
+                    export_materials='EXPORT',
+                    export_colors=True
+                )
+            self.report({'INFO'}, f"Successfully exported PBR asset to {self.filepath}")
+        except Exception as e:
+            self.report({'ERROR'}, f"Export failed: {e}")
+            return {'CANCELLED'}
+        finally:
+            if self.restore_after_export:
+                pbr_baker.BackupRestoreManager.restore_materials(obj)
+
+        return {'FINISHED'}
+
+
+class OpRestoreOriginalMaterials(bpy.types.Operator):
+    bl_idname = "charmorph.restore_materials"
+    bl_label = "Restore Original Materials"
+    bl_description = "Restore original non-baked material node trees on character"
+
+    @classmethod
+    def poll(cls, context):
+        obj = mm.morpher.obj if (mm.morpher and mm.morpher.obj) else context.object
+        return bool(obj and "_charmorph_orig_materials" in obj)
+
+    def execute(self, context):
+        obj = mm.morpher.obj if (mm.morpher and mm.morpher.obj) else context.object
+        if obj and pbr_baker.BackupRestoreManager.restore_materials(obj):
+            self.report({'INFO'}, "Restored original material node trees")
+            return {'FINISHED'}
+        self.report({'WARNING'}, "No material backup found to restore")
+        return {'CANCELLED'}
+
+
+classes = [OpImport, OpExportJson, OpExportYaml, OpExportCollada, OpBakeAndExport, OpRestoreOriginalMaterials, CHARMORPH_PT_ImportExport]
