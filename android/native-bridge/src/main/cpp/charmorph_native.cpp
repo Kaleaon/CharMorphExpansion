@@ -94,14 +94,18 @@ Java_com_charmorph_nativebridge_NativeLib_addMorphTarget(
 extern "C" JNIEXPORT void JNICALL
 Java_com_charmorph_nativebridge_NativeLib_updateMorphs(
     JNIEnv* env, jobject,
-    jlong meshPtr, jintArray morphIds, jfloatArray morphWeights, jobject outputBuffer) {
-
+    jlong meshPtr, jintArray morphIds, jfloatArray morphWeights, jint countParam, jobject outputBuffer) {
     MeshContext* ctx = reinterpret_cast<MeshContext*>(meshPtr);
     if (!ctx) return;
 
     // Parse weights map
     std::map<int, float> weightsMap;
-    jsize count = env->GetArrayLength(morphIds);
+    jsize maxIds = env->GetArrayLength(morphIds);
+    jsize maxWeights = env->GetArrayLength(morphWeights);
+    jsize count = countParam;
+    if (count > maxIds) count = maxIds;
+    if (count > maxWeights) count = maxWeights;
+
     jint* ids = env->GetIntArrayElements(morphIds, 0);
     jfloat* w = env->GetFloatArrayElements(morphWeights, 0);
 

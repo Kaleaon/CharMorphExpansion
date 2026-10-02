@@ -53,6 +53,11 @@ class FilamentController(
     private val nativeLib = NativeLib()
     private var skeletonRig: SkeletonRig? = null
 
+    // Persistent cached buffers to avoid per-frame allocations during morph updates
+    internal var cachedMorphBuffer: ByteBuffer? = null
+    internal var cachedMorphIds: IntArray? = null
+    internal var cachedMorphWeights: FloatArray? = null
+
     // Materials
     private var pbrMaterial: Material? = null
     private val materialInstances = mutableMapOf<String, MaterialInstance>()
@@ -97,12 +102,12 @@ class FilamentController(
             if (texture != null) {
                 when (type) {
                     TextureType.ALBEDO -> {
-                        engine.destroyTexture(albedoTexture)
+                        albedoTexture?.let { engine.destroyTexture(it) }
                         albedoTexture = texture
                         updateMaterialParameters()
                     }
                     TextureType.NORMAL -> {
-                        engine.destroyTexture(normalTexture)
+                        normalTexture?.let { engine.destroyTexture(it) }
                         normalTexture = texture
                         updateMaterialParameters()
                     }
@@ -114,11 +119,11 @@ class FilamentController(
 
     private fun updateMaterialParameters() {
         materialInstances.values.forEach { instance ->
-            albedoTexture?.let {
-                instance.setParameter("baseColorMap", it, com.google.android.filament.TextureSampler())
+            albedoTexture?.let { texture ->
+                instance.setParameter("baseColorMap", texture, com.google.android.filament.TextureSampler())
             }
-            normalTexture?.let {
-                instance.setParameter("normalMap", it, com.google.android.filament.TextureSampler())
+            normalTexture?.let { texture ->
+                instance.setParameter("normalMap", texture, com.google.android.filament.TextureSampler())
             }
         }
     }
@@ -158,6 +163,7 @@ class FilamentController(
         nativeMeshPtr = nativeLib.createMesh(flatVertices)
 
         val vertexCount = mesh.vertices.size
+        ensureMorphBufferCapacity(vertexCount)
         val vertexBufferData = ByteBuffer.allocateDirect(vertexCount * 3 * 4)
             .order(ByteOrder.nativeOrder())
         vertexBufferData.asFloatBuffer().put(flatVertices)
@@ -236,6 +242,14 @@ class FilamentController(
         scene.addEntity(entity)
         entityMap[name] = entity
     }
+    private fun ensureMorphBufferCapacity(vertexCount: Int) {
+        val requiredBytes = vertexCount * 3 * 4
+        val currentBuffer = cachedMorphBuffer
+        if (currentBuffer == null || currentBuffer.capacity() < requiredBytes) {
+            cachedMorphBuffer = ByteBuffer.allocateDirect(requiredBytes)
+                .order(ByteOrder.nativeOrder())
+        }
+    }
 
     fun updateMorphWeights(weights: Map<Int, Float>) {
         if (nativeMeshPtr == 0L || bufferMap.isEmpty()) return
@@ -243,12 +257,33 @@ class FilamentController(
         val vertexBuffer = bufferMap.values.first().first
         val vertexCount = vertexBuffer.vertexCount
 
-        val outputBuffer = ByteBuffer.allocateDirect(vertexCount * 3 * 4).order(ByteOrder.nativeOrder())
+        ensureMorphBufferCapacity(vertexCount)
+        val outputBuffer = cachedMorphBuffer ?: return
+        outputBuffer.clear()
 
-        val ids = weights.keys.toIntArray()
-        val values = weights.values.toFloatArray()
+        val weightCount = weights.size
+        var ids = cachedMorphIds
+        if (ids == null || ids.size < weightCount) {
+            val newCapacity = maxOf(weightCount, (ids?.size ?: 0) * 2)
+            ids = IntArray(newCapacity)
+            cachedMorphIds = ids
+        }
 
-        nativeLib.updateMorphs(nativeMeshPtr, ids, values, outputBuffer)
+        var values = cachedMorphWeights
+        if (values == null || values.size < weightCount) {
+            val newCapacity = maxOf(weightCount, (values?.size ?: 0) * 2)
+            values = FloatArray(newCapacity)
+            cachedMorphWeights = values
+        }
+
+        var index = 0
+        for ((key, value) in weights) {
+            ids[index] = key
+            values[index] = value
+            index++
+        }
+
+        nativeLib.updateMorphs(nativeMeshPtr, ids, values, weightCount, outputBuffer)
 
         vertexBuffer.setBufferAt(engine, 0, outputBuffer)
     }
@@ -264,7 +299,7 @@ class FilamentController(
         entityMap.values.forEach { entity ->
             val rm = engine.renderableManager
             val instance = rm.getInstance(entity)
-             rm.setBones(instance, rig.skinningBuffer, 0, rig.skinningBuffer.size / 16)
+            rm.setBonesAsMatrices(instance, java.nio.FloatBuffer.wrap(rig.skinningBuffer), rig.skinningBuffer.size / 16, 0)
         }
     }
 
@@ -273,6 +308,9 @@ class FilamentController(
             nativeLib.destroyMesh(nativeMeshPtr)
             nativeMeshPtr = 0
         }
+        cachedMorphBuffer = null
+        cachedMorphIds = null
+        cachedMorphWeights = null
         entityMap.values.forEach {
             scene.removeEntity(it)
             engine.destroyEntity(it)

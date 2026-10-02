@@ -27,13 +27,18 @@ android {
 
 dependencies {
     implementation(project(":core-model"))
+    implementation(project(":native-bridge"))
     implementation("androidx.core:core-ktx:1.13.1")
 
     // Filament
     val filamentVersion = "1.32.0"
     implementation("com.google.android.filament:filament-android:$filamentVersion")
-    implementation("com.google.android.filament:utils-android:$filamentVersion")
+    implementation("com.google.android.filament:filament-utils-android:$filamentVersion")
     implementation("com.google.android.filament:gltfio-android:$filamentVersion")
     // Add Filamat for material compilation
     implementation("com.google.android.filament:filamat-android:$filamentVersion")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 }
