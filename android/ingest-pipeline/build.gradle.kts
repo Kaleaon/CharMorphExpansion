@@ -33,4 +33,6 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-compiler:2.51.1")
+
+    testImplementation("junit:junit:4.13.2")
 }

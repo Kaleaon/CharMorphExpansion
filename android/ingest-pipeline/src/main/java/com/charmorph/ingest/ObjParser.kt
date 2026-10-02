@@ -8,6 +8,9 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 
+private val WHITESPACE_REGEX = Regex("\\s+")
+private val SLASH_REGEX = Regex("/")
+
 object ObjParser {
 
     fun parse(inputStream: InputStream, name: String): Mesh {
@@ -37,7 +40,7 @@ object ObjParser {
         reader.forEachLine { line ->
             if (line.startsWith("#") || line.isBlank()) return@forEachLine
             
-            val parts = line.trim().split("\\s+".toRegex())
+            val parts = line.trim().split(WHITESPACE_REGEX)
             when (parts[0]) {
                 "v" -> vertices.add(Vector3(parts[1].toFloat(), parts[2].toFloat(), parts[3].toFloat()))
                 "vn" -> normals.add(Vector3(parts[1].toFloat(), parts[2].toFloat(), parts[3].toFloat()))
@@ -62,7 +65,7 @@ object ObjParser {
                     for (i in 1..3) {
                         val faceKey = parts[i]
                         val index = vertexMap.getOrPut(faceKey) {
-                            val vIdxs = faceKey.split("/")
+                            val vIdxs = faceKey.split(SLASH_REGEX)
                             val vI = vIdxs[0].toInt() - 1
                             
                             // Add vertex position
