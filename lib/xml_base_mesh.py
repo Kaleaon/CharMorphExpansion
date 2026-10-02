@@ -9,12 +9,40 @@ by Blender operators or exported to other DCC tools.
 
 from __future__ import annotations
 
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Tuple
 import os
 import xml.etree.ElementTree as ET
 
 import numpy
+
+
+_BASE_MESH_CACHE: OrderedDict[str, Tuple[float, BaseMesh]] = OrderedDict()
+_CACHE_MAX_SIZE: int = 128
+
+
+def set_cache_max_size(max_size: int) -> None:
+    """Set the maximum size of the base mesh LRU cache and evict excess entries."""
+    global _CACHE_MAX_SIZE
+    if max_size < 1:
+        raise ValueError("Cache max size must be at least 1")
+    _CACHE_MAX_SIZE = max_size
+    while len(_BASE_MESH_CACHE) > _CACHE_MAX_SIZE:
+        _BASE_MESH_CACHE.popitem(last=False)
+
+
+def clear_cache() -> None:
+    """Clear all entries from the base mesh cache."""
+    _BASE_MESH_CACHE.clear()
+
+
+def get_cache_info() -> Dict[str, int]:
+    """Return cache statistics/info."""
+    return {
+        "size": len(_BASE_MESH_CACHE),
+        "max_size": _CACHE_MAX_SIZE,
+    }
 
 
 Vector3 = Tuple[float, float, float]
@@ -307,8 +335,7 @@ def _parse_limb_chains(node: Optional[ET.Element]) -> Dict[str, List[str]]:
     return result
 
 
-def load_base_mesh(path: str) -> BaseMesh:
-    """Load a single XML base mesh definition."""
+def _parse_base_mesh_file(path: str) -> BaseMesh:
     tree = ET.parse(path)
     root = tree.getroot()
     if root.tag not in ("BaseMesh", "SuperMesh"):
@@ -375,11 +402,47 @@ def load_base_mesh(path: str) -> BaseMesh:
     )
 
 
+def load_base_mesh(path: str, reload: bool = False) -> BaseMesh:
+    """Load a single XML base mesh definition with LRU caching and mtime validation."""
+    abs_path = os.path.abspath(path)
+
+    try:
+        current_mtime = os.path.getmtime(abs_path)
+    except (OSError, FileNotFoundError):
+        _BASE_MESH_CACHE.pop(abs_path, None)
+        raise
+
+    if not reload and abs_path in _BASE_MESH_CACHE:
+        cached_mtime, cached_mesh = _BASE_MESH_CACHE[abs_path]
+        if cached_mtime == current_mtime:
+            _BASE_MESH_CACHE.move_to_end(abs_path)
+            return cached_mesh
+        else:
+            _BASE_MESH_CACHE.pop(abs_path, None)
+
+    mesh = _parse_base_mesh_file(abs_path)
+    _BASE_MESH_CACHE[abs_path] = (current_mtime, mesh)
+    _BASE_MESH_CACHE.move_to_end(abs_path)
+
+    while len(_BASE_MESH_CACHE) > _CACHE_MAX_SIZE:
+        _BASE_MESH_CACHE.popitem(last=False)
+
+    return mesh
+
+
 def load_dir(path: str) -> Dict[str, BaseMesh]:
-    """Load all XML base meshes from the given directory."""
+    """Load all XML base meshes from the given directory using the cached single-file loader."""
     result: Dict[str, BaseMesh] = {}
     if not os.path.isdir(path):
         return result
+
+    abs_dir = os.path.abspath(path)
+    cached_paths = list(_BASE_MESH_CACHE.keys())
+    for cached_path in cached_paths:
+        if os.path.dirname(cached_path) == abs_dir:
+            if not os.path.isfile(cached_path):
+                _BASE_MESH_CACHE.pop(cached_path, None)
+
     for entry in sorted(os.listdir(path)):
         if not entry.lower().endswith(".xml"):
             continue
