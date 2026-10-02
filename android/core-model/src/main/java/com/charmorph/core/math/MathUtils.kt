@@ -66,11 +66,11 @@ object MathUtils {
     fun eulerToQuaternion(pitch: Float, yaw: Float, roll: Float): Vector4 {
         // Assuming XYZ order, angles in degrees
         val p = Math.toRadians(pitch.toDouble()) / 2.0
-        val y = Math.toRadians(yaw.toDouble()) / 2.0
+        val yRad = Math.toRadians(yaw.toDouble()) / 2.0
         val r = Math.toRadians(roll.toDouble()) / 2.0
  
         val sp = sin(p); val cp = cos(p)
-        val sy = sin(y); val cy = cos(y)
+        val sy = sin(yRad); val cy = cos(yRad)
         val sr = sin(r); val cr = cos(r)
  
         val x = sr * cp * cy - cr * sp * sy
