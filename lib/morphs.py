@@ -28,34 +28,57 @@ logger = logging.getLogger(__name__)
 class Morph:
     __slots__ = ()
 
-    def apply(self, verts: numpy.ndarray, _=None):
+    def apply(self, verts: numpy.ndarray, _=None, offset: int = 0):
         return verts
 
 
 class FullMorph(Morph):
-    __slots__ = ("delta",)
+    __slots__ = ("delta", "offset", "target_module")
 
-    def __init__(self, delta):
+    def __init__(self, delta, offset: int = 0, target_module=None):
         self.delta = delta
+        self.offset = offset
+        self.target_module = target_module
 
     def get_delta(self, value):
         return self.delta if value is None else self.delta * value
 
-    def apply(self, verts, value=None):
-        verts += self.get_delta(value)
+    def apply(self, verts, value=None, offset=None):
+        off = self.offset if offset is None else offset
+        d = self.get_delta(value)
+        if off == 0 and len(d) == len(verts):
+            verts += d
+        else:
+            verts[off : off + len(d)] += d
         return verts
 
 
 class PartialMorph(FullMorph):
     __slots__ = ("idx",)
 
-    def __init__(self, idx, delta):
-        super().__init__(delta)
+    def __init__(self, idx, delta, offset: int = 0, target_module=None):
+        super().__init__(delta, offset=offset, target_module=target_module)
         self.idx = idx
 
-    def apply(self, verts, value=None):
-        verts[self.idx] += self.get_delta(value)
+    def apply(self, verts, value=None, offset=None):
+        off = self.offset if offset is None else offset
+        verts[self.idx + off] += self.get_delta(value)
         return verts
+
+
+class ScopedMorph(Morph):
+    """Wraps a morph to target a specific module or index offset."""
+
+    __slots__ = ("morph", "offset", "target_module")
+
+    def __init__(self, morph: Morph, offset: int = 0, target_module=None):
+        self.morph = morph
+        self.offset = offset
+        self.target_module = target_module
+
+    def apply(self, verts, value=None, offset=None):
+        off = self.offset if offset is None else offset
+        return self.morph.apply(verts, value=value, offset=off)
 
 
 def np_ro64(a: numpy.ndarray):
@@ -117,17 +140,17 @@ class MinMaxMorph(MinMaxMorphData):
             self.data[idx] = item
         return item
 
-    def apply(self, verts, value):
+    def apply(self, verts, value, offset=None):
         if not self.data or abs(value) < 0.001:
             return
         if len(self.data) == 1:
-            self.get_morph(0).apply(verts, value)
+            self.get_morph(0).apply(verts, value, offset=offset)
             return
         if len(self.data) == 2:
             if value < 0:
-                self.get_morph(0).apply(verts, -value)
+                self.get_morph(0).apply(verts, -value, offset=offset)
             else:
-                self.get_morph(1).apply(verts, value)
+                self.get_morph(1).apply(verts, value, offset=offset)
 
 
 class Separator(Morph):

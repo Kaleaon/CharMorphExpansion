@@ -34,9 +34,54 @@ class MorpherCore(utils.ObjTracker):
     def __init__(self, obj):
         super().__init__(obj)
         self.char = charlib.library.obj_char(obj)
+        self.attached_modules: dict = {}
+        self.vertex_offsets: dict = {}
+        self.attachment_morphs: dict = {}
         self._init_storage()
         self.L1, self.morphs_l1 = self.get_L1()
         self.update_morphs_L2()
+
+    def attach_module(self, module, socket_name=None) -> int:
+        target_socket = socket_name or getattr(module, "slot", "")
+        base_count = len(self.full_basis) if self.full_basis is not None else 0
+        offset = base_count + sum(len(m.vertices) for m in self.attached_modules.values())
+        module.vertex_offset = offset
+        self.attached_modules[module.name] = module
+        self.vertex_offsets[module.name] = offset
+        return offset
+
+    def detach_module(self, module_name: str) -> bool:
+        if module_name not in self.attached_modules:
+            return False
+        del self.attached_modules[module_name]
+        if module_name in self.vertex_offsets:
+            del self.vertex_offsets[module_name]
+
+        base_count = len(self.full_basis) if self.full_basis is not None else 0
+        curr_offset = base_count
+        for m_name, module in self.attached_modules.items():
+            module.vertex_offset = curr_offset
+            self.vertex_offsets[m_name] = curr_offset
+            curr_offset += len(module.vertices)
+
+        return True
+
+    def get_composite_basis(self) -> numpy.ndarray:
+        basis = self.get_basis_l1()
+        if not self.attached_modules:
+            return basis
+        parts = [basis]
+        for module in self.attached_modules.values():
+            parts.append(module.vertex_array)
+        arr = numpy.concatenate(parts, axis=0)
+        for module in self.attached_modules.values():
+            off = module.vertex_offset
+            for seam in getattr(module, "seams", []):
+                if getattr(seam, "weld", True):
+                    for b_idx, a_idx in zip(seam.base_vertex_indices, seam.attachment_vertex_indices):
+                        if 0 <= b_idx < len(arr) and 0 <= a_idx < len(module.vertices):
+                            arr[off + a_idx] = arr[b_idx]
+        return arr
 
     # these methods are overriden in subclasses
     def _init_storage(self):
@@ -423,23 +468,52 @@ class NumpyMorpher(MorpherCore):
             self._update_L1()
         return self.basis
 
+    def attach_module(self, module, socket_name=None) -> int:
+        off = super().attach_module(module, socket_name)
+        self.basis = None
+        self.morphed = None
+        self.update()
+        return off
+
+    def detach_module(self, module_name: str) -> bool:
+        res = super().detach_module(module_name)
+        if res:
+            self.basis = None
+            self.morphed = None
+            self.update()
+        return res
+
+    def add_attachment_morph(self, module_name: str, morph_name: str, morph: morphs.Morph, value: float = 1.0):
+        if module_name not in self.attachment_morphs:
+            self.attachment_morphs[module_name] = {}
+        self.attachment_morphs[module_name][morph_name] = (morph, value)
+        self.update()
+
     def _do_all_morphs(self):
-        basis = self.get_basis_l1()
-        if self.morphed is None or len(self.morphed) != len(basis):
-            self.morphed = basis.copy()
+        composite_basis = self.get_composite_basis()
+        if self.morphed is None or len(self.morphed) != len(composite_basis):
+            self.morphed = composite_basis.copy()
         else:
-            self.morphed[:] = basis
+            self.morphed[:] = composite_basis
 
         for morph in self.morphs_l2:
-            val = self.prop_get_clamped(morph.name)
-            morph.apply(self.morphed, val)
+            target_mod = getattr(morph, "target_module", None)
+            off = self.vertex_offsets.get(target_mod, getattr(morph, "offset", 0))
+            morph.apply(self.morphed, self.prop_get_clamped(morph.name), offset=off)
 
         for name, morph in self.morphs_combo.items():
             values = [self.prop_get_clamped(morph_name) for morph_name in enum_combo_names(name)]
             data = morph.data
             coeff = 2 / len(data)
             for i in range(len(data)):
-                morph.get_morph(i).apply(self.morphed, get_combo_item_value(i, values) * coeff)
+                target_mod = getattr(morph, "target_module", None)
+                off = self.vertex_offsets.get(target_mod, getattr(morph, "offset", 0))
+                morph.get_morph(i).apply(self.morphed, get_combo_item_value(i, values) * coeff, offset=off)
+
+        for m_name, module_morphs in self.attachment_morphs.items():
+            off = self.vertex_offsets.get(m_name, 0)
+            for m_key, (m_obj, m_val) in module_morphs.items():
+                m_obj.apply(self.morphed, m_val, offset=off)
 
     def update(self):
         super().update()

@@ -178,12 +178,12 @@ def kdtree_from_np(verts):
 
 
 def get_basis_verts(data):
-    if isinstance(data, bpy.types.Object):
+    if hasattr(data, "data") and data.data is not None:
         data = data.data
-    k = data.shape_keys
+    k = getattr(data, "shape_keys", None)
     if k:
         return k.reference_key.data
-    return data.vertices
+    return getattr(data, "vertices", data)
 
 
 def verts_to_numpy(data):
