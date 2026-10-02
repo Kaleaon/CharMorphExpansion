@@ -24,8 +24,14 @@ Implements draw calls, popups, and operators that use the addon_updater.
 import os
 import traceback
 
-import bpy
-from bpy.app.handlers import persistent
+try:
+    import bpy
+    from bpy.app.handlers import persistent
+except ImportError:
+    from unittest.mock import MagicMock
+    bpy = MagicMock()
+    bpy.app.version = (3, 0, 0)
+    persistent = lambda fn: fn
 
 # Safely import the updater.
 # Prevents popups for users with invalid python installs e.g. missing libraries
@@ -86,8 +92,11 @@ def make_annotations(cls):
         bl_props = {k: v for k, v in cls.__dict__.items()
                     if isinstance(v, tuple)}
     else:
+        prop_def = getattr(bpy.props, '_PropertyDeferred', ())
+        if not isinstance(prop_def, (type, tuple)):
+            prop_def = ()
         bl_props = {k: v for k, v in cls.__dict__.items()
-                    if isinstance(v, bpy.props._PropertyDeferred)}
+                    if isinstance(v, prop_def)}
     if bl_props:
         if '__annotations__' not in cls.__dict__:
             setattr(cls, '__annotations__', {})

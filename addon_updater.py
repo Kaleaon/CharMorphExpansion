@@ -39,8 +39,13 @@ import fnmatch
 from datetime import datetime, timedelta
 
 # Blender imports, used in limited cases.
-import bpy
-import addon_utils
+try:
+    import bpy
+    import addon_utils
+except ImportError:
+    from unittest.mock import MagicMock
+    bpy = MagicMock()
+    addon_utils = MagicMock()
 
 # -----------------------------------------------------------------------------
 # The main class

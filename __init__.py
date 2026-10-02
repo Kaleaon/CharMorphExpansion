@@ -22,7 +22,9 @@ import logging
 try:
     import bpy  # pylint: disable=import-error
 except ImportError:
-    pass
+    from unittest.mock import MagicMock
+    bpy = MagicMock()
+    bpy.props._PropertyDeferred = type("PropertyDeferred", (), {})
 
 from . import addon_updater_ops
 from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit

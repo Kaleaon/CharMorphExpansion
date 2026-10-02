@@ -24,6 +24,7 @@ import bpy  # pylint: disable=import-error
 
 from .charlib import Character
 from . import utils
+from .cas_store import get_cas_store
 from .. import prefs
 
 logger = logging.getLogger(__name__)
@@ -117,13 +118,13 @@ def load_texdir(path, settings: dict) -> tuple[dict[str, tuple[str, str]], dict]
     result = {}
     for item in os.listdir(path):
         name, ext = os.path.splitext(item)
-        full_path = os.path.join(path, item)
+        full_path = get_cas_store().translate_path(os.path.join(path, item))
         if ext == ".yaml" or not os.path.isfile(full_path):
             continue
         for regex, val in ud_map:
             if regex.fullmatch(name):
                 name = val
-                full_path = os.path.join(path, val + ext)
+                full_path = get_cas_store().translate_path(os.path.join(path, val + ext))
                 break
         old = result.get(name)
         if old is not None:

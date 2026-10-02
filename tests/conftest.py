@@ -93,6 +93,7 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     bpy_mock.app = app_mock
 
     props_mock = types.ModuleType('bpy.props')
+    props_mock._PropertyDeferred = type("PropertyDeferred", (), {})
     props_mock.StringProperty = lambda **kwargs: None
     props_mock.BoolProperty = lambda **kwargs: None
     props_mock.IntProperty = lambda **kwargs: None
