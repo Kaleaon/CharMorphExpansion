@@ -40,6 +40,29 @@ sys.modules['bpy_extras.wm_utils'] = wm_utils_mock
 sys.modules['bpy_extras.wm_utils.progress_report'] = progress_report_mock
 sys.modules['bpy_extras.io_utils'] = io_utils_mock
 
+class MockPoseMarker:
+    def __init__(self, name):
+        self.name = name
+        self.frame = 1
+
+class MockActionMarkers:
+    def __init__(self):
+        self.markers = []
+
+    def new(self, name):
+        m = MockPoseMarker(name)
+        self.markers.append(m)
+        return m
+
+class MockAction:
+    def __init__(self, name):
+        self.name = name
+        self.pose_markers = MockActionMarkers()
+        self.is_asset = False
+
+    def asset_mark(self):
+        self.is_asset = True
+
 if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     bpy_mock = types.ModuleType('bpy')
     wm_mock = types.SimpleNamespace()
@@ -51,6 +74,12 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     ui_mock.hair_deform = False
     wm_mock.charmorph_ui = ui_mock
     bpy_mock.context = types.SimpleNamespace(window_manager=wm_mock)
+
+    bpy_mock.data = types.SimpleNamespace(
+        texts=[],
+        objects=[],
+        actions=types.SimpleNamespace(new=lambda name: MockAction(name))
+    )
 
     class MockOperator:
         pass
@@ -109,7 +138,14 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     bpy_mock.utils = utils_mock
 
     ops_mock = types.ModuleType('bpy.ops')
-    ops_mock.ed = types.SimpleNamespace()
+    ops_mock.ed = types.SimpleNamespace(undo_push=lambda: None)
+    ops_mock.object = types.SimpleNamespace(mode_set=lambda mode: None)
+    ops_mock.pose = types.SimpleNamespace(
+        select_all=lambda action: None,
+        loc_clear=lambda: None,
+        rot_clear=lambda: None,
+        scale_clear=lambda: None
+    )
     bpy_mock.ops = ops_mock
 
     sys.modules['bpy'] = bpy_mock
@@ -121,13 +157,15 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
 
 if 'bmesh' not in sys.modules:
     bmesh_mock = types.ModuleType('bmesh')
+    bmesh_mock.ops = types.SimpleNamespace()
+    bmesh_mock.types = types.SimpleNamespace()
     sys.modules['bmesh'] = bmesh_mock
 
 if 'mathutils' not in sys.modules:
     mathutils_mock = types.ModuleType('mathutils')
 
     class Vector(np.ndarray):
-        def __new__(cls, input_array):
+        def __new__(cls, input_array=(0.0, 0.0, 0.0)):
             obj = np.asarray(input_array, dtype=np.float64).view(cls)
             return obj
 
@@ -135,19 +173,49 @@ if 'mathutils' not in sys.modules:
         def length(self):
             return float(np.linalg.norm(self))
 
+        @property
+        def length_squared(self):
+            return float(np.sum(self ** 2))
+
+        def normalized(self):
+            l = self.length
+            return Vector(self / l) if l > 0 else Vector(self)
+
         def tolist(self):
             return super().tolist()
 
+        def __eq__(self, other):
+            if isinstance(other, (np.ndarray, list, tuple)):
+                if len(self) != len(other):
+                    return False
+                return bool(np.allclose(np.asarray(self), np.asarray(other)))
+            return False
+
     class MockQuaternion(np.ndarray):
         def __new__(cls, *args):
+            if len(args) > 0:
+                return np.asarray(args[0], dtype=np.float64).view(cls)
             return np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float64).view(cls)
+
+        def copy(self):
+            return MockQuaternion(super().copy())
+
+        def to_matrix(self):
+            return MockMatrix.Identity(3)
+
+        def to_euler(self):
+            return MockEuler([0.0, 0.0, 0.0])
 
     class MockEuler(np.ndarray):
         def __new__(cls, *args):
+            if len(args) > 0:
+                return np.asarray(args[0], dtype=np.float64).view(cls)
             return np.array([0.0, 0.0, 0.0], dtype=np.float64).view(cls)
 
     class MockMatrix(np.ndarray):
         def __new__(cls, *args):
+            if len(args) > 0:
+                return np.asarray(args[0], dtype=np.float64).view(cls)
             return np.eye(4, dtype=np.float64).view(cls)
 
         @classmethod
@@ -160,10 +228,49 @@ if 'mathutils' not in sys.modules:
 
         @classmethod
         def Translation(cls, vec):
-            return np.eye(4, dtype=np.float64).view(cls)
+            m = np.eye(4, dtype=np.float64).view(cls)
+            m[0:3, 3] = vec[:3]
+            return m
 
         def to_3x3(self):
-            return np.eye(3, dtype=np.float64)
+            return self[:3, :3].view(MockMatrix)
+
+        def to_quaternion(self):
+            return MockQuaternion([1.0, 0.0, 0.0, 0.0])
+
+        def inverted(self):
+            try:
+                inv = np.linalg.inv(self)
+                return inv.view(MockMatrix)
+            except Exception:
+                return self.copy()
+
+        def decompose(self):
+            return Vector([self[0, 3], self[1, 3], self[2, 3]]), MockQuaternion([1.0, 0.0, 0.0, 0.0]), Vector([1.0, 1.0, 1.0])
+
+        @property
+        def translation(self):
+            if self.shape == (4, 4):
+                return Vector(self[0:3, 3])
+            return Vector([0.0, 0.0, 0.0])
+
+        @translation.setter
+        def translation(self, vec):
+            if self.shape == (4, 4):
+                self[0:3, 3] = vec[:3]
+
+        def __matmul__(self, other):
+            if isinstance(other, Vector):
+                if len(other) == 3 and self.shape == (4, 4):
+                    v = np.array([other[0], other[1], other[2], 1.0], dtype=np.float64)
+                    res = super().__matmul__(v)
+                    return Vector(res[:3])
+                res = super().__matmul__(other)
+                return Vector(res)
+            res = super().__matmul__(other)
+            if isinstance(res, np.ndarray):
+                return res.view(MockMatrix)
+            return res
 
     class MockKDTree:
         def __init__(self, size):
