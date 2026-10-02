@@ -6,12 +6,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.charmorph.storage.entity.CharacterEntity
+import com.charmorph.storage.entity.CharacterSummaryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CharacterDao {
     @Query("SELECT * FROM characters ORDER BY lastModified DESC")
     fun getAllCharacters(): Flow<List<CharacterEntity>>
+
+    @Query("SELECT id, name, thumbnailPath, lastModified FROM characters ORDER BY lastModified DESC")
+    fun getCharacterSummaries(): Flow<List<CharacterSummaryEntity>>
 
     @Query("SELECT * FROM characters WHERE id = :id")
     suspend fun getCharacterById(id: String): CharacterEntity?
