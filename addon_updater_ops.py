@@ -650,8 +650,9 @@ def updater_run_success_popup_handler(scene):
         else:
             bpy.app.handlers.depsgraph_update_post.remove(
                 updater_run_success_popup_handler)
-    except:
-        pass
+    except Exception as e:
+        updater.print_verbose("Failed to remove success popup handler: {}".format(e))
+        updater.print_trace()
 
     atr = AddonUpdaterUpdatedSuccessful.bl_idname.split(".")
     getattr(getattr(bpy.ops, atr[0]), atr[1])('INVOKE_DEFAULT')
@@ -674,8 +675,9 @@ def updater_run_install_popup_handler(scene):
         else:
             bpy.app.handlers.depsgraph_update_post.remove(
                 updater_run_install_popup_handler)
-    except:
-        pass
+    except Exception as e:
+        updater.print_verbose("Failed to remove install popup handler: {}".format(e))
+        updater.print_trace()
 
     if "ignore" in updater.json and updater.json["ignore"]:
         return  # Don't do popup if ignore pressed.
@@ -703,6 +705,8 @@ def background_update_callback(update_ready):
     # In case of error importing updater.
     if updater.invalid_updater:
         return
+    if updater.error is not None:
+        ui_refresh(update_ready)
     if not updater.show_popups:
         return
     if not update_ready:
@@ -1010,7 +1014,7 @@ def update_settings_ui(self, context, element=None):
             split.operator(AddonUpdaterInstallManually.bl_idname,
                            text=updater.error)
         else:
-            split.enabled = False
+            split.enabled = True
             split.operator(AddonUpdaterCheckNow.bl_idname,
                            text=updater.error)
         split = sub_col.split(align=True)
@@ -1152,7 +1156,7 @@ def update_settings_ui_condensed(self, context, element=None):
             split.operator(AddonUpdaterInstallManually.bl_idname,
                            text=updater.error)
         else:
-            split.enabled = False
+            split.enabled = True
             split.operator(AddonUpdaterCheckNow.bl_idname,
                            text=updater.error)
         split = sub_col.split(align=True)

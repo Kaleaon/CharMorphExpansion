@@ -28,6 +28,7 @@ import errno
 import traceback
 import platform
 import ssl
+import socket
 import urllib.request
 import urllib
 import os
@@ -703,8 +704,9 @@ class SingletonUpdater:
                 print(self._error, self._error_msg)
             self.print_trace()
             self._update_ready = None
-        except urllib.error.URLError as e:
-            reason = str(e.reason)
+            return None
+        except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
+            reason = str(getattr(e, 'reason', e))
             if "TLSV1_ALERT" in reason or "SSL" in reason.upper():
                 self._error = "Connection rejected, download manually"
                 self._error_msg = reason
@@ -730,7 +732,7 @@ class SingletonUpdater:
                 return json.JSONDecoder().decode(get)
             except Exception as e:
                 self._error = "API response has invalid JSON format"
-                self._error_msg = str(e.reason)
+                self._error_msg = str(e)
                 self._update_ready = None
                 print(self._error, self._error_msg)
                 self.print_trace()
