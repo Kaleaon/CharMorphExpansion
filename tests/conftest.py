@@ -1,6 +1,16 @@
+# Conftest for CharMorph pytest test suite
 import sys
+import os
 import types
 import numpy as np
+
+# Add /app and CharMorphExpansion to sys.path
+app_root = "/app"
+if app_root not in sys.path:
+    sys.path.insert(0, app_root)
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
 
 # Injected mock modules for headless testing
 for mod_name in ['addon_utils', 'rna_prop_ui', 'gpu', 'gpu_extras', 'idprop']:
@@ -15,22 +25,22 @@ wm_utils_mock = types.ModuleType('bpy_extras.wm_utils')
 progress_report_mock = types.ModuleType('bpy_extras.wm_utils.progress_report')
 io_utils_mock = types.ModuleType('bpy_extras.io_utils')
 
+class DummyImportHelper:
+    filepath = ""
+
+class DummyExportHelper:
+    filepath = ""
+
 class MockProgressReport:
     def __init__(self, *args, **kwargs): pass
     def __enter__(self): return self
     def __exit__(self, *args): pass
     def step(self, *args, **kwargs): pass
 
-class MockImportHelper:
-    filepath = ""
-
-class MockExportHelper:
-    filepath = ""
-
 progress_report_mock.ProgressReport = MockProgressReport
 wm_utils_mock.progress_report = progress_report_mock
-io_utils_mock.ImportHelper = MockImportHelper
-io_utils_mock.ExportHelper = MockExportHelper
+io_utils_mock.ImportHelper = DummyImportHelper
+io_utils_mock.ExportHelper = DummyExportHelper
 
 bpy_extras_mock.wm_utils = wm_utils_mock
 bpy_extras_mock.io_utils = io_utils_mock
@@ -51,6 +61,7 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     ui_mock.hair_deform = False
     wm_mock.charmorph_ui = ui_mock
     bpy_mock.context = types.SimpleNamespace(window_manager=wm_mock)
+    bpy_mock.data = types.SimpleNamespace(images=types.SimpleNamespace())
 
     class MockOperator:
         pass
@@ -61,8 +72,20 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     class MockPropertyGroup:
         pass
 
+    enum_item_srgb = types.SimpleNamespace(name="sRGB")
+    enum_item_noncolor = types.SimpleNamespace(name="Non-Color")
+    enum_item_linear = types.SimpleNamespace(name="Linear")
+
+    class MockColorspaceProps(dict):
+        def get(self, key, default=None):
+            return dict.get(self, key, default)
+
+    colorspace_props = MockColorspaceProps({
+        "name": types.SimpleNamespace(enum_items=[enum_item_srgb, enum_item_noncolor, enum_item_linear])
+    })
+
     mock_type_with_properties = types.SimpleNamespace(
-        bl_rna=types.SimpleNamespace(properties={})
+        bl_rna=types.SimpleNamespace(properties=colorspace_props)
     )
 
     bpy_mock.types = types.SimpleNamespace(
@@ -78,14 +101,11 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
         Armature=mock_type_with_properties,
         Mesh=mock_type_with_properties,
         ShapeKey=mock_type_with_properties,
-        ColorManagedInputColorspaceSettings=types.SimpleNamespace(
-            bl_rna=types.SimpleNamespace(
-                properties={"name": types.SimpleNamespace(enum_items=[])}
-            )
-        )
+        ColorManagedInputColorspaceSettings=mock_type_with_properties
     )
 
     app_mock = types.ModuleType('bpy.app')
+    app_mock.version = (3, 3, 0)
     handlers_mock = types.ModuleType('bpy.app.handlers')
     handlers_mock.persistent = lambda fn: fn
     handlers_mock.load_post = []
@@ -93,13 +113,18 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
     bpy_mock.app = app_mock
 
     props_mock = types.ModuleType('bpy.props')
-    props_mock.StringProperty = lambda **kwargs: None
-    props_mock.BoolProperty = lambda **kwargs: None
-    props_mock.IntProperty = lambda **kwargs: None
-    props_mock.FloatProperty = lambda **kwargs: None
-    props_mock.EnumProperty = lambda **kwargs: None
-    props_mock.PointerProperty = lambda **kwargs: None
-    props_mock.CollectionProperty = lambda **kwargs: None
+    class DummyProp:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+            self.default = kwargs.get("default", None)
+    props_mock._PropertyDeferred = DummyProp
+    props_mock.StringProperty = lambda **kwargs: DummyProp(**kwargs)
+    props_mock.BoolProperty = lambda **kwargs: DummyProp(**kwargs)
+    props_mock.IntProperty = lambda **kwargs: DummyProp(**kwargs)
+    props_mock.FloatProperty = lambda **kwargs: DummyProp(**kwargs)
+    props_mock.EnumProperty = lambda **kwargs: DummyProp(**kwargs)
+    props_mock.PointerProperty = lambda **kwargs: DummyProp(**kwargs)
+    props_mock.CollectionProperty = lambda **kwargs: DummyProp(**kwargs)
     bpy_mock.props = props_mock
 
     utils_mock = types.ModuleType('bpy.utils')
@@ -110,12 +135,14 @@ if 'bpy' not in sys.modules or not hasattr(sys.modules['bpy'], 'app'):
 
     ops_mock = types.ModuleType('bpy.ops')
     ops_mock.ed = types.SimpleNamespace()
+    ops_mock.object = types.SimpleNamespace()
     bpy_mock.ops = ops_mock
 
     sys.modules['bpy'] = bpy_mock
     sys.modules['bpy.app'] = app_mock
     sys.modules['bpy.app.handlers'] = handlers_mock
     sys.modules['bpy.props'] = props_mock
+    sys.modules['bpy.types'] = bpy_mock.types
     sys.modules['bpy.utils'] = utils_mock
     sys.modules['bpy.ops'] = ops_mock
 
