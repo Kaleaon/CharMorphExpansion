@@ -1,6 +1,7 @@
 package com.charmorph.storage.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
@@ -10,15 +11,30 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Entity(tableName = "characters")
-@TypeConverters(Converters::class)
 data class CharacterEntity(
     @PrimaryKey val id: String,
     val name: String,
     val thumbnailPath: String?,
-    val lastModified: Long,
-    val meshData: Mesh, // Serialized
-    val skeletonData: Skeleton, // Serialized
-    val morphWeights: Map<String, Float> // Serialized
+    val lastModified: Long
+)
+
+@Entity(
+    tableName = "character_payloads",
+    foreignKeys = [
+        ForeignKey(
+            entity = CharacterEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["characterId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
+@TypeConverters(Converters::class)
+data class CharacterPayloadEntity(
+    @PrimaryKey val characterId: String,
+    @field:TypeConverters(Converters::class) val meshData: Mesh,
+    @field:TypeConverters(Converters::class) val skeletonData: Skeleton,
+    @field:TypeConverters(Converters::class) val morphWeights: Map<String, Float>
 )
 
 class Converters {

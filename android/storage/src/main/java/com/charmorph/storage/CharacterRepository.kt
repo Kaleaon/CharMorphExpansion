@@ -1,12 +1,11 @@
 package com.charmorph.storage
 
 import com.charmorph.core.model.Character
-import com.charmorph.core.model.Mesh
-import com.charmorph.core.model.Skeleton
 import com.charmorph.storage.dao.CharacterDao
 import com.charmorph.storage.entity.CharacterEntity
+import com.charmorph.storage.entity.CharacterPayloadEntity
+import com.charmorph.storage.entity.CharacterWithPayload
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,48 +13,45 @@ import javax.inject.Singleton
 class CharacterRepository @Inject constructor(
     private val characterDao: CharacterDao
 ) {
-    val allCharacters: Flow<List<Character>> = characterDao.getAllCharacters().map { entities ->
-        entities.map { it.toDomainModel() }
-    }
+    val allCharacters: Flow<List<CharacterEntity>> = characterDao.getAllCharacters()
 
     suspend fun getCharacter(id: String): Character? {
         return characterDao.getCharacterById(id)?.toDomainModel()
     }
 
-    suspend fun saveCharacter(character: Character) {
-        characterDao.insertCharacter(character.toEntity())
+    suspend fun saveCharacter(character: Character, name: String = character.baseMesh.name) {
+        val (entity, payload) = character.toEntityPair(name)
+        characterDao.insertCharacterWithPayload(entity, payload)
     }
 
     suspend fun updateMorphWeights(id: String, weights: Map<String, Float>) {
-        val entity = characterDao.getCharacterById(id)
-        if (entity != null) {
-            val updatedEntity = entity.copy(
-                morphWeights = weights,
-                lastModified = System.currentTimeMillis()
-            )
-            characterDao.updateCharacter(updatedEntity)
-        }
+        characterDao.updateMorphWeights(id, weights, System.currentTimeMillis())
     }
 }
 
 // Mappers
-fun CharacterEntity.toDomainModel(): Character {
+fun CharacterWithPayload.toDomainModel(): Character {
     return Character(
-        id = id,
-        baseMesh = meshData,
-        skeleton = skeletonData,
-        activeMorphs = morphWeights
+        id = character.id,
+        baseMesh = payload.meshData,
+        skeleton = payload.skeletonData,
+        activeMorphs = payload.morphWeights
     )
 }
 
-fun Character.toEntity(): CharacterEntity {
-    return CharacterEntity(
+fun Character.toEntityPair(name: String = baseMesh.name.ifEmpty { "Character" }): Pair<CharacterEntity, CharacterPayloadEntity> {
+    val now = System.currentTimeMillis()
+    val characterEntity = CharacterEntity(
         id = id,
-        name = "Character", // Could be added to domain model
+        name = name,
         thumbnailPath = null,
-        lastModified = System.currentTimeMillis(),
+        lastModified = now
+    )
+    val payloadEntity = CharacterPayloadEntity(
+        characterId = id,
         meshData = baseMesh,
         skeletonData = skeleton,
         morphWeights = activeMorphs
     )
+    return Pair(characterEntity, payloadEntity)
 }
