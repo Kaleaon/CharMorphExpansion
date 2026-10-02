@@ -18,198 +18,29 @@
 #
 # Copyright (C) 2020 Michael Vigovsky
 
-import logging, re
+import logging
 import bpy  # pylint: disable=import-error
 
-from mathutils import Matrix, Vector  # pylint: disable=import-error
-
-from .lib.charlib import library
+try:
+    from .lib.charlib import library
+except Exception:
+    library = None
+from .pose_manager import PoseManager, RestPoseMatrixMapper, m1, m2, flip_x_z, qrotation, shoulder_rot
 
 logger = logging.getLogger(__name__)
 
-m1 = Matrix.Identity(4)
-m2 = m1.copy()
-m2[1][1] = -1
-m2[3][3] = -1
-flip_x_z = {
-    "L": Matrix(((1, 0, 0, 0), (0, 0, 0, 1), (0, 0,-1, 0), (0,-1, 0, 0))),
-    "R": Matrix(((1, 0, 0, 0), (0, 0, 0,-1), (0, 0, 1, 0), (0, 1, 0, 0))),
-}
-
-
-def qrotation(mat):
-    def rot(v):
-        return (v[3], v[0], v[1], v[2])
-    return Matrix((rot(mat[3]), rot(mat[0]), rot(mat[1]), rot(mat[2])))
-
-
-shoulder_angle = 1.3960005939006805
-shoulder_rot = {
-    "L": qrotation(Matrix.Rotation( shoulder_angle, 4, (0, 1, 0))),
-    "R": qrotation(Matrix.Rotation(-shoulder_angle, 4, (0, 1, 0))),
-}
-
-bone_map = {
-    "root": ("root", m2),
-    "pelvis": ("torso", qrotation(Matrix.Rotation(1.4466689567595232, 4, (1, 0, 0)))),
-    "spine01": ("spine_fk.001", m1),
-    "spine02": ("spine_fk.002", m1),
-    "spine03": ("spine_fk.003", m1),
-    "neck": ("neck", m1),
-    "head": ("head", m1),
-}
-
-for side in ["L", "R"]:
-    bone_map["thigh_" + side] = ("thigh_fk." + side, m2)
-    bone_map["calf_" + side] = ("shin_fk." + side, m2)
-    bone_map["foot_" + side] = ("foot_fk." + side, m2)
-    bone_map["toes_" + side] = ("toe." + side, m1)
-    bone_map["breast_" + side] = ("breast." + side, m1)
-    bone_map["clavicle_" + side] = ("shoulder." + side, shoulder_rot[side])
-    bone_map["upperarm_" + side] = ("upper_arm_fk." + side, m1)
-    bone_map["lowerarm_" + side] = ("forearm_fk." + side, m1)
-    bone_map["hand_" + side] = ("hand_fk." + side, flip_x_z[side])
-    for i in range(1, 4):
-        is_master = "_master" if i == 1 else ""
-        bone_map[f"thumb0{i}_{side}"] = (f"thumb.0{i}{is_master}.{side}", m2)
-        for finger in ["index", "middle", "ring", "pinky"]:
-            bone_map[f"{finger}0{i}_{side}"] = (f"f_{finger}.0{i}{is_master}.{side}", m2)
-del side
-
-# Different rigify versions use different parameters for IK2FK so we need to scan its modules
-
-ik2fk_map = {}
-
-re_rigid = re.compile(r'^rig_id = "([0-9a-z]*)"$', re.MULTILINE)
+# Legacy compatibility exports
+_global_pose_manager = PoseManager()
+bone_map = _global_pose_manager.mapper.bone_map
+ik2fk_map = _global_pose_manager.ik2fk_map
 
 
 def scan_rigify_modules():
-    for t in bpy.data.texts:
-        s = t.as_string()
-        m = re_rigid.search(s)
-        if not m:
-            continue
-        rig_id = m.group(1)
-        limbs = []
-        s = s[m.end(0) + 1:]
-        re_operator = re.compile(rf"^( *)props = [0-9a-z_]*\.operator\('pose.rigify_limb_ik2fk_{rig_id}'", re.MULTILINE)
-
-        while True:
-            m = re_operator.search(s)
-            if not m:
-                break
-            indent = m.group(1)
-            re_prop = re.compile(rf"{indent}props.([0-9a-z_]*) = '([^']*)'$")
-            props = {}
-            while True:
-                s = s[m.end(0):]
-                s = s[s.find("\n") + 1:]
-                line = s[:s.find("\n")]
-                m = re_prop.match(line)
-                if not m:
-                    break
-                props[m.group(1)] = m.group(2)
-            if len(props) > 0:
-                limbs.append(props)
-        if len(limbs) > 0:
-            ik2fk_map[rig_id] = limbs
+    _global_pose_manager.scan_rigify_modules()
 
 
 def apply_pose(ui, context):
-    if not ui.pose or ui.pose == " ":
-        return
-    rig = context.active_object
-    pose = library.obj_char(rig).poses.get(ui.pose)
-    if not pose:
-        logger.error("pose not found %s %s", ui.pose, rig)
-        return
-    rig_id = rig.data["rig_id"]
-
-    # Some settings
-    ik_fk = {}
-    rig.pose.bones["torso"]["neck_follow"] = 1.0
-    rig.pose.bones["torso"]["head_follow"] = 1.0
-    for side in ["L", "R"]:
-        for limb in ["upper_arm", "thigh"]:
-            bone = rig.pose.bones[f"{limb}_parent.{side}"]
-            bone["fk_limb_follow"] = 0.0
-            ik_fk[bone.name] = bone.get("IK_FK", 1.0)
-            bone["IK_FK"] = 1.0
-
-    # TODO: different mix modes
-    old_mode = context.mode
-    try:
-        bpy.ops.object.mode_set(mode="POSE")
-        bpy.ops.pose.select_all(action="SELECT")
-        bpy.ops.pose.loc_clear()
-        bpy.ops.pose.rot_clear()
-        bpy.ops.pose.scale_clear()
-    finally:
-        bpy.ops.object.mode_set(mode=old_mode)
-
-    for k, v in pose.items():
-        name, matrix = bone_map.get(k, ("", None))
-        target_bone = rig.pose.bones.get(name)
-        if not target_bone:
-            logger.debug("no target for %s", k)
-            continue
-        target_bone.rotation_mode = "QUATERNION"
-        target_bone.rotation_quaternion = matrix @ Vector(v)
-
-    spine_fk = rig.pose.bones.get("spine_fk")
-    spine_fk1 = rig.pose.bones.get("spine_fk.001")
-    spine_fk2 = rig.pose.bones.get("spine_fk.002")
-
-    if spine_fk and spine_fk1 and spine_fk2:
-        q = spine_fk1.rotation_quaternion
-        spine_fk.rotation_quaternion = [-q[0], q[1], q[2], q[3]]
-        spine_fk2.rotation_quaternion @= q
-
-    if hasattr(context, "evaluated_depsgraph_get"):
-        # Calculate lowest point for sitting and similiar poses
-        erig = rig.evaluated_get(context.evaluated_depsgraph_get())
-        torso = rig.pose.bones.get("torso")
-        min_z = torso.head[2]
-        for bone in erig.pose.bones:
-            if not bone.name.startswith("ORG-"):
-                continue
-            for attr in ["head", "tail"]:
-                val = getattr(bone, attr)
-                if val[2] < min_z:
-                    min_z = val[2]
-        min_z = max(min_z, 0)
-        if torso:
-            torso.location = (0, 0, -min_z)
-
-    ik2fk_operator = None
-    ik2fk_limbs = None
-
-    if ui.pose_ik2fk:
-        op_id = "rigify_limb_ik2fk_" + rig_id
-        if hasattr(bpy.ops.pose, op_id):
-            op = getattr(bpy.ops.pose, op_id)
-            if op.poll():
-                ik2fk_operator = op
-                if rig_id not in ik2fk_map:
-                    scan_rigify_modules()
-                ik2fk_limbs = ik2fk_map.get(rig_id)
-                if not ik2fk_limbs:
-                    logger.error("CharMorph doesn't support IK2FK for your Rigify version")
-        else:
-            logger.error("Rigify UI doesn't seem to be available. IK2FK is disabled")
-
-    if ik2fk_operator and ik2fk_limbs:
-        fail = False
-        for limb in ik2fk_limbs:
-            result = ik2fk_operator(**limb)
-            if "FINISHED" not in result:
-                fail = True
-
-        if fail:
-            logger.error("IK2FK failed")
-        else:
-            for k, v in ik_fk.items():
-                rig.pose.bones[k]["IK_FK"] = v
+    _global_pose_manager.apply_pose_ui(ui, context)
 
 
 def poll(context):
@@ -217,8 +48,10 @@ def poll(context):
             and context.active_object.type == "ARMATURE"
             and context.active_object.data.get("rig_id")):
         return False
+    if not library:
+        return True
     char = library.obj_char(context.active_object)
-    return len(char.poses) > 0
+    return char is not None and len(getattr(char, "poses", {})) >= 0
 
 
 class OpApplyPose(bpy.types.Operator):
@@ -231,24 +64,132 @@ class OpApplyPose(bpy.types.Operator):
     def poll(cls, context):
         return poll(context)
 
-    def execute(self, context):  # pylint: disable=no-self-use
-        apply_pose(context.window_manager.charmorph_ui, context)
+    def execute(self, context):
+        ui = context.window_manager.charmorph_ui
+        pm = PoseManager()
+
+        pose_type = getattr(ui, "pose_type", "MBLAB")
+        if pose_type == "ASSET":
+            action_name = getattr(ui, "action_pose", "")
+            if not action_name or action_name == " ":
+                self.report({'WARNING'}, "No pose asset action selected")
+                return {'CANCELLED'}
+            action = bpy.data.actions.get(action_name)
+            if not action:
+                self.report({'ERROR'}, f"Action {action_name} not found")
+                return {'CANCELLED'}
+            apply_ik2fk = getattr(ui, "pose_ik2fk", True)
+            pm.apply_action_pose(context.active_object, action, context=context, apply_ik2fk=apply_ik2fk)
+        else:
+            pm.apply_pose_ui(ui, context)
+
         return {"FINISHED"}
 
 
+class OpConvertPoseToAsset(bpy.types.Operator):
+    bl_idname = "charmorph.convert_pose_to_asset"
+    bl_label = "Convert to Pose Asset"
+    bl_description = "Convert selected MB-Lab pose to Blender native Action pose asset"
+    bl_options = {"UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return poll(context)
+
+    def execute(self, context):
+        ui = context.window_manager.charmorph_ui
+        if not ui.pose or ui.pose == " ":
+            self.report({'WARNING'}, "No pose selected")
+            return {'CANCELLED'}
+        rig = context.active_object
+        char = library.obj_char(rig)
+        if not char or not hasattr(char, "poses"):
+            return {'CANCELLED'}
+        pose_data = char.poses.get(ui.pose)
+        if not pose_data:
+            self.report({'ERROR'}, f"Pose {ui.pose} not found")
+            return {'CANCELLED'}
+
+        pm = PoseManager()
+        action = pm.mblab_pose_to_action(pose_data, f"PoseAsset_{ui.pose}", rig)
+        if action:
+            self.report({'INFO'}, f"Created Pose Asset Action: {action.name}")
+            return {'FINISHED'}
+        return {'CANCELLED'}
+
+
+class OpConvertAssetToPose(bpy.types.Operator):
+    bl_idname = "charmorph.convert_asset_to_pose"
+    bl_label = "Convert Asset to MB-Lab Pose"
+    bl_description = "Convert native Pose Asset Action back to MB-Lab pose dictionary format"
+    bl_options = {"UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return poll(context)
+
+    def execute(self, context):
+        ui = context.window_manager.charmorph_ui
+        action_name = getattr(ui, "action_pose", "")
+        if not action_name or action_name == " ":
+            self.report({'WARNING'}, "No pose asset action selected")
+            return {'CANCELLED'}
+        action = bpy.data.actions.get(action_name)
+        if not action:
+            self.report({'ERROR'}, f"Action {action_name} not found")
+            return {'CANCELLED'}
+
+        pm = PoseManager()
+        pose_dict = pm.action_to_mblab_pose(action, context.active_object)
+        if pose_dict:
+            rig = context.active_object
+            char = library.obj_char(rig)
+            if hasattr(char, "poses"):
+                char.poses[action_name] = pose_dict
+            self.report({'INFO'}, f"Converted Action {action_name} to MB-Lab pose format")
+            return {'FINISHED'}
+        return {'CANCELLED'}
+
+
 def get_poses(_, context):
-    return [(" ", "<select pose>", "")] + [(k, k, "") for k in sorted(library.obj_char(context.object).poses.keys())]
+    if not context or not getattr(context, "object", None) or not library:
+        return [(" ", "<select pose>", "")]
+    char = library.obj_char(context.object)
+    if not char or not hasattr(char, "poses"):
+        return [(" ", "<select pose>", "")]
+    return [(" ", "<select pose>", "")] + [(k, k, "") for k in sorted(char.poses.keys())]
+
+
+def get_action_poses(_, context):
+    actions = [(" ", "<select pose asset>", "")]
+    if bpy and hasattr(bpy.data, "actions"):
+        for act in sorted(bpy.data.actions, key=lambda a: a.name):
+            actions.append((act.name, act.name, ""))
+    return actions
 
 
 class UIProps:
+    pose_type: bpy.props.EnumProperty(
+        name="Pose Source",
+        items=[
+            ("MBLAB", "MB-Lab Library", "Use MB-Lab JSON pose library"),
+            ("ASSET", "Blender Pose Asset", "Use native Blender Action pose asset"),
+        ],
+        default="MBLAB",
+        description="Source format for pose application",
+    )
     pose_ik2fk: bpy.props.BoolProperty(
         name="Apply pose to IK controllers",
         default=True,
-        description="Apply poses designed for FK to IK controllers too (might be slow)")
+        description="Apply poses designed for FK to IK controllers too")
     pose: bpy.props.EnumProperty(
         name="Pose",
         items=get_poses,
         description="Select pose from library")
+    action_pose: bpy.props.EnumProperty(
+        name="Pose Asset",
+        items=get_action_poses,
+        description="Select native Blender Action pose asset")
 
 
 class CHARMORPH_PT_Pose(bpy.types.Panel):
@@ -264,9 +205,18 @@ class CHARMORPH_PT_Pose(bpy.types.Panel):
 
     def draw(self, context):
         l = self.layout
-        for prop in UIProps.__annotations__:  # pylint: disable=no-member
-            l.prop(context.window_manager.charmorph_ui, prop)
+        ui = context.window_manager.charmorph_ui
+
+        l.prop(ui, "pose_type")
+        if getattr(ui, "pose_type", "MBLAB") == "ASSET":
+            l.prop(ui, "action_pose")
+            l.operator("charmorph.convert_asset_to_pose")
+        else:
+            l.prop(ui, "pose")
+            l.operator("charmorph.convert_pose_to_asset")
+
+        l.prop(ui, "pose_ik2fk")
         l.operator("charmorph.apply_pose")
 
 
-classes = [CHARMORPH_PT_Pose, OpApplyPose]
+classes = [CHARMORPH_PT_Pose, OpApplyPose, OpConvertPoseToAsset, OpConvertAssetToPose]

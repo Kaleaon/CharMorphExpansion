@@ -267,23 +267,24 @@ def _import_expresions(add_assets):
 
 
 def _process_vertex_weights(vertices, deform_indices):
+    if not deform_indices or not vertices:
+        return
     for v in vertices:
-        try:
-            groups = v.groups
-        except AttributeError:
-            continue
+        groups = getattr(v, "groups", None)
         if not groups:
             continue
         total_w = 0.0
+        deform_g = []
         for g in groups:
-            if g.group in deform_indices:
+            gid = g.group
+            if gid in deform_indices:
                 total_w += g.weight
+                deform_g.append(g)
 
         if total_w > 1.0:
             scale_factor = 1.0 / total_w
-            for g in groups:
-                if g.group in deform_indices:
-                    g.weight *= scale_factor
+            for g in deform_g:
+                g.weight *= scale_factor
 
 
 def _normalize_vertex_weights(obj=None):
