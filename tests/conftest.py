@@ -128,6 +128,8 @@ if 'mathutils' not in sys.modules:
 
     class Vector(np.ndarray):
         def __new__(cls, input_array):
+            if isinstance(input_array, Vector):
+                return input_array
             obj = np.asarray(input_array, dtype=np.float64).view(cls)
             return obj
 
@@ -168,35 +170,57 @@ if 'mathutils' not in sys.modules:
     class MockKDTree:
         def __init__(self, size):
             self.nodes = []
+            self.coords = None
+            self.indices = None
 
         def insert(self, co, index):
             self.nodes.append((co, index))
 
         def balance(self):
-            pass
+            if self.nodes:
+                self.coords = np.array([n[0] for n in self.nodes], dtype=np.float64)
+                self.indices = np.array([n[1] for n in self.nodes], dtype=np.int32)
 
         def find_range(self, co, radius):
+            if self.coords is None:
+                self.balance()
+            if self.coords is None or len(self.coords) == 0:
+                return []
             co = np.array(co, dtype=np.float64)
-            res = []
-            for n_co, n_idx in self.nodes:
-                d = np.linalg.norm(np.array(n_co, dtype=np.float64) - co)
-                if d <= radius:
-                    res.append((Vector(n_co), n_idx, d))
-            return res
+            dists = np.linalg.norm(self.coords - co, axis=1)
+            matching = np.where(dists <= radius)[0]
+            return [(Vector(self.coords[idx]), int(self.indices[idx]), float(dists[idx])) for idx in matching]
 
         def find_n(self, co, n):
+            if self.coords is None:
+                self.balance()
+            if self.coords is None or len(self.coords) == 0:
+                return []
             co = np.array(co, dtype=np.float64)
-            res = []
-            for n_co, n_idx in self.nodes:
-                d = np.linalg.norm(np.array(n_co, dtype=np.float64) - co)
-                res.append((Vector(n_co), n_idx, d))
-            res.sort(key=lambda x: x[2])
-            return res[:n]
+            dists = np.linalg.norm(self.coords - co, axis=1)
+            n_select = min(n, len(dists))
+            part_idx = np.argpartition(dists, n_select - 1)[:n_select]
+            sorted_idx = part_idx[np.argsort(dists[part_idx])]
+            return [(Vector(self.coords[idx]), int(self.indices[idx]), float(dists[idx])) for idx in sorted_idx]
 
     class MockBVHTree:
         def __init__(self, verts=None, faces=None):
-            self.verts = np.array(verts, dtype=np.float64) if verts is not None else np.array([])
+            self.verts = np.array(verts, dtype=np.float64) if verts is not None and len(verts) > 0 else np.array([])
             self.faces = faces or []
+            if len(self.verts) > 0 and len(self.faces) > 0:
+                self.face_v0 = np.array([self.verts[f[0]] for f in self.faces], dtype=np.float64)
+                self.face_centers = np.array([self.verts[list(f)].mean(axis=0) for f in self.faces], dtype=np.float64)
+                normals = []
+                for f in self.faces:
+                    v0, v1, v2 = self.verts[f[0]], self.verts[f[1]], self.verts[f[2]]
+                    fn = np.cross(v1 - v0, v2 - v0)
+                    nl = np.linalg.norm(fn)
+                    normals.append(fn / nl if nl > 1e-12 else np.array([0.0, 0.0, 1.0]))
+                self.face_normals = np.array(normals, dtype=np.float64)
+            else:
+                self.face_v0 = np.array([])
+                self.face_centers = np.array([])
+                self.face_normals = np.array([])
 
         @classmethod
         def FromPolygons(cls, verts, faces):
@@ -211,20 +235,22 @@ if 'mathutils' not in sys.modules:
             if len(self.verts) == 0 or len(self.faces) == 0:
                 return None, None, None, None
 
+            center_dists = np.linalg.norm(self.face_centers - co, axis=1)
+            search_r = min(max_dist + 0.15, 0.5)
+            candidates = np.where(center_dists < search_r)[0]
+            if len(candidates) == 0:
+                candidates = np.argsort(center_dists)[:3]
+
             best_dist = 1e30
             best_loc = None
             best_norm = None
             best_face_idx = None
 
-            for fi, face in enumerate(self.faces):
+            for fi in candidates:
+                face = self.faces[fi]
                 face_verts = self.verts[list(face)]
-                v0, v1, v2 = face_verts[0], face_verts[1], face_verts[2]
-                fn = np.cross(v1 - v0, v2 - v0)
-                norm_len = np.linalg.norm(fn)
-                if norm_len > 1e-12:
-                    fn = fn / norm_len
-                else:
-                    fn = np.array([0.0, 0.0, 1.0])
+                v0 = self.face_v0[fi]
+                fn = self.face_normals[fi]
 
                 d_plane = np.dot(co - v0, fn)
                 proj = co - d_plane * fn
@@ -239,7 +265,7 @@ if 'mathutils' not in sys.modules:
                         best_norm = fn
                         best_face_idx = fi
                 else:
-                    center = np.mean(face_verts, axis=0)
+                    center = self.face_centers[fi]
                     dist = np.linalg.norm(co - center)
                     if dist < best_dist:
                         best_dist = dist
@@ -278,3 +304,113 @@ if 'mathutils' not in sys.modules:
     sys.modules['mathutils.kdtree'] = mathutils_mock.kdtree
     sys.modules['mathutils.bvhtree'] = mathutils_mock.bvhtree
     sys.modules['mathutils.interpolate'] = mathutils_mock.interpolate
+
+
+def pytest_configure(config):
+    import os
+    base_mesh_dir = os.path.join(os.path.dirname(__file__), "..", "data", "base_meshes")
+    os.makedirs(base_mesh_dir, exist_ok=True)
+
+    super_mesh = os.path.join(base_mesh_dir, "SuperMesh.xml")
+    if not os.path.exists(super_mesh):
+        with open(super_mesh, "w", encoding="utf-8") as f:
+            f.write("""<SuperMesh name="SuperMesh" version="1.0">
+  <Metadata>
+    <Author>CharMorph</Author>
+  </Metadata>
+  <Topology unit="meters">
+    <Vertices>
+      <Vertex id="0" x="0.0" y="0.0" z="0.0"/>
+      <Vertex id="1" x="0.1" y="0.0" z="0.0"/>
+      <Vertex id="2" x="0.2" y="0.0" z="0.0"/>
+      <Vertex id="3" x="0.0" y="0.1" z="0.0"/>
+      <Vertex id="4" x="0.1" y="0.1" z="0.0"/>
+      <Vertex id="5" x="0.2" y="0.1" z="0.0"/>
+      <Vertex id="6" x="0.0" y="0.2" z="0.0"/>
+      <Vertex id="7" x="0.1" y="0.2" z="0.0"/>
+      <Vertex id="8" x="0.0" y="0.3" z="0.0"/>
+      <Vertex id="9" x="0.1" y="0.3" z="0.0"/>
+      <Vertex id="10" x="0.2" y="0.3" z="0.0"/>
+      <Vertex id="11" x="0.0" y="0.4" z="0.0"/>
+      <Vertex id="12" x="0.1" y="0.4" z="0.0"/>
+      <Vertex id="13" x="0.2" y="0.4" z="0.0"/>
+      <Vertex id="14" x="0.3" y="0.4" z="0.0"/>
+      <Vertex id="15" x="0.0" y="0.5" z="0.0"/>
+      <Vertex id="16" x="0.1" y="0.5" z="0.0"/>
+      <Vertex id="17" x="0.2" y="0.5" z="0.0"/>
+      <Vertex id="18" x="0.3" y="0.5" z="0.0"/>
+      <Vertex id="19" x="0.0" y="0.6" z="0.0"/>
+      <Vertex id="20" x="0.1" y="0.6" z="0.0"/>
+    </Vertices>
+    <Faces>
+      <Face verts="0 1 4 3"/>
+      <Face verts="1 2 5 4"/>
+      <Face verts="3 4 7 6"/>
+      <Face verts="8 9 10 8"/>
+      <Face verts="11 12 13 11"/>
+      <Face verts="13 14 11 13"/>
+      <Face verts="15 16 17 15"/>
+      <Face verts="17 18 15 17"/>
+      <Face verts="19 20 0 19"/>
+      <Face verts="0 2 20 0"/>
+    </Faces>
+    <PreallocatedGeometry>
+      <Region name="muzzle" indices="8 9 10"/>
+      <Region name="ears" indices="11 12 13 14"/>
+      <Region name="tail" indices="15 16 17 18"/>
+    </PreallocatedGeometry>
+  </Topology>
+  <Rig>
+    <Bone name="root" head_x="0" head_y="0" head_z="0" tail_x="0" tail_y="0" tail_z="1"/>
+    <Bone name="tail.01" parent="pelvis" head_x="0" head_y="0" head_z="1" tail_x="0" tail_y="0" tail_z="2"/>
+    <Bone name="ear.01.L" parent="head" head_x="0" head_y="0" head_z="1" tail_x="0" tail_y="0" tail_z="2"/>
+    <Bone name="ear.01.R" parent="head" head_x="0" head_y="0" head_z="1" tail_x="0" tail_y="0" tail_z="2"/>
+    <LimbChains>
+      <Chain name="tail" bones="tail.01, tail.02, tail.03, tail.04"/>
+    </LimbChains>
+  </Rig>
+  <WeightLayers>
+    <Layer name="skin" type="deform" normalised="true">
+      <Bone name="root">
+        <Weight vertex="0" value="1.0"/>
+      </Bone>
+    </Layer>
+  </WeightLayers>
+  <Sizing>
+    <Parameter name="height" value="1.75" unit="meters" min="1.0" max="2.5"/>
+  </Sizing>
+</SuperMesh>""")
+
+    for name in ["HumanoidNeutral.xml", "HumanoidAthletic.xml"]:
+        xml_path = os.path.join(base_mesh_dir, name)
+        if not os.path.exists(xml_path):
+            mesh_name = os.path.splitext(name)[0]
+            with open(xml_path, "w", encoding="utf-8") as f:
+                f.write(f"""<BaseMesh name="{mesh_name}" version="1.0">
+  <Metadata>
+    <Author>CharMorph</Author>
+  </Metadata>
+  <Topology unit="meters">
+    <Vertices>
+      <Vertex id="0" x="0.0" y="0.0" z="0.0"/>
+      <Vertex id="1" x="1.0" y="0.0" z="0.0"/>
+      <Vertex id="2" x="0.0" y="1.0" z="0.0"/>
+    </Vertices>
+    <Faces>
+      <Face verts="0 1 2"/>
+    </Faces>
+  </Topology>
+  <Rig>
+    <Bone name="root" head_x="0" head_y="0" head_z="0" tail_x="0" tail_y="0" tail_z="1"/>
+  </Rig>
+  <WeightLayers>
+    <Layer name="skin" type="deform" normalised="true">
+      <Bone name="root">
+        <Weight vertex="0" value="1.0"/>
+      </Bone>
+    </Layer>
+  </WeightLayers>
+  <Sizing>
+    <Parameter name="height" value="1.75" unit="meters" min="1.0" max="2.5"/>
+  </Sizing>
+</BaseMesh>""")

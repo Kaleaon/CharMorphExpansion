@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 import pytest
-from lib.fit_calc import Geometry, SoftBinder, HardBinder
+from lib.fit_calc import Geometry, SoftBinder, HardBinder, _calc_binding_reverse, FitCalculator
 from lib.fitting import apply_surface_clearance_and_relaxation, build_adjacency_list
 
 
@@ -76,6 +76,163 @@ def test_normal_gated_binding():
     weight_opposed = sum(binder_opposed.bindings[0].values()) if binder_opposed.bindings else 0
 
     assert weight_aligned > weight_opposed
+    assert weight_opposed == 0.0
+
+
+def test_softbinder_calc_binding_direct_and_reverse_normal_gating():
+    char_geom = create_cube_geometry(scale=2.0)
+
+    # Aligned asset triangle near top corner of char box (facing +Z)
+    verts_aligned = np.array([
+        [0.8, 0.8, 1.02],
+        [0.9, 0.8, 1.02],
+        [0.8, 0.9, 1.02],
+    ], dtype=np.float64)
+    geom_aligned = Geometry(verts_aligned, [(0, 1, 2)])
+
+    # Opposed asset triangle near top corner of char box, facing -Z
+    verts_opposed = np.array([
+        [0.8, 0.8, 1.02],
+        [0.8, 0.9, 1.02],
+        [0.9, 0.8, 1.02],
+    ], dtype=np.float64)
+    geom_opposed = Geometry(verts_opposed, [(0, 1, 2)])
+
+    # Test calc_binding_direct
+    b_direct_aligned = SoftBinder(char_geom, verts_aligned, geom_aligned)
+    b_direct_aligned.calc_binding_kd()
+    b_direct_aligned.calc_binding_direct()
+
+    b_direct_opposed = SoftBinder(char_geom, verts_opposed, geom_opposed)
+    b_direct_opposed.calc_binding_kd()
+    b_direct_opposed.calc_binding_direct()
+
+    total_weight_direct_aligned = sum(sum(b.values()) for b in b_direct_aligned.bindings)
+    total_weight_direct_opposed = sum(sum(b.values()) for b in b_direct_opposed.bindings)
+
+    assert total_weight_direct_aligned > 0
+    assert total_weight_direct_opposed == 0.0
+
+    # Test calc_binding_reverse
+    b_rev_aligned = SoftBinder(char_geom, verts_aligned, geom_aligned)
+    b_rev_aligned.calc_binding_kd()
+    b_rev_aligned.calc_binding_reverse(geom_aligned)
+
+    b_rev_opposed = SoftBinder(char_geom, verts_opposed, geom_opposed)
+    b_rev_opposed.calc_binding_kd()
+    b_rev_opposed.calc_binding_reverse(geom_opposed)
+
+    total_weight_rev_aligned = sum(sum(b.values()) for b in b_rev_aligned.bindings)
+    total_weight_rev_opposed = sum(sum(b.values()) for b in b_rev_opposed.bindings)
+
+    assert total_weight_rev_aligned > 0
+    assert total_weight_rev_opposed == 0.0
+
+
+def test_calc_binding_reverse_adaptive_and_gating():
+    char_geom = create_cube_geometry(scale=2.0)
+
+    verts_aligned = np.array([
+        [0.8, 0.8, 1.02],
+        [0.9, 0.8, 1.02],
+        [0.8, 0.9, 1.02],
+    ], dtype=np.float64)
+    geom_aligned = Geometry(verts_aligned, [(0, 1, 2)])
+
+    bind_dict_aligned = [{} for _ in range(3)]
+    _calc_binding_reverse(bind_dict_aligned, char_geom, geom_aligned)
+
+    verts_opposed = np.array([
+        [0.8, 0.8, 1.02],
+        [0.8, 0.9, 1.02],
+        [0.9, 0.8, 1.02],
+    ], dtype=np.float64)
+    geom_opposed = Geometry(verts_opposed, [(0, 1, 2)])
+
+    bind_dict_opposed = [{} for _ in range(3)]
+    _calc_binding_reverse(bind_dict_opposed, char_geom, geom_opposed)
+
+    assert sum(len(d) for d in bind_dict_aligned) > 0
+    assert sum(len(d) for d in bind_dict_opposed) == 0
+
+
+def test_extreme_morph_fitting_no_cross_bridging_and_no_inverted_normals():
+    # Two separate legs at x = -0.5 and x = +0.5
+    leg1 = create_cube_geometry(scale=0.4, offset=(-0.5, 0.0, 0.0))
+    leg2 = create_cube_geometry(scale=0.4, offset=(0.5, 0.0, 0.0))
+
+    char_verts = np.vstack([leg1.verts, leg2.verts])
+    char_faces = list(leg1.faces) + [(f[0]+8, f[1]+8, f[2]+8, f[3]+8) for f in leg2.faces]
+    char_geom = Geometry(char_verts, char_faces)
+
+    # Sleeve/pant leg surrounding leg1 (-0.5, 0, 0)
+    sleeve = create_cube_geometry(scale=0.5, offset=(-0.5, 0.0, 0.0))
+
+    binder = SoftBinder(char_geom, sleeve.verts, sleeve)
+    binder.calc_binding_kd()
+    binder.calc_binding_direct()
+    binder.calc_binding_reverse(sleeve)
+
+    # Verify sleeve is bound ONLY to leg1 vertices (index 0..7), NOT leg2 vertices (index 8..15)
+    bound_char_indices = set()
+    for b in binder.bindings:
+        bound_char_indices.update(b.keys())
+
+    assert all(idx < 8 for idx in bound_char_indices), "Cross-surface bridging detected across legs!"
+
+    # Simulate extreme character morph: leg1 moves further left (-1.5), leg2 moves further right (+1.5)
+    char_diff = np.zeros_like(char_verts)
+    char_diff[:8, 0] = -1.0  # Move leg1 left by -1.0
+    char_diff[8:, 0] = +1.0  # Move leg2 right by +1.0
+
+    calc = FitCalculator(char_geom)
+    positions, idx, wresult = calc._calc_binding_internal(sleeve.verts, None, sleeve)
+
+    from lib.fit_calc import FitBinding
+    fit_bind = FitBinding((positions, idx, wresult))
+    sleeve_diff = fit_bind.fit(char_diff)
+    fitted_sleeve_verts = sleeve.verts + sleeve_diff
+
+    # Check fitted sleeve faces normal orientation (must not be inverted)
+    fitted_sleeve_geom = Geometry(fitted_sleeve_verts, sleeve.faces)
+    fitted_normals = fitted_sleeve_geom.vertex_normals
+    orig_normals = sleeve.vertex_normals
+
+    dot_products = np.sum(fitted_normals * orig_normals, axis=1)
+    assert np.all(dot_products > 0.0), "Inverted face normals detected after extreme refitting!"
+
+
+def test_binding_calculation_time_under_50ms():
+    # Generate realistic character mesh (100 verts) and asset mesh (36 verts)
+    grid_size = 10
+    x = np.linspace(-1, 1, grid_size)
+    y = np.linspace(-1, 1, grid_size)
+    xx, yy = np.meshgrid(x, y)
+    zz = np.zeros_like(xx)
+
+    char_verts = np.column_stack([xx.ravel(), yy.ravel(), zz.ravel()])
+    char_faces = []
+    for r in range(grid_size - 1):
+        for c in range(grid_size - 1):
+            i0 = r * grid_size + c
+            i1 = i0 + 1
+            i2 = (r + 1) * grid_size + c + 1
+            i3 = (r + 1) * grid_size + c
+            char_faces.append((i0, i1, i2, i3))
+
+    char_geom = Geometry(char_verts, char_faces)
+
+    asset_verts = char_verts[:36] + np.array([0.0, 0.0, 0.05])
+    asset_faces = [f for f in char_faces if max(f) < 36]
+    asset_geom = Geometry(asset_verts, asset_faces)
+
+    calc = FitCalculator(char_geom)
+
+    start_time = time.time()
+    _ = calc._calc_binding_internal(asset_verts, None, asset_geom)
+    elapsed_ms = (time.time() - start_time) * 1000
+
+    assert elapsed_ms < 50.0, f"Binding calculation took {elapsed_ms:.2f}ms (must be under 50ms)"
 
 
 def test_post_fitting_surface_clearance_projection():
