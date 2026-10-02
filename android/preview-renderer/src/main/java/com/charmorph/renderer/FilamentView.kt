@@ -53,6 +53,13 @@ class FilamentView @JvmOverloads constructor(
         controller?.updateMorphWeights(currentWeights)
     }
 
+    fun updateMorphWeights(weights: Map<String, Float>) {
+        weights.forEach { (targetName, weight) ->
+            val morphId = targetName.hashCode()
+            currentWeights[morphId] = weight
+        }
+        controller?.updateMorphWeights(currentWeights)
+    }
     fun updateBoneRotation(boneId: Int, rotation: Vector4) {
         controller?.updateBoneRotation(boneId, rotation)
     }

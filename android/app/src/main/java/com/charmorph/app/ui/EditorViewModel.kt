@@ -9,11 +9,22 @@ import com.charmorph.core.model.Vector4
 import com.charmorph.renderer.TextureType
 import com.charmorph.storage.CharacterRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+data class MorphState(
+    val name: String,
+    val displayName: String,
+    val category: String,
+    val value: Float = 0f,
+    val min: Float = 0f,
+    val max: Float = 1f
+)
 
 data class BoneState(
     val id: Int,
@@ -84,16 +95,47 @@ class EditorViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(selectedTextureSlot = type)
     }
 
+    private var saveJob: Job? = null
+
     fun updateMorph(name: String, value: Float) {
         val currentMorphs = _uiState.value.morphs.toMutableList()
         val index = currentMorphs.indexOfFirst { it.name == name }
         if (index != -1) {
             currentMorphs[index] = currentMorphs[index].copy(value = value)
             _uiState.value = _uiState.value.copy(morphs = currentMorphs)
-            saveCurrentState()
+            scheduleDebouncedSave()
         }
     }
 
+    private fun scheduleDebouncedSave() {
+        saveJob?.cancel()
+        saveJob = viewModelScope.launch {
+            delay(300L)
+            saveCurrentStateDirect()
+        }
+    }
+
+    private fun saveCurrentStateDirect() {
+        val weights = _uiState.value.morphs.associate { it.name to it.value }
+        viewModelScope.launch {
+            repository.updateMorphWeights(characterId, weights)
+        }
+    }
+
+    fun flushSave() {
+        if (saveJob?.isActive == true) {
+            saveJob?.cancel()
+            saveCurrentStateDirect()
+        }
+    }
+
+    override fun onCleared() {
+        if (saveJob?.isActive == true) {
+            saveJob?.cancel()
+            saveCurrentStateDirect()
+        }
+        super.onCleared()
+    }
     fun updateBone(boneId: Int, pitch: Float, yaw: Float, roll: Float) {
         val currentBones = _uiState.value.bones.toMutableList()
         val index = currentBones.indexOfFirst { it.id == boneId }
@@ -106,13 +148,6 @@ class EditorViewModel @Inject constructor(
     fun getBoneRotation(boneId: Int): Vector4? {
         val bone = _uiState.value.bones.find { it.id == boneId } ?: return null
         return MathUtils.eulerToQuaternion(bone.pitch, bone.yaw, bone.roll)
-    }
-
-    private fun saveCurrentState() {
-        viewModelScope.launch {
-            val weights = _uiState.value.morphs.associate { it.name to it.value }
-            repository.updateMorphWeights(characterId, weights)
-        }
     }
 
     fun getCharacterMesh() = currentCharacter?.baseMesh

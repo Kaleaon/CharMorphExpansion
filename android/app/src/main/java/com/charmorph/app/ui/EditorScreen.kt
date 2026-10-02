@@ -85,11 +85,9 @@ fun EditorScreen(
                             }
                         },
                         update = { view ->
-                            // Apply Morphs
-                            uiState.morphs.forEach { morph ->
-                                 view.updateMorphWeight(morph.name, morph.value)
-                            }
-
+                            // Apply Morphs in a single batched call
+                            val morphMap = uiState.morphs.associate { it.name to it.value }
+                            view.updateMorphWeights(morphMap)
                             // Apply Pose
                             uiState.bones.forEach { bone ->
                                 val quat = viewModel.getBoneRotation(bone.id)

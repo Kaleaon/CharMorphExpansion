@@ -28,7 +28,9 @@ import com.google.android.filament.Viewport
 import com.google.android.filament.utils.Manipulator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -36,6 +38,9 @@ class FilamentController(
     private val context: Context,
     private val surfaceView: SurfaceView
 ) : Choreographer.FrameCallback {
+
+    private var persistentVertexBuffer: ByteBuffer? = null
+    private val renderScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private var engine: Engine = Engine.create()
     private var renderer: Renderer = engine.createRenderer()
@@ -97,12 +102,12 @@ class FilamentController(
             if (texture != null) {
                 when (type) {
                     TextureType.ALBEDO -> {
-                        engine.destroyTexture(albedoTexture)
+                        albedoTexture?.let { engine.destroyTexture(it) }
                         albedoTexture = texture
                         updateMaterialParameters()
                     }
                     TextureType.NORMAL -> {
-                        engine.destroyTexture(normalTexture)
+                        normalTexture?.let { engine.destroyTexture(it) }
                         normalTexture = texture
                         updateMaterialParameters()
                     }
@@ -113,12 +118,14 @@ class FilamentController(
     }
 
     private fun updateMaterialParameters() {
+        val albedo = albedoTexture
+        val normal = normalTexture
         materialInstances.values.forEach { instance ->
-            albedoTexture?.let {
-                instance.setParameter("baseColorMap", it, com.google.android.filament.TextureSampler())
+            if (albedo != null) {
+                instance.setParameter("baseColorMap", albedo, com.google.android.filament.TextureSampler())
             }
-            normalTexture?.let {
-                instance.setParameter("normalMap", it, com.google.android.filament.TextureSampler())
+            if (normal != null) {
+                instance.setParameter("normalMap", normal, com.google.android.filament.TextureSampler())
             }
         }
     }
@@ -158,6 +165,13 @@ class FilamentController(
         nativeMeshPtr = nativeLib.createMesh(flatVertices)
 
         val vertexCount = mesh.vertices.size
+        val requiredCapacity = vertexCount * 3 * 4
+        if (persistentVertexBuffer == null || persistentVertexBuffer!!.capacity() < requiredCapacity) {
+            persistentVertexBuffer = ByteBuffer.allocateDirect(requiredCapacity).order(ByteOrder.nativeOrder())
+        } else {
+            persistentVertexBuffer!!.clear()
+        }
+
         val vertexBufferData = ByteBuffer.allocateDirect(vertexCount * 3 * 4)
             .order(ByteOrder.nativeOrder())
         vertexBufferData.asFloatBuffer().put(flatVertices)
@@ -239,18 +253,30 @@ class FilamentController(
 
     fun updateMorphWeights(weights: Map<Int, Float>) {
         if (nativeMeshPtr == 0L || bufferMap.isEmpty()) return
-
+        val buffer = persistentVertexBuffer ?: return
+        
         val vertexBuffer = bufferMap.values.first().first
         val vertexCount = vertexBuffer.vertexCount
-
-        val outputBuffer = ByteBuffer.allocateDirect(vertexCount * 3 * 4).order(ByteOrder.nativeOrder())
-
+        val meshPtr = nativeMeshPtr
+        
         val ids = weights.keys.toIntArray()
         val values = weights.values.toFloatArray()
-
-        nativeLib.updateMorphs(nativeMeshPtr, ids, values, outputBuffer)
-
-        vertexBuffer.setBufferAt(engine, 0, outputBuffer)
+        
+        renderScope.launch(Dispatchers.Default) {
+            synchronized(buffer) {
+                buffer.clear()
+                nativeLib.updateMorphs(meshPtr, ids, values, buffer)
+                buffer.position(0)
+                buffer.limit(vertexCount * 3 * 4)
+            }
+            withContext(Dispatchers.Main) {
+                if (nativeMeshPtr == meshPtr && bufferMap.isNotEmpty()) {
+                    synchronized(buffer) {
+                        vertexBuffer.setBufferAt(engine, 0, buffer)
+                    }
+                }
+            }
+        }
     }
 
     fun updateBoneRotation(boneId: Int, rotation: Vector4) {
@@ -264,7 +290,8 @@ class FilamentController(
         entityMap.values.forEach { entity ->
             val rm = engine.renderableManager
             val instance = rm.getInstance(entity)
-             rm.setBones(instance, rig.skinningBuffer, 0, rig.skinningBuffer.size / 16)
+            val buffer = java.nio.FloatBuffer.wrap(rig.skinningBuffer)
+            rm.setBonesAsMatrices(instance, buffer, rig.skinningBuffer.size / 16, 0)
         }
     }
 
