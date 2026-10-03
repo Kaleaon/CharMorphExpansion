@@ -1,5 +1,5 @@
 import {
-  ACESFilmicToneMapping, CanvasTexture, Color, DirectionalLight, Box3, Group, Mesh, CircleGeometry, MeshStandardMaterial,
+  ACESFilmicToneMapping, CanvasTexture, Color, DirectionalLight, Box3, Group, InstancedMesh, Mesh, CircleGeometry, MeshStandardMaterial,
   type Object3D, PCFSoftShadowMap, PerspectiveCamera, PMREMGenerator, Scene, SRGBColorSpace, Sphere, Texture, Vector3, WebGLRenderer,
   ShadowMaterial,
 } from "three";
@@ -18,6 +18,23 @@ export interface ViewportOptions {
 }
 
 const LIGHT_DISTANCE = 6;
+
+/** World-space bounds of the visible meshes under `root` (unlike Box3.setFromObject, hidden objects are ignored). */
+function visibleBounds(root: Object3D | null): Box3 {
+  const box = new Box3();
+  if (!root) return box;
+  root.updateWorldMatrix(true, true);
+  const tmp = new Box3();
+  root.traverseVisible((o) => {
+    const m = o as Mesh;
+    if (!m.isMesh || !m.geometry) return;
+    const inst = o as InstancedMesh;
+    if (inst.isInstancedMesh) { inst.computeBoundingBox(); tmp.copy(inst.boundingBox!); }
+    else { m.geometry.computeBoundingBox(); tmp.copy(m.geometry.boundingBox!); }
+    box.union(tmp.applyMatrix4(o.matrixWorld));
+  });
+  return box;
+}
 
 /** Real-time preview viewport: PBR, image-based lighting, a switchable studio rig, orbit camera and optional turntable. */
 export class Viewport {
@@ -105,8 +122,7 @@ export class Viewport {
 
   /** Re-aim the camera at the content's bounds. */
   frame(): void {
-    const box = new Box3();
-    if (this.content) box.setFromObject(this.content);
+    const box = visibleBounds(this.content);
     if (box.isEmpty()) box.set(new Vector3(-0.5, 0, -0.5), new Vector3(0.5, 1.8, 0.5));
     const s = box.getBoundingSphere(new Sphere());
     this.radius = s.radius;

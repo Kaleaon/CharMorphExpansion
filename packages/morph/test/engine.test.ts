@@ -1,0 +1,97 @@
+import { describe, expect, it } from "vitest";
+import { MorphEngine, UnknownTargetError } from "../src/engine.ts";
+import { gridMesh, randomTarget, rng } from "./helpers.ts";
+
+const maxDiff = (a: Float32Array, b: Float32Array) => { let m = 0; for (let i = 0; i < a.length; i++) m = Math.max(m, Math.abs(a[i]! - b[i]!)); return m; };
+
+function setup(n = 8, nTargets = 6, density = 0.4) {
+  const mesh = gridMesh(n);
+  const r = rng(7);
+  const mv = mesh.positions.length / 3;
+  const targets = Array.from({ length: nTargets }, (_, i) => randomTarget(`t${i}`, mv, density, 0.2, r));
+  return { mesh, targets, r };
+}
+
+describe("MorphEngine", () => {
+  it("starts at the base shape with upward normals on a flat plane", () => {
+    const { mesh, targets } = setup();
+    const e = new MorphEngine(mesh, targets);
+    for (let r = 0; r < e.renderVertexCount; r++) {
+      const m = mesh.renderToMorph[r]!;
+      expect(e.positions[r * 3]).toBe(mesh.positions[m * 3]);
+    }
+    expect(Math.abs(e.normals[2]!)).toBeCloseTo(1, 5); // ±Z
+  });
+
+  it("incremental updates match a from-scratch evaluation (positions and normals)", () => {
+    const { mesh, targets, r } = setup(10, 8);
+    const inc = new MorphEngine(mesh, targets);
+    for (let step = 0; step < 60; step++) {
+      const w: Record<string, number> = {};
+      for (const t of targets) if (r() < 0.5) w[t.id] = r();
+      inc.setWeights(w);
+      const fresh = new MorphEngine(mesh, targets);
+      fresh.setWeights(w);
+      expect(maxDiff(inc.positions, fresh.positions)).toBeLessThan(1e-5);
+      expect(maxDiff(inc.normals, fresh.normals)).toBeLessThan(1e-4);
+    }
+  });
+
+  it("returns exactly to the base shape when all weights go back to zero", () => {
+    const { mesh, targets } = setup();
+    const e = new MorphEngine(mesh, targets);
+    const base = Float32Array.from(e.positions);
+    const baseN = Float32Array.from(e.normals);
+    e.setWeights({ t0: 0.9, t1: 0.3 });
+    expect(maxDiff(e.positions, base)).toBeGreaterThan(1e-3);
+    const stats = e.setWeights({});
+    expect(stats.rebuilt).toBe(true);
+    expect(maxDiff(e.positions, base)).toBe(0);
+    expect(maxDiff(e.normals, baseN)).toBe(0);
+  });
+
+  it("moves both render copies of a UV-seam vertex together and shares their normal", () => {
+    const { mesh, targets } = setup();
+    const e = new MorphEngine(mesh, targets);
+    e.setWeights({ t0: 1, t1: 1, t2: 1 });
+    const byMorph = new Map<number, number[]>();
+    mesh.renderToMorph.forEach((m, r) => byMorph.set(m, [...(byMorph.get(m) ?? []), r]));
+    const dupes = [...byMorph.values()].filter((v) => v.length === 2);
+    expect(dupes.length).toBeGreaterThan(0);
+    for (const [a, b] of dupes) {
+      for (let k = 0; k < 3; k++) {
+        expect(e.positions[a! * 3 + k]).toBe(e.positions[b! * 3 + k]);
+        expect(e.normals[a! * 3 + k]).toBe(e.normals[b! * 3 + k]);
+      }
+    }
+  });
+
+  it("only touches vertices of the targets that changed", () => {
+    const { mesh, targets } = setup(12, 4, 0.1);
+    const e = new MorphEngine(mesh, targets);
+    e.setWeights({ t0: 0.5, t1: 0.5 });
+    const stats = e.setWeights({ t0: 0.5, t1: 0.7 });
+    expect(stats.changedTargets).toBe(1);
+    expect(stats.dirtyVertices).toBe(targets[1]!.indices.length);
+    expect(e.setWeights({ t0: 0.5, t1: 0.7 })).toEqual({ changedTargets: 0, dirtyVertices: 0, rebuilt: false });
+  });
+
+  it("rejects unknown target ids without changing state", () => {
+    const { mesh, targets } = setup();
+    const e = new MorphEngine(mesh, targets);
+    e.setWeights({ t0: 0.4 });
+    const before = Float32Array.from(e.positions);
+    expect(() => e.setWeights({ t0: 1, nope: 1 })).toThrow(UnknownTargetError);
+    expect(maxDiff(e.positions, before)).toBe(0);
+  });
+
+  it("does not drift over thousands of incremental updates", () => {
+    const { mesh, targets, r } = setup(8, 5);
+    const e = new MorphEngine(mesh, targets);
+    let w: Record<string, number> = {};
+    for (let i = 0; i < 3000; i++) { w = { t0: r(), t1: r() * 0.5, t2: r() }; e.setWeights(w); }
+    const fresh = new MorphEngine(mesh, targets);
+    fresh.setWeights(w);
+    expect(maxDiff(e.positions, fresh.positions)).toBeLessThan(1e-4);
+  });
+});

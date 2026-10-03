@@ -1,0 +1,41 @@
+{
+  "pack": "makehuman-hm08",
+  "files": [
+    {
+      "path": "mesh.json",
+      "sha256": "fa38380d65530ff8d4ae1276d4209a3a129c0b5d227bf967e05d2c3069af8cf9",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "mesh.bin",
+      "sha256": "42dd0179e4b829e4fec5ce87d0cc29b74913df26558c38accd3971037c63cf27",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "targets.json",
+      "sha256": "774626625c45910911605e8eca9011d0719c0a631c579d6ba6875d3cbc9b1219",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "targets.bin",
+      "sha256": "b78c1a79f6590b947d9fd575c533b87a88941cf4e42aa69f28ada839c818e49b",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "spec.json",
+      "sha256": "7352ee7c4286be81b7bc7fa9e2218dc3bcf8e81a157412225169e14abc4a9a95",
+      "license": "MIT",
+      "author": "Kaleaon (this project)",
+      "sourceUrl": "https://github.com/Kaleaon/CharMorphExpansion",
+      "attribution": "Copyright (c) 2026 Kaleaon"
+    }
+  ]
+}

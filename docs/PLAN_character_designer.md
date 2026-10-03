@@ -1,6 +1,6 @@
 # Character Designer — Research Summary & Proposed Architecture
 
-Status: **APPROVED. M0 done; M1 (viewport) implemented, on-device performance check pending; M2 (SL skeleton) implemented; M3 next.**
+Status: **APPROVED. M0 done; M1 (viewport) implemented, on-device performance check pending; M2 (SL skeleton) implemented; M3 (morph engine + sliders) implemented, on-device performance check pending; M4 next.**
 
 Decisions (approved): MIT code + CC0/CC-BY assets only · MakeHuman CC0 first, Vitruvian second · Second Life only (OpenSim out of scope for now) · SL retarget of a CC0 base done in-house (M5) · old Blender add-on and Android app frozen in `legacy/` · no SL/OpenSim test account yet, so M6 upload validation stays offline until one is available.
 Date: 2026-10-03
@@ -36,7 +36,7 @@ Downloaded and parsed `indra/newview/character/avatar_skeleton.xml` and `avatar_
 | SL system `.llm` meshes / Linden morph data | The default Linden avatar | **[?]** unclear | **Do not ship.** Don't base our mesh on it. |
 | **Ruth2 / Roth2** (RuthAndRoth org) | Open SL/OpenSim-compatible female/male mesh bodies, standard SL UVs, Bento-rigged, .blend + .dae | **AGPL-3.0 [V]** ("Ruth2 is AGPL licensed, other contents also AGPL unless indicated") | **Flagged — copyleft.** Anything derived (converted meshes, weights, slider targets) is AGPL, and AGPL's network clause could reach a hosted web app. **Do not bundle.** Options: (a) skip; (b) an *optional, user-supplied* import path (user downloads Ruth2 themselves; we only read it) — still needs counsel; (c) ship the whole app AGPL. Needs your decision. |
 | **Ruth 2020 / Roth 2020** (ingen-lab) | Older Ruth variant | Marketplace snippet says "Creative Commons Avatar, full permissions" **[S]**; repo has a `Licenses.txt` + `Licenses/` folder I did not read **[?]** | Promising CC alternative but **unverified**. Read `Licenses.txt` before any use. |
-| **MakeHuman** base mesh, targets, proxies, system assets | Parametric human, large target set | Since Sept 2020: assets/targets/base mesh are **CC0** ("no matter how you got hold of them") **[S]**; the application code is AGPL | **Best primary candidate.** Verify per-asset license metadata (community assets may be CC-BY or others). Don't use MakeHuman *code*. |
+| **MakeHuman** base mesh, targets, proxies, system assets | Parametric human, large target set | Since Sept 2020: assets/targets/base mesh are **CC0** — **[V] in M3**: `LICENSE.md` §C and `LICENSE.ASSETS.md` of `makehumancommunity/makehuman` (commit `a8bc2d5`), and every `base.obj`/`.target` header says "explicitly released as CC0 in september 2020". The application code is AGPL (not used) | **Best primary candidate.** Verify per-asset license metadata (community assets may be CC-BY or others). Don't use MakeHuman *code*. |
 | **MPFB2** (MakeHuman plugin for Blender) | Blender add-on | Code GPLv3; core assets CC0; output CC0 **[S]** | Assets usable (CC0); code is a study reference only. |
 | **MB-Lab** | Original Blender character tool | Code GPL-3; **data files AGPL-3**; generated characters inherit AGPL **[S]** | **Avoid** data/meshes. |
 | **CharMorph-db** (our submodule) | Characters for CharMorph | Per character: **Vitruvian CC0**, Antonia CC-BY, Reom CC-BY, MB-Lab AGPL **[S]** | **Vitruvian (CC0)** is a strong second base mesh. Antonia/Reom OK with attribution. Never the MB-Lab character. |
@@ -161,3 +161,27 @@ Every shipped asset has a manifest entry (`source URL, license SPDX, author, att
 - Collision-volume `scale` is drawn as ellipsoid **semi-axes**; chosen because the result looks anatomically right (pelvis ≈ 0.32 m wide), not from documentation. Euler order for CV rotations is assumed XYZ; all joint rotations are zero so only CV display depends on it.
 - Coordinates inside `packages/skeleton` are SL-native (+X forward, +Y left, +Z up); the viewport applies a fixed basis change (`SL_TO_THREE`).
 - Not done yet: glTF vs COLLADA bone-axis round-trip (M6), the `avatar_lad.xml` slider import (M3/M5).
+
+
+## M3 notes (morph engine + sliders)
+
+**What exists**
+- `packages/core`: `CharacterModel` — sliders (bipolar/unipolar, multi-binding so one slider can drive left+right limbs), multilinear **macro groups** over shared variables (scalar with anchors, or *simplex* such as ethnicity whose components stay normalized), presets (`cm-preset/1`, only non-defaults stored), validation.
+- `packages/morph`: binary pack formats (`cm-mesh/1`, `cm-targets/1`, int16-quantized sparse deltas), `MorphEngine` (incremental weight deltas, dirty-region normals, drift guard, exact reset), and a worker client with latest-wins coalescing and buffer recycling.
+- `tools/convert-makehuman`: converts the pinned MakeHuman commit's CC0 `base.obj` + selected targets into `assets/makehuman-hm08/` (body group only, metres, feet at y=0) with a per-file provenance manifest checked by the license gate.
+- `apps/web`: Shape tab with 26 controls (gender, 3 ethnicity components, muscle, weight, 20 regional sliders), reset, preset save/load.
+
+**Scope decisions**
+- **Age is fixed at "young adult"** in this pack. MakeHuman's full macro set is 106 MB of text targets, so child/old/baby (and the height macro) need a size strategy first: M4.
+- The base mesh *is* the neutral shape; gender/ethnicity come from the 6 `{race}-{gender}-young` targets and muscle/weight/gender from 18 `universal-*` targets, blended multilinearly as in MakeHuman. Defaults (gender 0.5, ethnicity ⅓ each, muscle/weight 0.5) therefore give MakeHuman's default look.
+- Slider names and groupings are ours; only target files come from MakeHuman. `hip-waist` has no `decr/incr` pair upstream and was left out.
+
+**Measured (informational; not the M3 exit criterion)**
+- Engine on the real 13,380-vertex mesh, Node on this container's CPU: regional slider 0.2 ms, weight slider ≈1 ms, gender macro ≈3 ms per update.
+- Headless Chromium with software GL: worker round trip ≈4 ms; the main thread's software rendering (~7 fps at 1100×800) was the bottleneck, so **"60 fps while dragging on a mobile device" is still unverified** and needs a real phone.
+
+**Known gaps / follow-ups**
+- Body is not yet skinned or fitted to the SL skeleton (M5); the skeleton overlay deliberately doesn't match it.
+- No textures yet (flat skin material); UVs are carried through.
+- Camera framing uses a bounding sphere, so portrait phones show the figure smaller than necessary (M8 mobile polish).
+- Helper geometry (eyes, teeth, lashes, tights) in `base.obj` was dropped; eyes etc. return in M4/M7.

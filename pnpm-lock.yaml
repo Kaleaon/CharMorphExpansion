@@ -20,6 +20,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@charmorph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@charmorph/morph':
+        specifier: workspace:*
+        version: link:../../packages/morph
       '@charmorph/render':
         specifier: workspace:*
         version: link:../../packages/render
@@ -56,8 +62,13 @@ importers:
 
   packages/core: {}
 
+  packages/morph: {}
+
   packages/render:
     dependencies:
+      '@charmorph/morph':
+        specifier: workspace:*
+        version: link:../morph
       '@charmorph/skeleton':
         specifier: workspace:*
         version: link:../skeleton
@@ -70,6 +81,8 @@ importers:
         version: 0.180.0
 
   packages/skeleton: {}
+
+  tools/convert-makehuman: {}
 
   tools/import-sl-skeleton:
     dependencies:

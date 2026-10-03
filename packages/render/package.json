@@ -6,7 +6,8 @@
   "main": "src/index.ts",
   "dependencies": {
     "three": "^0.180.0",
-    "@charmorph/skeleton": "workspace:*"
+    "@charmorph/skeleton": "workspace:*",
+    "@charmorph/morph": "workspace:*"
   },
   "devDependencies": {
     "@types/three": "^0.180.0"

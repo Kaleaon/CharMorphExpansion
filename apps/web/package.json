@@ -13,7 +13,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@charmorph/skeleton": "workspace:*",
-    "three": "^0.180.0"
+    "three": "^0.180.0",
+    "@charmorph/morph": "workspace:*",
+    "@charmorph/core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

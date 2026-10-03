@@ -1,2 +1,3 @@
-// Parameter graph, sliders and presets land here in M3. Intentionally empty for M0.
-export {};
+export * from "./types.ts";
+export * from "./macro.ts";
+export * from "./model.ts";
