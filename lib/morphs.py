@@ -49,7 +49,7 @@ class FullMorph(Morph):
         if off == 0 and len(d) == len(verts):
             verts += d
         else:
-            verts[off : off + len(d)] += d
+            verts[off: off + len(d)] += d
         return verts
 
 
