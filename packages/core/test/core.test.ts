@@ -238,3 +238,13 @@ describe("material-param channel", () => {
     expect(validateSpec({ variables: [], macros: [], sliders: [slack({ material: [{ param: "", response: "abs" }] })] }).join()).toContain("without a param");
   });
 });
+
+describe("preset parts", () => {
+  it("round-trips a parts list through parsePreset and rejects a bad one", () => {
+    const p = { format: "cm-preset/1" as const, name: "n", values: {}, parts: ["tail.canine", "ears.prick"] };
+    expect(parsePreset(JSON.parse(JSON.stringify(p))).parts).toEqual(["tail.canine", "ears.prick"]);
+    expect(() => parsePreset({ ...p, parts: [1] })).toThrow(/parts/);
+    expect(() => parsePreset({ ...p, parts: "tail" })).toThrow(/parts/);
+    expect(parsePreset({ format: "cm-preset/1", name: "old", values: {} }).parts).toBeUndefined();
+  });
+});

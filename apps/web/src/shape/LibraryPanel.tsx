@@ -27,7 +27,7 @@ export function LibraryPanel({ ch, thumbnail }: Props) {
       const rec = await store.put({
         ...(asNew || !currentId ? {} : { id: currentId }),
         name,
-        preset: ch.model!.toPreset(name),
+        preset: ch.toPreset(name),
         thumbnail: thumbnail(),
       });
       setCurrentId(rec.id);

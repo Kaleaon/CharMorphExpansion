@@ -1,6 +1,7 @@
-import { CharacterModel, parsePreset, type CharacterSpec } from "@charmorph/core";
+import { CharacterModel, parsePreset, type CharacterSpec, type Preset } from "@charmorph/core";
 import { createBrowserMorphWorker, decodeMeshPack, MorphWorkerClient, type MeshPackMeta, type MorphFrame, type MorphMesh, type TargetPackMeta } from "@charmorph/morph";
 import { PackManager } from "@charmorph/packs";
+import { PartsController } from "@charmorph/parts";
 import { BodyRig, decodeRig, type RigMeta } from "@charmorph/rig";
 import { applyMaterialParams, MorphMeshView } from "@charmorph/render";
 import { SL_SKELETON_DATA } from "@charmorph/skeleton";
@@ -14,6 +15,7 @@ import rigJsonUrl from "../../../../assets/makehuman-hm08/rig.json?url";
 import specUrl from "../../../../assets/makehuman-hm08/spec.json?url";
 import targetsBinUrl from "../../../../assets/makehuman-hm08/targets.bin?url";
 import targetsJsonUrl from "../../../../assets/makehuman-hm08/targets.json?url";
+import { loadPartCatalog } from "../parts/partSource.ts";
 import { appPackSource } from "./packSource.ts";
 
 export interface MorphStats {
@@ -28,6 +30,10 @@ export interface Character {
   model: CharacterModel | null;
   view: MorphMeshView | null;
   packs: PackManager | null;
+  /** Modular parts: catalog, what is worn, and the link to the pack loader (null until the character has loaded). */
+  parts: PartsController | null;
+  /** Problems found while reading the part packs (a broken pack is skipped, not fatal). */
+  partProblems: string[];
   store: CharacterStore | null;
   stats: MorphStats;
   /** The MakeHuman body as a Second Life rigged mesh (null until loaded). */
@@ -45,7 +51,13 @@ export interface Character {
   set: (id: string, v: number) => void;
   reset: () => void;
   ensurePack: (id: string) => Promise<void>;
+  /** The current preset: slider values, needed packs and worn parts. */
+  toPreset: (name: string) => Preset;
   savePreset: (name: string) => string;
+  /** Wear a part (loading its pack and sliders first); rejects, changing nothing, if that fails. */
+  equipPart: (id: string) => Promise<void>;
+  unequipPart: (category: string) => void;
+  clearParts: () => void;
   /** Loads any packs the preset needs, then applies it. Returns ids that could not be applied. */
   loadPreset: (json: string) => Promise<string[]>;
 }
@@ -66,6 +78,8 @@ export function useCharacter(): Character {
   const viewRef = useRef<MorphMeshView | null>(null);
   const workerRef = useRef<MorphWorkerClient | null>(null);
   const packsRef = useRef<PackManager | null>(null);
+  const partsRef = useRef<PartsController | null>(null);
+  const partProblems = useRef<string[]>([]);
   const storeRef = useRef<CharacterStore | null>(null);
   const rigRef = useRef<BodyRig | null>(null);
   const meshRef = useRef<MorphMesh | null>(null);
@@ -109,6 +123,9 @@ export function useCharacter(): Character {
         if (cancelled) return;
         const packs = new PackManager({ model, worker: client, source: appPackSource, mesh: { name: meshMeta.name, morphVertexCount: meshMeta.morphVertexCount } });
         unsub = packs.onChange(() => setVersion((v) => v + 1));
+        const loaded = loadPartCatalog();
+        partProblems.current = loaded.problems;
+        partsRef.current = new PartsController(loaded.catalog, model, { has: (id) => packs.info(id) !== undefined, ensure: (id) => packs.ensure(id) });
         modelRef.current = model; viewRef.current = view; workerRef.current = client; packsRef.current = packs; storeRef.current = store;
         window.__character = { model, worker: client, packs, stats: () => stats.current };
         sentAt.current = performance.now();
@@ -123,7 +140,7 @@ export function useCharacter(): Character {
       unsub?.();
       client?.terminate();
       viewRef.current?.dispose();
-      modelRef.current = null; viewRef.current = null; workerRef.current = null; packsRef.current = null; storeRef.current = null;
+      modelRef.current = null; viewRef.current = null; workerRef.current = null; packsRef.current = null; partsRef.current = null; storeRef.current = null;
       rigRef.current = null; meshRef.current = null; processorRef.current = null; lastRaw.current = null;
       window.__character = undefined;
     };
@@ -141,7 +158,7 @@ export function useCharacter(): Character {
 
   return {
     status, error,
-    model: modelRef.current, view: viewRef.current, packs: packsRef.current, store: storeRef.current,
+    model: modelRef.current, view: viewRef.current, packs: packsRef.current, parts: partsRef.current, partProblems: partProblems.current, store: storeRef.current,
     rig: rigRef.current, mesh: meshRef.current,
     setFrameProcessor: (fn) => {
       processorRef.current = fn;
@@ -155,13 +172,21 @@ export function useCharacter(): Character {
     get stats() { return stats.current; },
     version,
     set: (id, v) => { modelRef.current?.set(id, v); push(); },
-    reset: () => { modelRef.current?.reset(); push(); },
+    reset: () => { modelRef.current?.reset(); partsRef.current?.clear(); push(); },
     ensurePack: async (id) => { await packsRef.current!.ensure(id); push(); },
-    savePreset: (name) => JSON.stringify(modelRef.current!.toPreset(name), null, 2),
+    toPreset: (name) => (partsRef.current ?? modelRef.current!).toPreset(name),
+    savePreset: (name) => JSON.stringify((partsRef.current ?? modelRef.current!).toPreset(name), null, 2),
+    equipPart: async (id) => { await partsRef.current!.equip(id); push(); },
+    unequipPart: (category) => { partsRef.current!.unequip(category); push(); },
+    clearParts: () => { partsRef.current!.clear(); push(); },
     loadPreset: async (json) => {
-      const unknown = await packsRef.current!.applyPreset(parsePreset(JSON.parse(json)));
+      const preset = parsePreset(JSON.parse(json));
+      const parts = partsRef.current!;
+      await parts.preparePreset(preset);
+      const unknown = await packsRef.current!.applyPreset(preset);
+      const skipped = parts.restore(preset);
       push();
-      return unknown;
+      return [...unknown, ...skipped];
     },
   };
 }

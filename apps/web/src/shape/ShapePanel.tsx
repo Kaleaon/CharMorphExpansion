@@ -2,6 +2,7 @@ import type { CharacterModel, MacroVariable, SliderDef } from "@charmorph/core";
 import type { PackInfo } from "@charmorph/packs";
 import { memo, useMemo, useRef, useState } from "react";
 import type { Character } from "./useCharacter.ts";
+import { isPartPack } from "./packSource.ts";
 
 interface Row { id: string; label: string; min: number; max: number; step: number; advanced?: boolean; order?: number; readout?: (v: number) => string }
 interface Section { title: string; rows: Row[] }
@@ -20,14 +21,14 @@ function readoutFn(unit: string, stops: [number, number][]): (v: number) => stri
 }
 
 /** Group sliders and macro variables into panel sections, keeping spec order. */
-function sections(model: CharacterModel): Section[] {
+function sections(model: CharacterModel, show: (id: string) => boolean): Section[] {
   const out = new Map<string, Row[]>();
   const add = (group: string, row: Row) => { if (!out.has(group)) out.set(group, []); out.get(group)!.push(row); };
   for (const v of model.spec.variables as MacroVariable[]) {
     if (v.kind === "scalar") add(v.group, { id: v.id, label: v.label, min: 0, max: 1, step: 0.01, readout: v.readout && readoutFn(v.readout.unit, v.readout.stops) });
     else for (const c of v.components) add(v.group, { id: `${v.id}.${c.name}`, label: c.label, min: 0, max: 1, step: 0.01 });
   }
-  for (const s of model.spec.sliders as SliderDef[]) add(s.group, { id: s.id, label: s.label, min: s.min, max: s.max, step: 0.01, advanced: s.tier === "advanced", order: s.order });
+  for (const s of (model.spec.sliders as SliderDef[]).filter((s) => show(s.id))) add(s.group, { id: s.id, label: s.label, min: s.min, max: s.max, step: 0.01, advanced: s.tier === "advanced", order: s.order });
   // Stable sort: rows with an `order` come first (ascending), the rest keep spec order.
   const byOrder = (a: Row, b: Row) => (a.order ?? Infinity) === (b.order ?? Infinity) ? 0 : (a.order ?? Infinity) - (b.order ?? Infinity);
   return [...out].map(([title, rows]) => ({ title, rows: [...rows].sort(byOrder) }));
@@ -75,7 +76,7 @@ export function ShapePanel({ ch }: { ch: Character }) {
   const [open, setOpen] = useState<Set<string>>(new Set(["Body type"]));
   const [advanced, setAdvanced] = useState<Set<string>>(new Set());
   const model = ch.model;
-  const secs = useMemo(() => (model ? sections(model) : []), [model, ch.version]); // eslint-disable-line react-hooks/exhaustive-deps
+  const secs = useMemo(() => (model ? sections(model, (id) => ch.parts?.sliderVisible(id) ?? true) : []), [model, ch.parts, ch.version]); // eslint-disable-line react-hooks/exhaustive-deps
   const onChange = ch.set;
   const onReset = useMemo(() => (id: string) => ch.set(id, model!.getDefault(id)), [ch.set, model]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -117,7 +118,7 @@ export function ShapePanel({ ch }: { ch: Character }) {
         <input ref={fileRef} type="file" accept="application/json" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
       </div>
       {note && <p className="note" role="status">{note}</p>}
-      {ch.packs.available.map((p) => <PackCard key={p.id} info={p} ch={ch} />)}
+      {ch.packs.available.filter((p) => !isPartPack(p.id)).map((p) => <PackCard key={p.id} info={p} ch={ch} />)}
       <input className="filter" type="search" placeholder="Find a slider…" aria-label="Find a slider" value={filter} onChange={(e) => setFilter(e.target.value)} />
       {visible.length === 0 && <p className="note">No slider matches “{filter}”. Face and body details need their packs downloaded first.</p>}
       {visible.map((sec) => {

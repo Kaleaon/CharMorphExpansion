@@ -95,4 +95,6 @@ export interface Preset {
   packs?: string[];
   /** Only values that differ from their default. */
   values: Record<string, number>;
+  /** Ids of the modular parts worn (see @charmorph/parts). The model ignores this; the app restores the selection from it. */
+  parts?: string[];
 }

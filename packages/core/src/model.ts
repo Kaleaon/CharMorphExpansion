@@ -232,5 +232,6 @@ export function parsePreset(json: unknown): Preset {
   if (!p || p.format !== "cm-preset/1" || typeof p.name !== "string" || typeof p.values !== "object" || p.values === null) throw new SpecError("not a cm-preset/1 document");
   for (const [k, v] of Object.entries(p.values)) if (typeof v !== "number" || !Number.isFinite(v)) throw new SpecError(`preset value ${k} is not a finite number`);
   if (p.packs !== undefined && (!Array.isArray(p.packs) || p.packs.some((x) => typeof x !== "string"))) throw new SpecError("preset packs must be a list of strings");
+  if (p.parts !== undefined && (!Array.isArray(p.parts) || p.parts.some((x) => typeof x !== "string"))) throw new SpecError("preset parts must be a list of strings");
   return p as Preset;
 }

@@ -79,6 +79,12 @@ export class PartCatalog {
     });
   }
 
+  /** Slider ids a part contributes. */
+  sliderIds(partId: string): string[] { return (this.get(partId)?.sliders ?? []).map((s) => s.id); }
+
+  /** The part a slider belongs to, if any. */
+  partOfSlider(sliderId: string): PartManifest | undefined { return this.all.find((p) => p.sliders?.some((s) => s.id === sliderId)); }
+
   /** Spec fragment for a pack: the sliders of all its parts, ready for `CharacterModel.extend`. Undefined if the pack adds no sliders. */
   fragment(pack: string): SpecFragment | undefined {
     const sliders: SliderDef[] = this.all.filter((p) => p.pack === pack).flatMap((p) => p.sliders ?? []);
@@ -114,4 +120,13 @@ export class PartSelection {
     for (const id of ids) { if (this.catalog.get(id)) this.equip(id); else skipped.push(id); }
     return skipped;
   }
+}
+
+/**
+ * Spec fragment of one pack read straight from its `parts.json`, so a part pack needs no separate fragment file:
+ * pack.json points its `files.fragment` at parts.json and the pack loader gets the sliders through this.
+ */
+export function partsFragment(file: unknown, pack: string): SpecFragment {
+  const cat = PartCatalog.parse(file);
+  return cat.fragment(pack) ?? { pack };
 }

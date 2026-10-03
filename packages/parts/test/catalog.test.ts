@@ -1,6 +1,6 @@
 import { CharacterModel } from "@charmorph/core";
 import { describe, expect, it } from "vitest";
-import { PartCatalog, PartError, PartSelection, categoryOf, validateParts, type PartManifest } from "../src/index.ts";
+import { PartCatalog, PartError, PartSelection, categoryOf, partsFragment, validateParts, type PartManifest } from "../src/index.ts";
 
 const part = (over: Partial<PartManifest> = {}): PartManifest => ({
   id: "tail.canine", label: "Canine tail", pack: "parts-canine", species: ["canine"],
@@ -52,6 +52,16 @@ describe("PartCatalog", () => {
     m.set("tail.length", 0.5);
     expect(m.weights().get("tl")).toBeCloseTo(0.5);
     expect(m.packOf("tail.length")).toBe("parts-canine");
+  });
+  it("maps sliders to parts and reads a pack fragment from parts.json", () => {
+    expect(cat.sliderIds("tail.canine")).toEqual(["tail.length"]);
+    expect(cat.sliderIds("tail.feline")).toEqual([]);
+    expect(cat.partOfSlider("tail.length")?.id).toBe("tail.canine");
+    expect(cat.partOfSlider("nope")).toBeUndefined();
+    const file = { format: "cm-parts/1", parts: cat.all };
+    expect(partsFragment(file, "parts-canine").sliders?.map((s) => s.id)).toEqual(["tail.length"]);
+    expect(partsFragment(file, "parts-feline")).toEqual({ pack: "parts-feline" });
+    expect(() => partsFragment({ format: "x" }, "p")).toThrow(PartError);
   });
   it("parses cm-parts/1 and rejects other documents", () => {
     expect(PartCatalog.parse({ format: "cm-parts/1", parts: [part()] }, joints).all).toHaveLength(1);
