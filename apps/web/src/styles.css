@@ -54,3 +54,15 @@ summary { cursor: pointer; min-height: 36px; display: flex; align-items: center;
 .mode { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; padding: 4px 12px 8px; }
 .mode legend { color: var(--muted); font-size: 12px; padding: 0 6px; }
 .link{background:none;border:0;color:var(--accent);padding:4px 0;min-height:44px}
+
+.parts h3 { margin: 12px 0 4px; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.part-list { list-style: none; margin: 0; padding: 0; }
+.part-card { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 10px; margin: 6px 0; border: 1px solid var(--line); border-radius: 10px; background: #202226; }
+.part-card.on { border-color: var(--accent); background: #232a38; }
+.part-info { min-width: 0; }
+.part-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.tag { padding: 0 8px; border-radius: 10px; background: #1c1d20; color: var(--text); font-size: 11px; line-height: 20px; }
+.tag.muted { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.chip { min-height: 32px; border-radius: 16px; padding: 0 12px; font-size: 12px; }
+.chip.on { border-color: var(--accent); background: #232a38; }

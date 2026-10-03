@@ -32,6 +32,9 @@ importers:
       '@charmorph/packs':
         specifier: workspace:*
         version: link:../../packages/packs
+      '@charmorph/parts':
+        specifier: workspace:*
+        version: link:../../packages/parts
       '@charmorph/render':
         specifier: workspace:*
         version: link:../../packages/render

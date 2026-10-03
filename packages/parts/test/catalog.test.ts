@@ -36,6 +36,14 @@ describe("PartCatalog", () => {
     expect(cat.find({ species: ["feline"] }).map((p) => p.id)).toEqual(["tail.feline", "ears.feline_flop"]);
     expect(cat.find({ pack: "parts-canine", species: ["feline"] })).toEqual([]);
   });
+  it("searches label, id and species, all words required", () => {
+    expect(cat.speciesTags()).toEqual(["canine", "feline"]);
+    expect(cat.search("").length).toBe(3);
+    expect(cat.search("FLOPPY").map((p) => p.id)).toEqual(["ears.feline_flop"]);
+    expect(cat.search("feline tail").map((p) => p.id)).toEqual(["tail.feline"]);
+    expect(cat.search("tail", cat.find({ species: ["canine"] })).map((p) => p.id)).toEqual(["tail.canine"]);
+    expect(cat.search("zebra")).toEqual([]);
+  });
   it("builds a spec fragment that extends a model", () => {
     expect(cat.fragment("parts-feline")).toBeUndefined();
     const frag = cat.fragment("parts-canine")!;

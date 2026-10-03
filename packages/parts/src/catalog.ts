@@ -66,6 +66,19 @@ export class PartCatalog {
       (!filter.species?.length || filter.species.some((s) => p.species.includes(s))));
   }
 
+  /** Distinct species tags across the catalog, sorted. */
+  speciesTags(): string[] { return [...new Set(this.all.flatMap((p) => p.species))].sort(); }
+
+  /** Case-insensitive substring match on label, id and species tags; every whitespace-separated word must match somewhere. */
+  search(query: string, parts: readonly PartManifest[] = this.all): PartManifest[] {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return [...parts];
+    return parts.filter((p) => {
+      const hay = `${p.label} ${p.id} ${p.species.join(" ")}`.toLowerCase();
+      return words.every((w) => hay.includes(w));
+    });
+  }
+
   /** Spec fragment for a pack: the sliders of all its parts, ready for `CharacterModel.extend`. Undefined if the pack adds no sliders. */
   fragment(pack: string): SpecFragment | undefined {
     const sliders: SliderDef[] = this.all.filter((p) => p.pack === pack).flatMap((p) => p.sliders ?? []);

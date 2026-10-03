@@ -3,9 +3,12 @@ import {
 } from "@charmorph/render";
 import type { Skeleton, Vec3 } from "@charmorph/skeleton";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PartSelection } from "@charmorph/parts";
 import { Group } from "three";
 import { LibraryPanel } from "./shape/LibraryPanel.tsx";
 import { ExportPanel } from "./export/ExportPanel.tsx";
+import { PartsPanel } from "./parts/PartsPanel.tsx";
+import { loadPartCatalog } from "./parts/partSource.ts";
 import { ShapePanel } from "./shape/ShapePanel.tsx";
 import { useCharacter } from "./shape/useCharacter.ts";
 import { SlController } from "./sl/SlController.ts";
@@ -16,8 +19,8 @@ declare global {
 }
 
 const AXES = ["X", "Y", "Z"] as const;
-type Tab = "shape" | "library" | "sl" | "export" | "skeleton" | "scene";
-const TAB_LABEL: Record<Tab, string> = { shape: "Shape", library: "Library", sl: "SL", export: "Export", skeleton: "Skeleton", scene: "Scene" };
+type Tab = "shape" | "parts" | "library" | "sl" | "export" | "skeleton" | "scene";
+const TAB_LABEL: Record<Tab, string> = { shape: "Shape", parts: "Parts", library: "Library", sl: "SL", export: "Export", skeleton: "Skeleton", scene: "Scene" };
 
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,6 +29,8 @@ export function App() {
   const skelViewRef = useRef<SkeletonView | null>(null);
   const poses = useRef(new Map<string, Vec3>());
   const ch = useCharacter();
+  const loadedParts = useMemo(() => loadPartCatalog(), []);
+  const partSelection = useMemo(() => new PartSelection(loadedParts.catalog), [loadedParts]);
 
   const [tab, setTab] = useState<Tab>("shape");
   const [lighting, setLighting] = useState("studio-3point");
@@ -178,7 +183,7 @@ export function App() {
       </div>
       <aside className="side">
         <div className="tabs" role="tablist">
-          {(["shape", "library", "sl", "export", "skeleton", "scene"] as const).map((t) => (
+          {(["shape", "parts", "library", "sl", "export", "skeleton", "scene"] as const).map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
               {TAB_LABEL[t]}
             </button>
@@ -194,6 +199,7 @@ export function App() {
               <ShapePanel ch={ch} />
             </>
           )}
+          {tab === "parts" && <PartsPanel catalog={loadedParts.catalog} selection={partSelection} problems={loadedParts.problems} onChange={() => bump((n) => n + 1)} />}
           {tab === "library" && <LibraryPanel ch={ch} thumbnail={() => vpRef.current?.thumbnail() ?? ""} />}
           {tab === "sl" && (sl
             ? <SlPanel sl={sl} enabled={slOn} onEnabled={setSlOn} onChange={showSl} ready={sl.ready || ch.status === "ready"} />
