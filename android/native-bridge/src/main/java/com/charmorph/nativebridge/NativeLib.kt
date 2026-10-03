@@ -33,6 +33,16 @@ class NativeLib {
         meshPtr: Long,
         morphIds: IntArray,
         morphWeights: FloatArray,
+        count: Int,
         outputBuffer: ByteBuffer
     )
+
+    fun updateMorphs(
+        meshPtr: Long,
+        morphIds: IntArray,
+        morphWeights: FloatArray,
+        outputBuffer: ByteBuffer
+    ) {
+        updateMorphs(meshPtr, morphIds, morphWeights, morphIds.size, outputBuffer)
+    }
 }
