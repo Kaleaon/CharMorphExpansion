@@ -76,8 +76,8 @@ class WeightLayer:
     description: Optional[str] = None
     weights: Dict[str, Dict[int, float]] = field(default_factory=dict)
 
-    def as_numpy(self, vertex_count: int) -> Dict[str, numpy.ndarray]:
-        """Return weight maps as dense numpy arrays."""
+    def as_numpy(self, vertex_count: int, normalize: bool = False) -> Dict[str, numpy.ndarray]:
+        """Return weight maps as dense numpy arrays, optionally normalized."""
         arrays: Dict[str, numpy.ndarray] = {}
         for bone_name, weight_map in self.weights.items():
             array = numpy.zeros(vertex_count, dtype=numpy.float32)
@@ -88,7 +88,21 @@ class WeightLayer:
                     )
                 array[vidx] = value
             arrays[bone_name] = array
+
+        if normalize and arrays:
+            stacked = numpy.stack(list(arrays.values()), axis=0)
+            sums = stacked.sum(axis=0)
+            mask = sums > 1.0
+            if numpy.any(mask):
+                stacked[:, mask] /= sums[mask]
+                for i, bone_name in enumerate(arrays.keys()):
+                    arrays[bone_name] = stacked[i]
+
         return arrays
+
+    def as_normalized_numpy(self, vertex_count: int) -> Dict[str, numpy.ndarray]:
+        """Return weight maps as dense numpy arrays with weight sums capped at 1.0."""
+        return self.as_numpy(vertex_count, normalize=True)
 
 
 @dataclass(slots=True)
@@ -116,6 +130,9 @@ class BaseMesh:
     weight_layers: Dict[str, WeightLayer]
     sizing: Dict[str, SizingParameter]
     unit: str = "meters"
+    is_super_mesh: bool = False
+    preallocated_geometry: Dict[str, List[int]] = field(default_factory=dict)
+    limb_chains: Dict[str, List[str]] = field(default_factory=dict)
 
     @property
     def vertex_array(self) -> numpy.ndarray:
@@ -135,6 +152,13 @@ class BaseMesh:
 
     def layer(self, name: str) -> Optional[WeightLayer]:
         return self.weight_layers.get(name)
+
+    def get_normalized_layer_weights(self, layer_name: str) -> Optional[Dict[str, numpy.ndarray]]:
+        """Return normalized evaluation arrays for a named weight layer without modifying raw weights."""
+        weight_layer = self.layer(layer_name)
+        if weight_layer is None:
+            return None
+        return weight_layer.as_normalized_numpy(len(self.vertices))
 
 
 def _parse_metadata(node: Optional[ET.Element]) -> Dict[str, str]:
@@ -255,12 +279,46 @@ def _parse_sizing(node: Optional[ET.Element]) -> Dict[str, SizingParameter]:
     return sizing
 
 
+def _parse_preallocated_geometry(node: Optional[ET.Element]) -> Dict[str, List[int]]:
+    result: Dict[str, List[int]] = {}
+    if node is None:
+        return result
+    for region_node in node.findall("Region") + node.findall("Group"):
+        name = region_node.get("name")
+        if not name:
+            continue
+        indices_str = region_node.get("indices") or region_node.get("verts") or region_node.text or ""
+        if indices_str:
+            result[name] = list(_split_indices(indices_str.strip()))
+    return result
+
+
+def _parse_limb_chains(node: Optional[ET.Element]) -> Dict[str, List[str]]:
+    result: Dict[str, List[str]] = {}
+    if node is None:
+        return result
+    for chain_node in node.findall("Chain") + node.findall("Limb"):
+        name = chain_node.get("name")
+        if not name:
+            continue
+        bones_str = chain_node.get("bones") or chain_node.text or ""
+        if bones_str:
+            result[name] = [b.strip() for b in bones_str.replace(",", " ").split() if b.strip()]
+    return result
+
+
 def load_base_mesh(path: str) -> BaseMesh:
     """Load a single XML base mesh definition."""
     tree = ET.parse(path)
     root = tree.getroot()
-    if root.tag != "BaseMesh":
-        raise ValueError(f"Root element must be <BaseMesh>, got <{root.tag}> in {path}")
+    if root.tag not in ("BaseMesh", "SuperMesh"):
+        raise ValueError(f"Root element must be <BaseMesh> or <SuperMesh>, got <{root.tag}> in {path}")
+
+    is_super_mesh = (
+        root.tag == "SuperMesh"
+        or root.get("type") == "super_mesh"
+        or root.get("is_super_mesh", "").lower() == "true"
+    )
 
     name = root.get("name") or os.path.splitext(os.path.basename(path))[0]
     version = root.get("version", "1.0")
@@ -281,6 +339,26 @@ def load_base_mesh(path: str) -> BaseMesh:
     weight_layers = _parse_weight_layers(root.find("WeightLayers"), len(vertices))
     sizing = _parse_sizing(root.find("Sizing"))
 
+    preallocated_geom_node = root.find("PreallocatedGeometry")
+    if preallocated_geom_node is None:
+        preallocated_geom_node = root.find("NonHumanoidGeometry")
+    if preallocated_geom_node is None and topology_node is not None:
+        preallocated_geom_node = topology_node.find("PreallocatedGeometry")
+        if preallocated_geom_node is None:
+            preallocated_geom_node = topology_node.find("NonHumanoidGeometry")
+    preallocated_geometry = _parse_preallocated_geometry(preallocated_geom_node)
+
+    limb_chains_node = root.find("LimbChains")
+    if limb_chains_node is None:
+        limb_chains_node = root.find("BoneChains")
+    if limb_chains_node is None:
+        rig_node = root.find("Rig")
+        if rig_node is not None:
+            limb_chains_node = rig_node.find("LimbChains")
+            if limb_chains_node is None:
+                limb_chains_node = rig_node.find("BoneChains")
+    limb_chains = _parse_limb_chains(limb_chains_node)
+
     return BaseMesh(
         name=name,
         version=version,
@@ -291,6 +369,9 @@ def load_base_mesh(path: str) -> BaseMesh:
         weight_layers=weight_layers,
         sizing=sizing,
         unit=unit,
+        is_super_mesh=is_super_mesh,
+        preallocated_geometry=preallocated_geometry,
+        limb_chains=limb_chains,
     )
 
 
