@@ -285,7 +285,7 @@ class ColladaExporter:
         contrib = ET.SubElement(asset, "contributor")
         authoring = ET.SubElement(contrib, "authoring_tool")
         authoring.text = "CharMorph Second Life Collada Exporter"
-        
+
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()
         ET.SubElement(asset, "created").text = now
         ET.SubElement(asset, "modified").text = now
@@ -362,7 +362,7 @@ class ColladaExporter:
         lib_ctrl = ET.SubElement(collada, "library_controllers")
         controller = ET.SubElement(lib_ctrl, "controller", {"id": "avatar-skin-controller", "name": "AvatarSkinController"})
         skin = ET.SubElement(controller, "skin", {"source": "#avatar-mesh-geom"})
-        
+
         ET.SubElement(skin, "bind_shape_matrix").text = format_matrix_str(create_identity_4x4())
 
         # Controller Joint Source
@@ -390,11 +390,11 @@ class ColladaExporter:
         # Controller Weights Source
         ctrl_w_src = ET.SubElement(skin, "source", {"id": "skin-weights"})
         w_arr_id = "skin-weights-array"
-        
+
         # Build unique weights palette and per-vertex bone/weight index lists
         weights_palette = [1.0]
         weight_to_idx = {1.0: 0}
-        
+
         joint_name_to_idx = {b_name: idx for idx, b_name in enumerate(joint_names)}
 
         vcount_list = []
@@ -405,13 +405,13 @@ class ColladaExporter:
             for b_name, weight in w_dict.items():
                 if b_name in joint_name_to_idx and weight > 1e-5:
                     j_idx = joint_name_to_idx[b_name]
-                    
+
                     rounded_w = round(weight, 5)
                     if rounded_w not in weight_to_idx:
                         weight_to_idx[rounded_w] = len(weights_palette)
                         weights_palette.append(rounded_w)
                     w_idx = weight_to_idx[rounded_w]
-                    
+
                     v_joints.extend([j_idx, w_idx])
 
             if not v_joints:

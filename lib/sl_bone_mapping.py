@@ -98,7 +98,9 @@ class SLBoneMapper:
                 from yaml import safe_load
             except ImportError:
                 from .yaml import load as yload, SafeLoader
-                safe_load = lambda stream: yload(stream, Loader=SafeLoader)
+
+                def safe_load(stream):
+                    return yload(stream, Loader=SafeLoader)
             with open(config_path, "r", encoding="utf-8") as f:
                 data = safe_load(f.read())
             if isinstance(data, dict):
@@ -148,11 +150,11 @@ class WeightAggregator:
     ) -> Tuple[List[Dict[str, float]], Dict[str, Any]]:
         """
         Aggregates weights for each vertex.
-        
+
         Args:
             source_vertex_weights: List where each item represents a vertex as a dict of {source_bone_name: weight}
             mapper: SLBoneMapper instance
-            
+
         Returns:
             Tuple of (aggregated_weights_per_vertex, diagnostic_report)
         """
