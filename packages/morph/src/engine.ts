@@ -82,6 +82,18 @@ export class MorphEngine {
   }
 
   get targetIds(): string[] { return [...this.targets.keys()]; }
+
+  /** Register more targets at runtime (lazy packs). Their weight starts at 0; duplicate ids or out-of-range indices throw and add nothing. */
+  addTargets(more: Iterable<MorphTarget>): void {
+    const list = [...more];
+    const seen = new Set<string>();
+    for (const t of list) {
+      if (this.targets.has(t.id) || seen.has(t.id)) throw new Error(`duplicate morph target "${t.id}"`);
+      seen.add(t.id);
+      if (t.indices.length && t.indices[t.indices.length - 1]! >= this.mv) throw new Error(`target "${t.id}" has a vertex index beyond the mesh`);
+    }
+    for (const t of list) this.targets.set(t.id, t);
+  }
   get renderVertexCount(): number { return this.rv; }
 
   /** Move to the given target weights (absent = 0). Unknown target ids throw. */

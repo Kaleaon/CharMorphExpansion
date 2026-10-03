@@ -68,3 +68,57 @@ const sliders: SliderDef[] = regional.map((r) => ({
 
 export const spec: CharacterSpec = { variables, sliders, macros: [raceGender, build] };
 export const allTargets: TargetRef[] = [...macroTargets, ...regionalTargets];
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Lazy packs
+// ---------------------------------------------------------------------------------------------------------------------
+
+import type { SpecFragment } from "../../packages/core/src/types.ts";
+
+const AGES = ["baby", "child", "young", "old"] as const;
+const OTHER_AGES = AGES.filter((a) => a !== "young");
+
+/** Age widens both macro groups with an `age` axis. Anchor positions are ours; the readout is 1 / 25 / 90 years (MakeHuman's documented range). */
+const ageVariable: MacroVariable = {
+  kind: "scalar", id: "age", label: "Age", group: "Body type", default: 0.5,
+  anchors: [{ name: "baby", at: 0 }, { name: "child", at: 0.1875 }, { name: "young", at: 0.5 }, { name: "old", at: 1 }],
+  readout: { unit: "years", stops: [[0, 1], [0.5, 25], [1, 90]] },
+};
+
+export const agePackFragment: SpecFragment = {
+  pack: "age",
+  variables: [ageVariable],
+  macros: [
+    { id: "race-gender", variables: ["gender", "ethnicity", "age"], targets: Object.fromEntries(GENDERS.flatMap((g) => RACES.flatMap((r) => AGES.map((a) => [`${g}|${r}|${a}`, `${r}-${g}-${a}`])))) },
+    { id: "build", variables: ["gender", "muscle", "weight", "age"], targets: Object.fromEntries(GENDERS.flatMap((g) => LEVELS.flatMap(([mn, mf]) => LEVELS.flatMap(([wn, , wf]) => AGES.map((a) => [`${g}|${mn}|${wn}|${a}`, `universal-${g}-${a}-${mf}-${wf}`]))))) },
+  ],
+};
+
+export const ageTargets: TargetRef[] = [
+  ...GENDERS.flatMap((g) => RACES.flatMap((r) => OTHER_AGES.map((a) => T("macrodetails", `${r}-${g}-${a}`)))),
+  ...GENDERS.flatMap((g) => LEVELS.flatMap(([, mf]) => LEVELS.flatMap(([, , wf]) => OTHER_AGES.map((a) => T("macrodetails", `universal-${g}-${a}-${mf}-${wf}`))))),
+];
+
+/** Target ids already bound by the core pack's sliders — packs must not bind them again. */
+export const coreTargetIds: Set<string> = new Set(regionalTargets.map((t) => t.id));
+
+const BODY_SECTIONS: Record<string, string> = { torso: "Torso detail", hip: "Hips detail", stomach: "Stomach", buttocks: "Buttocks", pelvis: "Pelvis", breast: "Chest" };
+const FACE_SECTIONS: Record<string, string> = { head: "Head shape", forehead: "Forehead", eyebrows: "Eyebrows", eyes: "Eyes", nose: "Nose", mouth: "Mouth", ears: "Ears", chin: "Chin", cheek: "Cheeks", neck: "Neck" };
+
+/** armslegs is one upstream folder; split it by body part for the UI. */
+export function armsLegsSection(canonical: string): string {
+  if (/hand|finger/.test(canonical)) return "Hands";
+  if (/foot|toe/.test(canonical)) return "Feet";
+  if (/arm/.test(canonical)) return "Arms detail";
+  return "Legs detail";
+}
+
+export const facePack = {
+  id: "face", label: "Face details", description: "Head shape, forehead, eyebrows, eyes, nose, mouth, ears, chin, cheeks and neck.",
+  groups: Object.keys(FACE_SECTIONS), section: (g: string) => FACE_SECTIONS[g]!,
+};
+export const bodyPack = {
+  id: "body", label: "Body details", description: "Fine torso, hip, arm, leg, hand and foot controls.",
+  groups: [...Object.keys(BODY_SECTIONS), "armslegs"], section: (g: string, canonical: string) => (g === "armslegs" ? armsLegsSection(canonical) : BODY_SECTIONS[g]!),
+};
+export const agePackInfo = { id: "age", label: "Age range", description: "Baby, child and old-age body types (adds the Age slider)." };

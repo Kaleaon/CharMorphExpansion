@@ -106,6 +106,17 @@ describe("CharacterModel", () => {
     expect(m2.get("torso")).toBe(0.3);
     expect(parsePreset(JSON.parse(JSON.stringify(p)))).toEqual(p);
   });
+  it("restores simplex components exactly (no drift from sequential renormalization)", () => {
+    const m = new CharacterModel(spec);
+    m.set("eth.a", 0.6); m.set("eth.b", 0.1);
+    const want = [m.get("eth.a"), m.get("eth.b"), m.get("eth.c")];
+    const m2 = new CharacterModel(spec);
+    m2.applyPreset(JSON.parse(JSON.stringify(m.toPreset("x"))));
+    expect([m2.get("eth.a"), m2.get("eth.b"), m2.get("eth.c")]).toEqual(want);
+    // hand-written presets are normalized
+    m2.applyPreset({ format: "cm-preset/1", name: "h", values: { "eth.a": 2, "eth.b": 2 } });
+    expect(m2.get("eth.a") + m2.get("eth.b") + m2.get("eth.c")).toBeCloseTo(1, 12);
+  });
   it("rejects malformed presets", () => {
     expect(() => parsePreset({ format: "x" })).toThrow(SpecError);
     expect(() => parsePreset({ format: "cm-preset/1", name: "n", values: { a: "1" } })).toThrow(/finite/);
@@ -132,5 +143,66 @@ describe("validateSpec", () => {
     expect(p).toContain('unknown target "x"');
     expect(p).toContain('unknown variable "ghost"');
     expect(() => new CharacterModel(bad)).toThrow(SpecError);
+  });
+});
+
+
+describe("CharacterModel.extend (lazy packs)", () => {
+  const ageVar: MacroVariable = {
+    kind: "scalar", id: "age", label: "Age", group: "Macro", default: 0.5,
+    anchors: [{ name: "child", at: 0 }, { name: "young", at: 0.5 }, { name: "old", at: 1 }],
+    readout: { unit: "yrs", stops: [[0, 11], [0.5, 25], [1, 90]] },
+  };
+  // Core macro keyed without age; the age pack replaces it with an age-aware version.
+  const coreMacro: MacroGroup = { id: "m", variables: ["gender"], targets: { female: "f-young", male: "m-young" } };
+  const base: CharacterSpec = { variables: [variables[0]!], macros: [coreMacro], sliders: [spec.sliders[0]!] };
+  const agePack = {
+    pack: "age",
+    variables: [ageVar],
+    macros: [{ id: "m", variables: ["gender", "age"], targets: { "female|young": "f-young", "male|young": "m-young", "female|old": "f-old", "male|old": "m-old", "female|child": "f-child", "male|child": "m-child" } }],
+    sliders: [{ id: "nose", label: "Nose", group: "Face", min: -1 as const, max: 1 as const, default: 0, bindings: [{ neg: "n-", pos: "n+" }] }],
+  };
+
+  it("adds sliders, keeps existing values, and leaves default weights unchanged", () => {
+    const m = new CharacterModel(base, new Set(["f-young", "m-young", "t-", "t+"]));
+    m.set("gender", 0.25); m.set("torso", 0.5);
+    const before = m.weights();
+    expect(m.has("age")).toBe(false);
+    m.extend(agePack, ["f-old", "m-old", "f-child", "m-child", "n-", "n+"]);
+    expect(m.hasPack("age")).toBe(true);
+    expect(m.packOf("age")).toBe("age");
+    expect(m.packOf("nose")).toBe("age");
+    expect(m.packOf("gender")).toBe("core");
+    expect(m.get("gender")).toBe(0.25);
+    expect(m.get("age")).toBe(0.5);
+    expect([...m.weights()].sort()).toEqual([...before].sort()); // age at "young" → identical weights
+    m.set("age", 1);
+    expect(m.weights().get("f-old")).toBeCloseTo(0.75);
+    expect(m.weights().get("m-old")).toBeCloseTo(0.25);
+    expect(m.weights().has("f-young")).toBe(false);
+  });
+
+  it("is atomic: an invalid pack changes nothing and may be retried", () => {
+    const m = new CharacterModel(base, new Set(["f-young", "m-young", "t-", "t+"]));
+    const broken = { ...agePack, sliders: [{ ...agePack.sliders[0]!, id: "torso" }] }; // duplicate id
+    expect(() => m.extend(broken, ["f-old", "m-old", "f-child", "m-child", "n-", "n+"])).toThrow(SpecError);
+    expect(m.hasPack("age")).toBe(false);
+    expect(m.has("age")).toBe(false);
+    expect(() => m.extend(agePack, [])).toThrow(/unknown target/); // targets not supplied
+    m.extend(agePack, ["f-old", "m-old", "f-child", "m-child", "n-", "n+"]);
+    expect(m.hasPack("age")).toBe(true);
+    expect(() => m.extend(agePack, ["x"])).toThrow(/already loaded/);
+  });
+
+  it("records the packs a preset needs, and old presets without `packs` still parse", () => {
+    const m = new CharacterModel(base, new Set(["f-young", "m-young", "t-", "t+"]));
+    m.extend(agePack, ["f-old", "m-old", "f-child", "m-child", "n-", "n+"]);
+    expect(m.toPreset("a").packs).toBeUndefined();
+    m.set("nose", 0.4); m.set("torso", 0.1);
+    const p = m.toPreset("a");
+    expect(p.packs).toEqual(["age"]);
+    expect(parsePreset(JSON.parse(JSON.stringify(p)))).toEqual(p);
+    expect(() => parsePreset({ ...p, packs: [1] })).toThrow(/packs/);
+    expect(parsePreset({ format: "cm-preset/1", name: "legacy", values: { torso: 1 } }).packs).toBeUndefined();
   });
 });

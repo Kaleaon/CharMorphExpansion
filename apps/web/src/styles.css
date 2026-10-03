@@ -39,3 +39,15 @@ summary { cursor: pointer; min-height: 36px; display: flex; align-items: center;
   .side { width: 360px; max-height: none; border-top: 0; border-left: 1px solid var(--line); }
   .tab-body { flex: 1; }
 }
+
+.filter { width: 100%; min-height: 40px; padding: 0 12px; margin: 6px 0; border-radius: 8px; border: 1px solid #3d4046; background: #1c1d20; color: var(--text); font: inherit; }
+.row-actions .filter { flex: 1 1 160px; width: auto; margin: 0; }
+.count { margin-left: 8px; padding: 0 6px; border-radius: 10px; background: #1c1d20; color: var(--muted); font-size: 11px; font-weight: 400; }
+.pack-card { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 12px; margin: 8px 0; border: 1px solid var(--line); border-radius: 10px; background: #202226; }
+.pack-card .note { margin: 2px 0 0; font-size: 12px; }
+.saved { list-style: none; margin: 0; padding: 0; }
+.saved li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.saved li.on { background: #2a2d33; }
+.saved img, .thumb-empty { width: 48px; height: 64px; border-radius: 6px; object-fit: cover; background: #1c1d20; flex: none; }
+.saved-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.saved-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

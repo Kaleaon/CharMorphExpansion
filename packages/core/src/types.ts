@@ -26,6 +26,8 @@ export interface ScalarVariable {
   default: number;
   /** Named positions on [0,1], ascending. Value is blended linearly between the two neighbouring anchors. */
   anchors: { name: string; at: number }[];
+  /** Optional human-readable readout (e.g. age in years): piecewise-linear through `stops` of [value, readout]. */
+  readout?: { unit: string; stops: [number, number][] };
 }
 
 export interface SimplexVariable {
@@ -57,9 +59,19 @@ export interface CharacterSpec {
   macros: MacroGroup[];
 }
 
+/** Content added at runtime by a lazily loaded pack. Macro groups with an existing id are replaced. */
+export interface SpecFragment {
+  pack: string;
+  variables?: MacroVariable[];
+  sliders?: SliderDef[];
+  macros?: MacroGroup[];
+}
+
 export interface Preset {
   format: "cm-preset/1";
   name: string;
+  /** Packs that must be loaded for the values below to apply (only lists packs with non-default values). */
+  packs?: string[];
   /** Only values that differ from their default. */
   values: Record<string, number>;
 }

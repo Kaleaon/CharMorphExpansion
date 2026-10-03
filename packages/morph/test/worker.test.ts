@@ -85,4 +85,32 @@ describe("MorphWorkerClient", () => {
     await settle(c);
     expect(frames).toHaveLength(1);
   });
+
+  it("adds targets after init: resolves when ready, later weights can use them, failures reject", async () => {
+    const mesh = gridMesh(8);
+    const mv = mesh.positions.length / 3;
+    const r = rng(5);
+    const first = [randomTarget("a", mv, 0.5, 0.2, r)];
+    const second = [randomTarget("late", mv, 0.5, 0.2, r)];
+    const mp = encodeMeshPack(mesh);
+    const tp1 = encodeTargetPack(first, mv);
+    const tp2 = encodeTargetPack(second, mv);
+    const { w } = loopback();
+    const c = new MorphWorkerClient(w);
+    const frames: MorphFrame[] = [];
+    const errors: string[] = [];
+    c.onFrame = (f) => frames.push(f);
+    c.onError = (m) => errors.push(m);
+    c.init(mp.meta, ab(mp.bin), tp1.meta, ab(tp1.bin));
+    await c.ready;
+    c.setWeights(new Map([["late", 1]]));
+    await settle(c);
+    expect(errors[0]).toMatch(/unknown morph target/); // not there yet
+    await c.addTargets(tp2.meta, ab(tp2.bin));
+    expect(c.targetIds.sort()).toEqual(["a", "late"]);
+    c.setWeights(new Map([["late", 1]]));
+    await settle(c);
+    expect(frames).toHaveLength(1);
+    await expect(c.addTargets(tp2.meta, ab(tp2.bin))).rejects.toThrow(/duplicate/);
+  });
 });

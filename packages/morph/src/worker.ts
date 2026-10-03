@@ -3,10 +3,13 @@ import { decodeMeshPack, decodeTargetPack, type MeshPackMeta, type TargetPackMet
 
 export type ToWorker =
   | { type: "init"; meshMeta: MeshPackMeta; meshBin: ArrayBuffer; targetMeta: TargetPackMeta; targetBin: ArrayBuffer }
+  | { type: "addTargets"; token: number; targetMeta: TargetPackMeta; targetBin: ArrayBuffer }
   | { type: "weights"; seq: number; weights: [string, number][]; recycle?: { positions: Float32Array; normals: Float32Array } };
 
 export type FromWorker =
   | { type: "ready"; targetIds: string[] }
+  | { type: "targetsAdded"; token: number; targetIds: string[] }
+  | { type: "addTargetsFailed"; token: number; message: string }
   | { type: "frame"; seq: number; positions: Float32Array; normals: Float32Array; stats: UpdateStats }
   | { type: "error"; seq?: number; message: string };
 
@@ -26,6 +29,14 @@ export function createWorkerHandler(post: (msg: FromWorker, transfer: Transferab
       if (msg.type === "init") {
         engine = new MorphEngine(decodeMeshPack(msg.meshMeta, msg.meshBin), decodeTargetPack(msg.targetMeta, msg.targetBin));
         post({ type: "ready", targetIds: engine.targetIds }, []);
+      } else if (msg.type === "addTargets") {
+        if (!engine) throw new Error("worker not initialised");
+        try {
+          engine.addTargets(decodeTargetPack(msg.targetMeta, msg.targetBin));
+          post({ type: "targetsAdded", token: msg.token, targetIds: engine.targetIds }, []);
+        } catch (e) {
+          post({ type: "addTargetsFailed", token: msg.token, message: (e as Error).message }, []);
+        }
       } else if (msg.type === "weights") {
         if (!engine) throw new Error("worker not initialised");
         if (msg.recycle) pool.push(msg.recycle);
@@ -62,6 +73,8 @@ export class MorphWorkerClient {
   private pending: [string, number][] | null = null;
   private recycle: { positions: Float32Array; normals: Float32Array } | undefined;
   private readyResolve!: () => void;
+  private token = 0;
+  private readonly adds = new Map<number, { resolve: () => void; reject: (e: Error) => void }>();
   readonly ready = new Promise<void>((r) => { this.readyResolve = r; });
 
   constructor(private readonly worker: WorkerLike) {
@@ -70,6 +83,18 @@ export class MorphWorkerClient {
 
   init(meshMeta: MeshPackMeta, meshBin: ArrayBuffer, targetMeta: TargetPackMeta, targetBin: ArrayBuffer): void {
     this.worker.postMessage({ type: "init", meshMeta, meshBin, targetMeta, targetBin }, [meshBin, targetBin]);
+  }
+
+  /**
+   * Register more targets in the worker (lazy packs). Resolves once the worker has them; messages are ordered, so weights
+   * sent afterwards may reference them. The buffer is transferred.
+   */
+  addTargets(targetMeta: TargetPackMeta, targetBin: ArrayBuffer): Promise<void> {
+    const token = ++this.token;
+    return new Promise((resolve, reject) => {
+      this.adds.set(token, { resolve, reject });
+      this.worker.postMessage({ type: "addTargets", token, targetMeta, targetBin }, [targetBin]);
+    });
   }
 
   setWeights(weights: ReadonlyMap<string, number>): void {
@@ -95,6 +120,8 @@ export class MorphWorkerClient {
 
   private handle(msg: FromWorker): void {
     if (msg.type === "ready") { this.targetIds = msg.targetIds; this.readyResolve(); return; }
+    if (msg.type === "targetsAdded") { this.targetIds = msg.targetIds; this.adds.get(msg.token)?.resolve(); this.adds.delete(msg.token); return; }
+    if (msg.type === "addTargetsFailed") { this.adds.get(msg.token)?.reject(new Error(msg.message)); this.adds.delete(msg.token); return; }
     if (msg.type === "error") { this.inFlight = false; this.onError?.(msg.message); if (this.pending) this.send(); return; }
     this.inFlight = false;
     this.onFrame?.({ seq: msg.seq, positions: msg.positions, normals: msg.normals, stats: msg.stats });

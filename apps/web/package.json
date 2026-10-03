@@ -15,7 +15,9 @@
     "@charmorph/skeleton": "workspace:*",
     "three": "^0.180.0",
     "@charmorph/morph": "workspace:*",
-    "@charmorph/core": "workspace:*"
+    "@charmorph/core": "workspace:*",
+    "@charmorph/packs": "workspace:*",
+    "@charmorph/storage": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

@@ -1,6 +1,6 @@
 # Character Designer — Research Summary & Proposed Architecture
 
-Status: **APPROVED. M0 done; M1 (viewport) implemented, on-device performance check pending; M2 (SL skeleton) implemented; M3 (morph engine + sliders) implemented, on-device performance check pending; M4 next.**
+Status: **APPROVED. M0 done; M1 (viewport) implemented, on-device performance check pending; M2 (SL skeleton) implemented; M3 (morph engine + sliders) implemented, on-device performance check pending; M4 (lazy packs, full slider set, library) implemented; M5 next.**
 
 Decisions (approved): MIT code + CC0/CC-BY assets only · MakeHuman CC0 first, Vitruvian second · Second Life only (OpenSim out of scope for now) · SL retarget of a CC0 base done in-house (M5) · old Blender add-on and Android app frozen in `legacy/` · no SL/OpenSim test account yet, so M6 upload validation stays offline until one is available.
 Date: 2026-10-03
@@ -185,3 +185,32 @@ Every shipped asset has a manifest entry (`source URL, license SPDX, author, att
 - No textures yet (flat skin material); UVs are carried through.
 - Camera framing uses a bounding sphere, so portrait phones show the figure smaller than necessary (M8 mobile polish).
 - Helper geometry (eyes, teeth, lashes, tights) in `base.obj` was dropped; eyes etc. return in M4/M7.
+
+
+## M4 notes (lazy packs, full slider set, library)
+
+**Lazy packs** — the core pack (mesh, young-adult macros, 20 regional sliders, 2.5 MB) loads at startup; everything else is a separate download triggered by a button or by a saved character that needs it:
+
+| Pack | Adds | Download |
+|---|---|---|
+| `age` | Age slider (baby → child → young → old; readout 1 / 25 / 90 years) by replacing the two macro groups with age-aware versions | 3.6 MB |
+| `face` | 109 sliders: head shape, forehead, eyebrows, eyes, nose, mouth, ears, chin, cheeks, neck | 1.0 MB |
+| `body` | 46 sliders: fine torso/hip/stomach/pelvis/chest, arms, legs, hands, feet | 1.3 MB |
+
+Verified in headless Chromium: at startup only the core files are requested; downloading *Face* requests exactly the face files; after a page reload a saved character that uses age + face fetches only those two packs. "Hosted" currently means static files served next to the app (same origin); a CDN or service-worker cache is an M8 deployment concern.
+
+**Architecture**
+- `packages/packs` `PackManager`: fetch → validate (mesh name/vertex count, fragment ↔ pack) → dry-run `model.checkExtend` → `worker.addTargets` → `model.extend`. Concurrent requests share one load; a failure leaves model and worker untouched and is retryable.
+- Packs are pure data: `targets.json/bin` + `fragment.json` (sliders, variables, macro groups; same-id macro groups are *replaced*) + `pack.json` (label, size, slider count). Face/body sliders are **generated** from MakeHuman's `modeling_modifiers.json` (CC0 asset) by `tools/convert-makehuman/modifiers.ts`; left/right pairs become one symmetric slider; labels are derived from target names (ours, not MakeHuman's UI text).
+- Presets list the packs they need (`packs`), so loading a character fetches exactly those.
+- `packages/storage`: library in IndexedDB with an in-memory fallback (private windows), thumbnails, same contract tests run against both stores (`fake-indexeddb` in tests).
+- `weights()` returns targets sorted by id, so the same sliders give a **bit-identical body** regardless of pack load order (tested).
+
+**Bugs found by the new round-trip test and fixed**: applying a preset set ethnicity components one by one, each renormalizing the others (values drifted); and float summation order depended on pack load order.
+
+**Scope decisions / not done**
+- **Eyes deferred.** MakeHuman's eyes are a separate low-poly mesh bound to the body by its clothing-fitting format; the in-body "helper" eyes are too crude. Eyes (and teeth, lashes, hair, clothes) belong with the fitting work (M9); the face currently has empty sockets.
+- **Left out on purpose:** genital targets; the `Height` and `BodyProportions` macros and breast size/firmness macros (hundreds of combination targets: ~100 MB of text) — individual length sliders (arm/leg/torso/neck) cover height for now.
+- Slider labels are machine-generated from target names ("Scale width", "Lowerarm fat", "Eye bag (in/out)") and need a copy-edit pass; asymmetry (`asym` targets) isn't exposed.
+- Tests: the full set (>170 values across core + 3 packs) round-trips through preset JSON into a fresh app and reproduces the identical mesh; the same flow works in the browser through the Library tab.
+- Still unverified on real devices: download behaviour on slow mobile networks (no progress bar yet), IndexedDB quota behaviour with many thumbnails.

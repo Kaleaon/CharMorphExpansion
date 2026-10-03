@@ -4,6 +4,7 @@ import {
 import { createSlSkeleton, type Skeleton, type Vec3 } from "@charmorph/skeleton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Group } from "three";
+import { LibraryPanel } from "./shape/LibraryPanel.tsx";
 import { ShapePanel } from "./shape/ShapePanel.tsx";
 import { useCharacter } from "./shape/useCharacter.ts";
 
@@ -12,7 +13,8 @@ declare global {
 }
 
 const AXES = ["X", "Y", "Z"] as const;
-type Tab = "shape" | "skeleton" | "scene";
+type Tab = "shape" | "library" | "skeleton" | "scene";
+const TAB_LABEL: Record<Tab, string> = { shape: "Shape", library: "Library", skeleton: "Skeleton", scene: "Scene" };
 
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -119,14 +121,23 @@ export function App() {
       </div>
       <aside className="side">
         <div className="tabs" role="tablist">
-          {(["shape", "skeleton", "scene"] as const).map((t) => (
+          {(["shape", "library", "skeleton", "scene"] as const).map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-              {t === "shape" ? "Shape" : t === "skeleton" ? "Skeleton" : "Scene"}
+              {TAB_LABEL[t]}
             </button>
           ))}
         </div>
         <div className="tab-body">
-          {tab === "shape" && <ShapePanel ch={ch} />}
+          {tab === "shape" && (
+            <>
+              <div className="row-actions" role="group" aria-label="Camera">
+                <button type="button" onClick={() => vpRef.current?.frame()}>Body view</button>
+                <button type="button" onClick={() => vpRef.current?.focus(0.9, 0.2)}>Face view</button>
+              </div>
+              <ShapePanel ch={ch} />
+            </>
+          )}
+          {tab === "library" && <LibraryPanel ch={ch} thumbnail={() => vpRef.current?.thumbnail() ?? ""} />}
           {tab === "scene" && (
             <div className="grid">
               <label>Lighting

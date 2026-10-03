@@ -140,6 +140,25 @@ export class Viewport {
     this.invalidate();
   }
 
+  /**
+   * Re-aim the camera at a horizontal slice of the content: `centerY` is a fraction of the content height (0 = feet, 1 = top),
+   * `span` the fraction of the height that should fill the view. Keeps the current viewing direction.
+   */
+  focus(centerY: number, span: number): void {
+    const box = visibleBounds(this.content);
+    if (box.isEmpty()) return;
+    const height = box.max.y - box.min.y;
+    const target = new Vector3((box.min.x + box.max.x) / 2, box.min.y + height * centerY, (box.min.z + box.max.z) / 2);
+    const dist = fitDistance((height * span) / 2, this.camera.fov, this.camera.aspect, 1.1);
+    const dir = this.camera.position.clone().sub(this.controls.target);
+    if (dir.lengthSq() < 1e-9) dir.set(0, 0, 1);
+    this.camera.position.copy(target).addScaledVector(dir.normalize(), dist);
+    this.controls.target.copy(target);
+    this.controls.minDistance = Math.min(this.controls.minDistance, dist * 0.5);
+    this.controls.update();
+    this.invalidate();
+  }
+
   setLighting(id: string): void {
     const preset: LightingPreset = findLighting(id) ?? LIGHTING_PRESETS[0]!;
     this.lightingId = preset.id;
@@ -243,6 +262,21 @@ export class Viewport {
   snapshot(): string {
     this.renderer.render(this.scene, this.camera);
     return this.canvas.toDataURL("image/png");
+  }
+
+  /** Render now and return a small JPEG data URL (cover-cropped to width×height) for library thumbnails. */
+  thumbnail(width = 144, height = 192, quality = 0.8): string {
+    this.renderer.render(this.scene, this.camera);
+    const out = document.createElement("canvas");
+    out.width = width;
+    out.height = height;
+    const ctx = out.getContext("2d");
+    if (!ctx) return "";
+    const sw = this.canvas.width, sh = this.canvas.height;
+    const scale = Math.max(width / sw, height / sh);
+    const cw = width / scale, ch = height / scale;
+    ctx.drawImage(this.canvas, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, width, height);
+    return out.toDataURL("image/jpeg", quality);
   }
 
   dispose(): void {

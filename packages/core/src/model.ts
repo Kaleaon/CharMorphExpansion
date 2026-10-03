@@ -1,5 +1,5 @@
 import { macroWeights } from "./macro.ts";
-import type { CharacterSpec, MacroVariable, Preset, SliderDef, TargetId } from "./types.ts";
+import type { CharacterSpec, MacroVariable, Preset, SliderDef, SpecFragment, TargetId } from "./types.ts";
 
 export class SpecError extends Error {}
 
@@ -49,6 +49,9 @@ export function validateSpec(spec: CharacterSpec, knownTargets?: ReadonlySet<Tar
   return out;
 }
 
+/** Pack id of the values that ship with the base spec. */
+export const CORE_PACK = "core";
+
 /** Current slider values for a spec and their translation into morph-target weights. */
 export class CharacterModel {
   private readonly values: Record<string, number> = {};
@@ -56,21 +59,69 @@ export class CharacterModel {
   private readonly defaults: Record<string, number> = {};
   private readonly simplexIds = new Map<string, string[]>(); // variable id -> component value ids
   private readonly variableById = new Map<string, MacroVariable>();
+  private readonly packOfId = new Map<string, string>();
+  private readonly loadedPacks = new Set<string>([CORE_PACK]);
+  private knownTargets: Set<TargetId> | undefined;
+  private _spec: CharacterSpec;
 
-  constructor(readonly spec: CharacterSpec, knownTargets?: ReadonlySet<TargetId>) {
-    const problems = validateSpec(spec, knownTargets);
+  constructor(spec: CharacterSpec, knownTargets?: ReadonlySet<TargetId>) {
+    this.knownTargets = knownTargets ? new Set(knownTargets) : undefined;
+    this._spec = spec;
+    const problems = validateSpec(spec, this.knownTargets);
     if (problems.length) throw new SpecError(`invalid spec: ${problems.slice(0, 5).join("; ")}`);
-    for (const s of spec.sliders) { this.sliderById.set(s.id, s); this.defaults[s.id] = s.default; }
-    for (const v of spec.variables) {
+    this.index(CORE_PACK, spec.sliders, spec.variables);
+    this.reset();
+  }
+
+  get spec(): CharacterSpec { return this._spec; }
+  get packs(): string[] { return [...this.loadedPacks]; }
+  hasPack(pack: string): boolean { return this.loadedPacks.has(pack); }
+  /** Which pack contributed this value id ("core" for the built-in ones). */
+  packOf(id: string): string { this.need(id); return this.packOfId.get(id)!; }
+
+  private index(pack: string, sliders: SliderDef[], variables: MacroVariable[]): void {
+    for (const s of sliders) { this.sliderById.set(s.id, s); this.defaults[s.id] = s.default; this.packOfId.set(s.id, pack); }
+    for (const v of variables) {
       this.variableById.set(v.id, v);
-      if (v.kind === "scalar") this.defaults[v.id] = v.default;
+      if (v.kind === "scalar") { this.defaults[v.id] = v.default; this.packOfId.set(v.id, pack); }
       else {
         const ids = v.components.map((c) => `${v.id}.${c.name}`);
         this.simplexIds.set(v.id, ids);
-        v.components.forEach((c, i) => { this.defaults[ids[i]!] = c.default; });
+        v.components.forEach((c, i) => { this.defaults[ids[i]!] = c.default; this.packOfId.set(ids[i]!, pack); });
       }
     }
-    this.reset();
+  }
+
+  /**
+   * Add a pack's sliders/variables/macros. Existing slider values are kept; new ones start at their defaults.
+   * Macro groups with an existing id are replaced (this is how an "age" pack widens the body-type blend).
+   * `newTargets` are the target ids the pack brought; they are checked and become known. Throws without changing anything on invalid input.
+   */
+  extend(fragment: SpecFragment, newTargets?: Iterable<TargetId>): void {
+    const { merged, known } = this.plan(fragment, newTargets);
+    this._spec = merged;
+    this.knownTargets = known;
+    this.loadedPacks.add(fragment.pack);
+    const before = new Set(Object.keys(this.defaults));
+    this.index(fragment.pack, fragment.sliders ?? [], fragment.variables ?? []);
+    for (const id of Object.keys(this.defaults)) if (!before.has(id)) this.values[id] = this.defaults[id]!;
+  }
+
+  /** Dry run of `extend`: throws exactly when `extend` would, and changes nothing. */
+  checkExtend(fragment: SpecFragment, newTargets?: Iterable<TargetId>): void { this.plan(fragment, newTargets); }
+
+  private plan(fragment: SpecFragment, newTargets?: Iterable<TargetId>): { merged: CharacterSpec; known: Set<TargetId> | undefined } {
+    if (this.loadedPacks.has(fragment.pack)) throw new SpecError(`pack "${fragment.pack}" is already loaded`);
+    const known = this.knownTargets ? new Set([...this.knownTargets, ...(newTargets ?? [])]) : undefined;
+    const replaced = new Set((fragment.macros ?? []).map((m) => m.id));
+    const merged: CharacterSpec = {
+      variables: [...this._spec.variables, ...(fragment.variables ?? [])],
+      sliders: [...this._spec.sliders, ...(fragment.sliders ?? [])],
+      macros: [...this._spec.macros.filter((m) => !replaced.has(m.id)), ...(fragment.macros ?? [])],
+    };
+    const problems = validateSpec(merged, known);
+    if (problems.length) throw new SpecError(`pack "${fragment.pack}" is invalid: ${problems.slice(0, 5).join("; ")}`);
+    return { merged, known };
   }
 
   get ids(): string[] { return Object.keys(this.defaults); }
@@ -103,7 +154,7 @@ export class CharacterModel {
     for (const g of others) this.values[g] = restOld > EPS ? (this.values[g]! / restOld) * restNew : restNew / others.length;
   }
 
-  /** Morph-target weights (tiny weights dropped). Bindings from several sliders/macros add up. */
+  /** Morph-target weights (tiny weights dropped), sorted by target id. Bindings from several sliders/macros add up. */
   weights(): Map<TargetId, number> {
     const out = new Map<TargetId, number>();
     const add = (t: TargetId, w: number) => { if (w > EPS) out.set(t, (out.get(t) ?? 0) + w); };
@@ -115,22 +166,44 @@ export class CharacterModel {
       }
     }
     for (const m of this.spec.macros) for (const [t, w] of macroWeights(m, this.variableById, this.values)) add(t, w);
-    return out;
+    // Canonical order, so the same sliders give a bit-identical body no matter which packs loaded first.
+    return new Map([...out].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
   }
 
   toPreset(name: string): Preset {
     const values: Record<string, number> = {};
-    for (const id of this.ids) if (Math.abs(this.values[id]! - this.defaults[id]!) > EPS) values[id] = this.values[id]!;
-    return { format: "cm-preset/1", name, values };
+    const packs = new Set<string>();
+    for (const id of this.ids) {
+      if (Math.abs(this.values[id]! - this.defaults[id]!) <= EPS) continue;
+      values[id] = this.values[id]!;
+      const pack = this.packOfId.get(id)!;
+      if (pack !== CORE_PACK) packs.add(pack);
+    }
+    return packs.size ? { format: "cm-preset/1", name, packs: [...packs].sort(), values } : { format: "cm-preset/1", name, values };
   }
 
   /** Reset, then apply a preset. Returns ids in the preset that this model does not know (ignored). */
   applyPreset(p: Preset): string[] {
     this.reset();
     const unknown: string[] = [];
+    const simplexTouched = new Set<string>(); // variable ids
+    const simplexOf = new Map<string, string>(); // component id -> variable id
+    for (const [variable, ids] of this.simplexIds) for (const id of ids) simplexOf.set(id, variable);
+    const raw = new Map<string, number>();
     for (const [id, v] of Object.entries(p.values)) {
       if (!this.has(id)) { unknown.push(id); continue; }
+      const variable = simplexOf.get(id);
+      if (variable) { simplexTouched.add(variable); raw.set(id, Math.max(0, v)); continue; }
       this.set(id, v);
+    }
+    // Simplex components are assigned together (not one by one, which would renormalize after every step) and then normalized once.
+    for (const variable of simplexTouched) {
+      const ids = this.simplexIds.get(variable)!;
+      const vals = ids.map((id) => raw.get(id) ?? this.values[id]!);
+      const sum = vals.reduce((a, b) => a + b, 0);
+      // Values written by toPreset already sum to 1 (within float noise); only renormalize hand-edited presets, so saved characters reload bit-exactly.
+      const exact = Math.abs(sum - 1) < 1e-9;
+      ids.forEach((id, i) => { this.values[id] = exact ? vals[i]! : sum > EPS ? vals[i]! / sum : this.defaults[id]!; });
     }
     return unknown;
   }
@@ -140,5 +213,6 @@ export function parsePreset(json: unknown): Preset {
   const p = json as Partial<Preset> | null;
   if (!p || p.format !== "cm-preset/1" || typeof p.name !== "string" || typeof p.values !== "object" || p.values === null) throw new SpecError("not a cm-preset/1 document");
   for (const [k, v] of Object.entries(p.values)) if (typeof v !== "number" || !Number.isFinite(v)) throw new SpecError(`preset value ${k} is not a finite number`);
+  if (p.packs !== undefined && (!Array.isArray(p.packs) || p.packs.some((x) => typeof x !== "string"))) throw new SpecError("preset packs must be a list of strings");
   return p as Preset;
 }

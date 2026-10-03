@@ -1,0 +1,35 @@
+{
+  "pack": "makehuman-hm08-age",
+  "files": [
+    {
+      "path": "targets.json",
+      "sha256": "2949cf82393ff316781363bda4b278209f3a037d87e1198654cb443930b6b109",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "targets.bin",
+      "sha256": "7682bdbadb2269f38e3ccb13f7a77bac30df870ff2b55dc7ddcf4415a4e07272",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "fragment.json",
+      "sha256": "2b2af5e68af3c99f5bde33331f6db6c850e2439e068c9aa085ef8bc060bd9686",
+      "license": "MIT",
+      "author": "Kaleaon (this project)",
+      "sourceUrl": "https://github.com/Kaleaon/CharMorphExpansion",
+      "attribution": "Copyright (c) 2026 Kaleaon"
+    },
+    {
+      "path": "pack.json",
+      "sha256": "f5d16808c46b177e5fa56ee8ca8b544c3a1c175de4328253bbfed1bcf23b39fc",
+      "license": "MIT",
+      "author": "Kaleaon (this project)",
+      "sourceUrl": "https://github.com/Kaleaon/CharMorphExpansion",
+      "attribution": "Copyright (c) 2026 Kaleaon"
+    }
+  ]
+}

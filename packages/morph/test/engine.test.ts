@@ -94,4 +94,22 @@ describe("MorphEngine", () => {
     fresh.setWeights(w);
     expect(maxDiff(e.positions, fresh.positions)).toBeLessThan(1e-4);
   });
+
+  it("addTargets makes new targets usable without disturbing the current shape, and rejects duplicates/bad indices atomically", () => {
+    const { mesh, targets, r } = setup();
+    const e = new MorphEngine(mesh, targets.slice(0, 3));
+    e.setWeights({ t0: 0.6 });
+    const before = Float32Array.from(e.positions);
+    e.addTargets(targets.slice(3));
+    expect(maxDiff(e.positions, before)).toBe(0);
+    expect(e.targetIds).toHaveLength(6);
+    e.setWeights({ t0: 0.6, t4: 0.5 });
+    const fresh = new MorphEngine(mesh, targets);
+    fresh.setWeights({ t0: 0.6, t4: 0.5 });
+    expect(maxDiff(e.positions, fresh.positions)).toBeLessThan(1e-5);
+    const bad = { id: "far", indices: Uint32Array.from([9999]), deltas: new Float32Array(3) };
+    expect(() => e.addTargets([randomTarget("ok", 10, 1, 0.1, r), bad])).toThrow(/beyond the mesh/);
+    expect(e.targetIds).not.toContain("ok");
+    expect(() => e.addTargets([targets[0]!])).toThrow(/duplicate/);
+  });
 });
