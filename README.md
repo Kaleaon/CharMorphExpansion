@@ -3,7 +3,7 @@
 A cross-platform (web / desktop / mobile) character designer with PBR rendering,
 a slider-driven morph system, and a Second Life–compatible skeleton.
 
-Status: **M1 (viewport)**. See [`docs/PLAN_character_designer.md`](docs/PLAN_character_designer.md)
+Status: **M2 (SL skeleton)**. See [`docs/PLAN_character_designer.md`](docs/PLAN_character_designer.md)
 for the research, architecture and milestone plan.
 
 ## Layout
@@ -12,6 +12,8 @@ for the research, architecture and milestone plan.
 |---|---|
 | `packages/core` | Parameter graph, sliders, presets (stub) |
 | `packages/render` | three.js viewport: PBR, IBL + lighting presets, shadows, orbit/turntable |
+| `packages/skeleton` | SL avatar skeleton (133 joints, 26 collision volumes), FK posing, shape deltas |
+| `tools/import-sl-skeleton` | Regenerates the skeleton table from the pinned SL viewer commit (`node tools/import-sl-skeleton/import.ts [--check]`) |
 | `apps/web` | Vite + React app (`pnpm --filter @charmorph/web dev`) |
 | `packages/assets` | Asset provenance manifest schema + license validation |
 | `tools/license-gate` | CI check: every file in `assets/` needs an allowed-license manifest entry |
