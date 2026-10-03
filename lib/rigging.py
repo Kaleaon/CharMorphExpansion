@@ -20,8 +20,13 @@
 
 import typing, logging, math, os
 
-import bpy                                   # pylint: disable=import-error
-from mathutils import Vector, Quaternion     # pylint: disable=import-error, no-name-in-module
+try:
+    import bpy                                   # pylint: disable=import-error
+    from mathutils import Vector, Quaternion     # pylint: disable=import-error, no-name-in-module
+except ImportError:
+    bpy = None
+    Vector = None
+    Quaternion = None
 
 from . import sliding_joints, utils
 
@@ -30,6 +35,76 @@ logger = logging.getLogger(__name__)
 
 class RigException(Exception):
     pass
+
+
+def merge_attachment_bones(base_bones: dict, attachment_bones: dict, socket_parent: typing.Optional[str] = None) -> dict:
+    """Merge attachment bone definitions into the main armature bone dictionary."""
+    merged = dict(base_bones)
+    for b_name, bone in attachment_bones.items():
+        parent = getattr(bone, "parent", None) if not isinstance(bone, dict) else bone.get("parent")
+        if parent is None or (parent not in merged and parent not in attachment_bones):
+            if socket_parent and socket_parent in merged:
+                parent = socket_parent
+
+        if isinstance(bone, dict):
+            bone_copy = dict(bone)
+            bone_copy["parent"] = parent
+            merged[b_name] = bone_copy
+        elif hasattr(bone, "name"):
+            from .xml_base_mesh import Bone
+            bone_copy = Bone(
+                name=bone.name,
+                parent=parent,
+                head=bone.head,
+                tail=bone.tail,
+                roll=getattr(bone, "roll", 0.0),
+                inherit_scale=getattr(bone, "inherit_scale", "FULL"),
+            )
+            merged[b_name] = bone_copy
+        else:
+            merged[b_name] = bone
+    return merged
+
+
+def merge_attachment_weights(base_weight_layers: dict, attachment_weight_layers: dict, vertex_offset: int) -> dict:
+    """Merge attachment weight layers into base weight layers with vertex index offsetting."""
+    from .xml_base_mesh import WeightLayer
+    merged = {}
+    for l_name, layer in base_weight_layers.items():
+        if hasattr(layer, "weights"):
+            merged[l_name] = WeightLayer(
+                name=layer.name,
+                layer_type=layer.layer_type,
+                normalised=layer.normalised,
+                description=layer.description,
+                weights={b: dict(w) for b, w in layer.weights.items()},
+            )
+        else:
+            merged[l_name] = dict(layer)
+
+    for l_name, layer in attachment_weight_layers.items():
+        if l_name not in merged:
+            if hasattr(layer, "weights"):
+                merged[l_name] = WeightLayer(
+                    name=layer.name,
+                    layer_type=layer.layer_type,
+                    normalised=layer.normalised,
+                    description=layer.description,
+                    weights={},
+                )
+            else:
+                merged[l_name] = {}
+        target_layer = merged[l_name]
+        weights_dict = layer.weights if hasattr(layer, "weights") else layer
+        target_weights = target_layer.weights if hasattr(target_layer, "weights") else target_layer
+
+        for bone_name, w_map in weights_dict.items():
+            if bone_name not in target_weights:
+                target_weights[bone_name] = {}
+            for local_vidx, w_val in w_map.items():
+                target_weights[bone_name][local_vidx + vertex_offset] = w_val
+
+    return merged
 
 
 def get_joints(obj, bfilter=lambda _: True):
@@ -171,7 +246,7 @@ class SLBentoRigHandler(RigHandler):
 
 handlers = {"regular": RigHandler, "sl_bento": SLBentoRigHandler}
 rig_errors = {}
-if hasattr(bpy.ops, "arp") and "match_to_rig" in dir(bpy.ops.arp):
+if bpy and hasattr(bpy, "ops") and hasattr(bpy.ops, "arp") and "match_to_rig" in dir(bpy.ops.arp):
     handlers["arp"] = ArpRigHandler
 else:
     rig_errors["arp"] = "Auto-Rig Pro addon is not found. You need to install it to use this rig."
@@ -318,6 +393,10 @@ class Rigger:
             for b in g.get("bones", ()):
                 self.opts[b] = g_opts.copy()
 
+    def append_attachment_bones(self, attachment_bones: dict, socket_parent: typing.Optional[str] = None):
+        """Dynamically append attachment bone chains to the character armature configuration."""
+        self.opts = merge_attachment_bones(self.opts, attachment_bones, socket_parent=socket_parent)
+
     def get_opt(self, bone, opt: str):
         if self.opts or self.default_opts:
             bo = self.opts.get(bone.name)
@@ -452,6 +531,8 @@ bbone_attributes = [
 
 # bbone attributes like bbone_curveiny were changed to bbone_curveinz in Blender 3.0
 def __blender3_bbone_attributes():
+    if not bpy or not hasattr(bpy, "types"):
+        return
     props = bpy.types.Bone.bl_rna.properties
     for i, attr in enumerate(bbone_attributes):
         if attr not in props and attr.endswith("y"):
