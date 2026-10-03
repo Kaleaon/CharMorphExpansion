@@ -254,14 +254,14 @@ class FilamentController(
     fun updateMorphWeights(weights: Map<Int, Float>) {
         if (nativeMeshPtr == 0L || bufferMap.isEmpty()) return
         val buffer = persistentVertexBuffer ?: return
-        
+
         val vertexBuffer = bufferMap.values.first().first
         val vertexCount = vertexBuffer.vertexCount
         val meshPtr = nativeMeshPtr
-        
+
         val ids = weights.keys.toIntArray()
         val values = weights.values.toFloatArray()
-        
+
         renderScope.launch(Dispatchers.Default) {
             synchronized(buffer) {
                 buffer.clear()
