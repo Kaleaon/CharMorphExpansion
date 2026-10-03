@@ -3,6 +3,7 @@ import types
 import time
 import numpy as np
 
+import tests.conftest
 import pytest
 from lib.fit_calc import Geometry, SoftBinder, HardBinder
 from lib.fitting import apply_surface_clearance_and_relaxation, build_adjacency_list
