@@ -2,9 +2,10 @@ import { CharacterModel, parsePreset, type CharacterSpec } from "@charmorph/core
 import { createBrowserMorphWorker, decodeMeshPack, MorphWorkerClient, type MeshPackMeta, type MorphFrame, type MorphMesh, type TargetPackMeta } from "@charmorph/morph";
 import { PackManager } from "@charmorph/packs";
 import { BodyRig, decodeRig, type RigMeta } from "@charmorph/rig";
-import { MorphMeshView } from "@charmorph/render";
+import { applyMaterialParams, MorphMeshView } from "@charmorph/render";
 import { SL_SKELETON_DATA } from "@charmorph/skeleton";
 import { openCharacterStore, type CharacterStore } from "@charmorph/storage";
+import type { MeshPhysicalMaterial } from "three";
 import { useCallback, useEffect, useRef, useState } from "react";
 import meshBinUrl from "../../../../assets/makehuman-hm08/mesh.bin?url";
 import meshJsonUrl from "../../../../assets/makehuman-hm08/mesh.json?url";
@@ -133,6 +134,8 @@ export function useCharacter(): Character {
     if (!m || !w) return;
     sentAt.current = performance.now();
     w.setWeights(m.weights());
+    const mat = viewRef.current?.material;
+    if (mat && "normalScale" in mat) applyMaterialParams(mat as MeshPhysicalMaterial, m.materialParams());
     setVersion((v) => v + 1);
   }, []);
 
