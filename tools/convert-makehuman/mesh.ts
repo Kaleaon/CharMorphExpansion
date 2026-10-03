@@ -4,8 +4,12 @@ import { parseObj } from "./obj.ts";
 /** MakeHuman uses decimetres. */
 export const UNIT = 0.1;
 
-/** Build the body-only render mesh from base.obj. Returns the source-vertex → morph-vertex map used to remap targets. */
-export function buildMesh(objText: string): { mesh: MorphMesh; toMorph: Map<number, number>; offsetY: number } {
+/**
+ * Build the body-only render mesh from base.obj. Returns the source-vertex → morph-vertex map used to remap targets.
+ * `helperSource` are extra base.obj vertices (not part of the body, e.g. skeleton joint references) that are appended as
+ * non-rendered helper morph vertices after the body vertices, so they follow every morph.
+ */
+export function buildMesh(objText: string, helperSource: ReadonlySet<number> = new Set()): { mesh: MorphMesh; toMorph: Map<number, number>; offsetY: number } {
   const obj = parseObj(objText);
   const faces = obj.groups.get("body");
   if (!faces?.length) throw new Error("base.obj has no 'body' group");
@@ -13,11 +17,13 @@ export function buildMesh(objText: string): { mesh: MorphMesh; toMorph: Map<numb
   // Morph vertices = unique source vertices used by the body, in source order.
   const used = new Set<number>();
   for (const f of faces) for (const c of f) used.add(c.v);
-  const sorted = [...used].sort((a, b) => a - b);
+  const body = [...used].sort((a, b) => a - b);
+  const helpers = [...helperSource].filter((v) => !used.has(v)).sort((a, b) => a - b);
+  const sorted = [...body, ...helpers];
   const toMorph = new Map(sorted.map((v, i) => [v, i]));
 
   let minY = Infinity;
-  for (const v of sorted) minY = Math.min(minY, obj.v[v * 3 + 1]!);
+  for (const v of body) minY = Math.min(minY, obj.v[v * 3 + 1]!); // feet on y=0 comes from the body, not the helpers
   const positions = new Float32Array(sorted.length * 3);
   sorted.forEach((v, i) => positions.set([obj.v[v * 3]! * UNIT, (obj.v[v * 3 + 1]! - minY) * UNIT, obj.v[v * 3 + 2]! * UNIT], i * 3));
 
@@ -49,7 +55,7 @@ export function buildMesh(objText: string): { mesh: MorphMesh; toMorph: Map<numb
   if (vol < 0) for (let i = 0; i < indices.length; i += 3) { const t = indices[i + 1]!; indices[i + 1] = indices[i + 2]!; indices[i + 2] = t; }
 
   return {
-    mesh: { name: "makehuman-hm08-body", positions, uvs: Float32Array.from(uvs), renderToMorph: Uint32Array.from(renderToMorph), indices: Uint32Array.from(indices) },
+    mesh: { name: "makehuman-hm08-body", helperStart: body.length, positions, uvs: Float32Array.from(uvs), renderToMorph: Uint32Array.from(renderToMorph), indices: Uint32Array.from(indices) },
     toMorph,
     offsetY: -minY * UNIT,
   };

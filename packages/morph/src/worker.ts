@@ -4,26 +4,29 @@ import { decodeMeshPack, decodeTargetPack, type MeshPackMeta, type TargetPackMet
 export type ToWorker =
   | { type: "init"; meshMeta: MeshPackMeta; meshBin: ArrayBuffer; targetMeta: TargetPackMeta; targetBin: ArrayBuffer }
   | { type: "addTargets"; token: number; targetMeta: TargetPackMeta; targetBin: ArrayBuffer }
-  | { type: "weights"; seq: number; weights: [string, number][]; recycle?: { positions: Float32Array; normals: Float32Array } };
+  | { type: "weights"; seq: number; weights: [string, number][]; recycle?: { positions: Float32Array; normals: Float32Array; helpers: Float32Array } };
 
 export type FromWorker =
   | { type: "ready"; targetIds: string[] }
   | { type: "targetsAdded"; token: number; targetIds: string[] }
   | { type: "addTargetsFailed"; token: number; message: string }
-  | { type: "frame"; seq: number; positions: Float32Array; normals: Float32Array; stats: UpdateStats }
+  | { type: "frame"; seq: number; positions: Float32Array; normals: Float32Array; helpers: Float32Array; stats: UpdateStats }
   | { type: "error"; seq?: number; message: string };
 
 export interface MorphFrame {
   seq: number;
+  /** Render-order vertex positions and normals. */
   positions: Float32Array;
   normals: Float32Array;
+  /** Positions of the mesh's helper vertices (xyz interleaved), e.g. the vertices skeleton joints are defined from. */
+  helpers: Float32Array;
   stats: UpdateStats;
 }
 
 /** The worker-side message handler, independent of any Worker global so it can be tested in-process. */
 export function createWorkerHandler(post: (msg: FromWorker, transfer: Transferable[]) => void): (msg: ToWorker) => void {
   let engine: MorphEngine | null = null;
-  const pool: { positions: Float32Array; normals: Float32Array }[] = [];
+  const pool: { positions: Float32Array; normals: Float32Array; helpers: Float32Array }[] = [];
   return (msg) => {
     try {
       if (msg.type === "init") {
@@ -42,10 +45,11 @@ export function createWorkerHandler(post: (msg: FromWorker, transfer: Transferab
         if (msg.recycle) pool.push(msg.recycle);
         let stats: UpdateStats;
         try { stats = engine.setWeights(new Map(msg.weights)); } catch (e) { post({ type: "error", seq: msg.seq, message: (e as Error).message }, []); return; }
-        const out = pool.pop() ?? { positions: new Float32Array(engine.positions.length), normals: new Float32Array(engine.normals.length) };
+        const out = pool.pop() ?? { positions: new Float32Array(engine.positions.length), normals: new Float32Array(engine.normals.length), helpers: new Float32Array(engine.helperPositions.length) };
         out.positions.set(engine.positions);
         out.normals.set(engine.normals);
-        post({ type: "frame", seq: msg.seq, positions: out.positions, normals: out.normals, stats }, [out.positions.buffer, out.normals.buffer]);
+        out.helpers.set(engine.helperPositions);
+        post({ type: "frame", seq: msg.seq, positions: out.positions, normals: out.normals, helpers: out.helpers, stats }, [out.positions.buffer, out.normals.buffer, out.helpers.buffer]);
       }
     } catch (e) {
       post({ type: "error", message: (e as Error).message }, []);
@@ -71,7 +75,7 @@ export class MorphWorkerClient {
   private seq = 0;
   private inFlight = false;
   private pending: [string, number][] | null = null;
-  private recycle: { positions: Float32Array; normals: Float32Array } | undefined;
+  private recycle: { positions: Float32Array; normals: Float32Array; helpers: Float32Array } | undefined;
   private readyResolve!: () => void;
   private token = 0;
   private readonly adds = new Map<number, { resolve: () => void; reject: (e: Error) => void }>();
@@ -103,7 +107,7 @@ export class MorphWorkerClient {
   }
 
   /** Hand a consumed frame's buffers back so the worker can reuse them instead of allocating. */
-  release(frame: MorphFrame): void { this.recycle = { positions: frame.positions, normals: frame.normals }; }
+  release(frame: MorphFrame): void { this.recycle = { positions: frame.positions, normals: frame.normals, helpers: frame.helpers }; }
 
   get busy(): boolean { return this.inFlight || this.pending !== null; }
 
@@ -115,7 +119,7 @@ export class MorphWorkerClient {
     this.inFlight = true;
     const recycle = this.recycle;
     this.recycle = undefined;
-    this.worker.postMessage({ type: "weights", seq: ++this.seq, weights, recycle }, recycle ? [recycle.positions.buffer, recycle.normals.buffer] : []);
+    this.worker.postMessage({ type: "weights", seq: ++this.seq, weights, recycle }, recycle ? [recycle.positions.buffer, recycle.normals.buffer, recycle.helpers.buffer] : []);
   }
 
   private handle(msg: FromWorker): void {
@@ -124,7 +128,7 @@ export class MorphWorkerClient {
     if (msg.type === "addTargetsFailed") { this.adds.get(msg.token)?.reject(new Error(msg.message)); this.adds.delete(msg.token); return; }
     if (msg.type === "error") { this.inFlight = false; this.onError?.(msg.message); if (this.pending) this.send(); return; }
     this.inFlight = false;
-    this.onFrame?.({ seq: msg.seq, positions: msg.positions, normals: msg.normals, stats: msg.stats });
+    this.onFrame?.({ seq: msg.seq, positions: msg.positions, normals: msg.normals, helpers: msg.helpers, stats: msg.stats });
     if (this.pending) this.send();
   }
 }

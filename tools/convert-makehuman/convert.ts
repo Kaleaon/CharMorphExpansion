@@ -13,7 +13,9 @@ import type { SpecFragment } from "../../packages/core/src/types.ts";
 import { sha256, type Manifest, type ManifestFile } from "../../packages/assets/src/manifest.ts";
 import { encodeMeshPack, encodeTargetPack, type MorphTarget } from "../../packages/morph/src/pack.ts";
 import { ageTargets, agePackFragment, agePackInfo, allTargets, bodyPack, coreTargetIds, facePack, spec, type TargetRef } from "./content.ts";
+import { requiredMhJoints } from "../../packages/rig/src/correspondence.ts";
 import { buildMesh, UNIT } from "./mesh.ts";
+import { mapBones } from "./rigmap.ts";
 import { generateSliders, type RawGroup } from "./modifiers.ts";
 import { parseTarget } from "./obj.ts";
 
@@ -38,8 +40,15 @@ function acquire(): string {
 
 const mh = acquire();
 const data = join(mh, "makehuman/data");
-const { mesh, toMorph } = buildMesh(readFileSync(join(data, "3dobjs/base.obj"), "utf8"));
+// The skeleton joints are centroids of vertex groups that live in helper geometry; keep those vertices as non-rendered helpers.
+const mhskel = JSON.parse(readFileSync(join(data, "rigs/default.mhskel"), "utf8")) as { bones: Record<string, { parent: string | null; head: string; tail: string }>; joints: Record<string, number[]> };
+const mhweights = JSON.parse(readFileSync(join(data, "rigs/default_weights.mhw"), "utf8")) as { weights: Record<string, [number, number][]> };
+const neededJoints = requiredMhJoints();
+for (const j of neededJoints) if (!mhskel.joints[j]) throw new Error(`MakeHuman skeleton has no joint "${j}"`);
+const helperSource = new Set(neededJoints.flatMap((j) => mhskel.joints[j]!));
+const { mesh, toMorph } = buildMesh(readFileSync(join(data, "3dobjs/base.obj"), "utf8"), helperSource);
 const morphCount = mesh.positions.length / 3;
+const bodyCount = mesh.helperStart ?? morphCount;
 
 const provenance = { repo: REPO, commit: PINNED, license: "CC0-1.0", licenseSource: "LICENSE.md section C and LICENSE.ASSETS.md in the upstream repository", note: "Converted by tools/convert-makehuman: body group only, metres, feet at y=0, int16-quantized sparse targets." };
 const author = "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)";
@@ -81,17 +90,65 @@ function write(dir: string, files: Record<string, string | Uint8Array>, derived:
 
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
+// ---- rig: MakeHuman joints (as morph-vertex lists) and skin weights merged onto Second Life joints ---------------------
+function buildRig() {
+  const parents = Object.fromEntries(Object.entries(mhskel.bones).map(([n, b]) => [n, b.parent]));
+  const toSl = mapBones(parents);
+  const perVertex: Map<string, number>[] = Array.from({ length: bodyCount }, () => new Map());
+  for (const [bone, list] of Object.entries(mhweights.weights)) {
+    const sl = toSl[bone];
+    if (!sl) throw new Error(`weights for unknown bone ${bone}`);
+    for (const [src, w] of list) {
+      const m = toMorph.get(src);
+      if (m === undefined || m >= bodyCount) continue; // helper geometry
+      perVertex[m]!.set(sl, (perVertex[m]!.get(sl) ?? 0) + w);
+    }
+  }
+  const slJoints = [...new Set(Object.values(toSl))].sort();
+  const slIndex = new Map(slJoints.map((n, i) => [n, i]));
+  const idx = new Uint8Array(bodyCount * 4), wt = new Uint8Array(bodyCount * 4);
+  let zero = 0;
+  perVertex.forEach((map, v) => {
+    const top = [...map].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 4);
+    const sum = top.reduce((a, [, w]) => a + w, 0);
+    if (!(sum > 0)) { zero++; idx[v * 4] = slIndex.get("mPelvis") ?? 0; wt[v * 4] = 255; return; }
+    // quantize to bytes that sum to exactly 255 (largest remainder)
+    const exact = top.map(([, w]) => (w / sum) * 255);
+    const q = exact.map(Math.floor);
+    let rest = 255 - q.reduce((a, b) => a + b, 0);
+    exact.map((e, i) => [e - Math.floor(e), i] as const).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (rest > 0) { q[i]!++; rest--; } });
+    top.forEach(([name], i) => { idx[v * 4 + i] = slIndex.get(name)!; wt[v * 4 + i] = q[i]!; });
+  });
+  const bin = new Uint8Array(idx.length * 2);
+  bin.set(idx, 0); bin.set(wt, idx.length);
+  const joints: Record<string, number[]> = {};
+  for (const j of neededJoints) joints[j] = mhskel.joints[j]!.map((src) => toMorph.get(src)!);
+  return {
+    bin,
+    meta: {
+      format: "cm-rig/1" as const, mesh: MESH_NAME, bodyVertexCount: bodyCount, helperStart: bodyCount,
+      slJoints, skinIndexOffset: 0, skinWeightOffset: idx.length,
+      joints,
+      stats: { zeroWeightVertices: zero },
+      source: { ...provenance, files: ["makehuman/data/rigs/default.mhskel", "makehuman/data/rigs/default_weights.mhw"], license: "CC0 (stated inside both files)" },
+    },
+  };
+}
+
 // ---- core --------------------------------------------------------------------------------------------------------
 {
   const targets = loadTargets(allTargets);
   const mp = encodeMeshPack(mesh, { ...provenance, file: "makehuman/data/3dobjs/base.obj" });
   const tp = encodeTargetPack(targets, morphCount, provenance);
+  const rig = buildRig();
   write(join(ASSETS, "makehuman-hm08"), {
     "mesh.json": `${JSON.stringify(mp.meta)}\n`, "mesh.bin": mp.bin,
     "targets.json": `${JSON.stringify(tp.meta)}\n`, "targets.bin": tp.bin,
+    "rig.json": `${JSON.stringify(rig.meta)}\n`, "rig.bin": rig.bin,
     "spec.json": `${JSON.stringify(spec)}\n`,
-    "LICENSE.txt": licenseText("mesh.*, targets.* and the MakeHuman-derived parts of spec.json"),
-  }, ["mesh.json", "mesh.bin", "targets.json", "targets.bin"], ["spec.json"], "makehuman-hm08");
+    "LICENSE.txt": licenseText("mesh.*, targets.*, rig.* and the MakeHuman-derived parts of spec.json"),
+  }, ["mesh.json", "mesh.bin", "targets.json", "targets.bin", "rig.json", "rig.bin"], ["spec.json"], "makehuman-hm08");
+  console.log(`rig: ${rig.meta.slJoints.length} SL joints, ${Object.keys(rig.meta.joints).length} MakeHuman joints, ${rig.meta.stats.zeroWeightVertices} unweighted vertices, ${(rig.bin.length / 1024).toFixed(0)} KB`);
   console.log(`core: ${morphCount} morph verts, ${mesh.renderToMorph.length} render verts, ${mesh.indices.length / 3} tris; ${targets.length} targets (${kb(mp.bin.length + tp.bin.length)}), ${spec.sliders.length} sliders`);
 }
 

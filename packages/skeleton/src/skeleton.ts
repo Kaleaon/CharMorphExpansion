@@ -73,6 +73,7 @@ export class Skeleton {
   private readonly scales: Vec3[];
   private readonly worldPos: Vec3[];
   private readonly localPos: Vec3[];
+  private readonly restPos: Vec3[];
 
   constructor(readonly data: SkeletonData) {
     const problems = validateSkeletonData(data);
@@ -92,6 +93,7 @@ export class Skeleton {
     this.scales = data.joints.map(() => [1, 1, 1] as Vec3);
     this.worldPos = data.joints.map(() => [0, 0, 0] as Vec3);
     this.localPos = data.joints.map((j) => [...j.pos] as Vec3);
+    this.restPos = data.joints.map((j) => [...j.pos] as Vec3);
     this.world = new Float64Array(16 * this.count);
 
     this.cvCount = data.collisionVolumes.length;
@@ -128,6 +130,15 @@ export class Skeleton {
     this.rotation.forEach((_, i) => { this.rotation[i] = [...this.restRot[i]!] as Quat; });
   }
 
+  /**
+   * Replace the rest offsets (local positions) of some joints, like the joint-position overrides a rigged mesh carries in
+   * Second Life. Shape deltas then add on top. Joints not mentioned return to the file's values.
+   */
+  setRestPositions(overrides: Record<string, Vec3>): void {
+    this.data.joints.forEach((j, i) => { this.restPos[i] = [...j.pos] as Vec3; });
+    for (const [name, pos] of Object.entries(overrides)) this.restPos[this.need(name)] = [...pos] as Vec3;
+  }
+
   /** Replace all shape deltas for joints and collision volumes. Names not mentioned return to rest; unknown names throw. */
   setDeltas(deltas: Record<string, JointDelta>): void {
     for (let i = 0; i < this.count; i++) this.deltas[i] = {};
@@ -148,7 +159,8 @@ export class Skeleton {
     for (let i = 0; i < this.count; i++) {
       const j = joints[i]!;
       const d = this.deltas[i]!;
-      const pos: Vec3 = [j.pos[0] + (d.offset?.[0] ?? 0), j.pos[1] + (d.offset?.[1] ?? 0), j.pos[2] + (d.offset?.[2] ?? 0)];
+      const rp = this.restPos[i]!;
+      const pos: Vec3 = [rp[0] + (d.offset?.[0] ?? 0), rp[1] + (d.offset?.[1] ?? 0), rp[2] + (d.offset?.[2] ?? 0)];
       const scale: Vec3 = [j.scale[0] + (d.scale?.[0] ?? 0), j.scale[1] + (d.scale?.[1] ?? 0), j.scale[2] + (d.scale?.[2] ?? 0)];
       this.scales[i] = scale;
       this.localPos[i] = pos;

@@ -95,6 +95,12 @@ importers:
         specifier: ^0.180.0
         version: 0.180.0
 
+  packages/rig:
+    dependencies:
+      '@charmorph/skeleton':
+        specifier: workspace:*
+        version: link:../skeleton
+
   packages/skeleton: {}
 
   packages/storage:

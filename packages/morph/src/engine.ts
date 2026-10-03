@@ -23,6 +23,10 @@ export class MorphEngine {
   /** Render-order outputs (what you upload to the GPU). */
   readonly positions: Float32Array;
   readonly normals: Float32Array;
+  /** Live view of the helper (non-rendered) vertices' current positions, xyz interleaved; empty without helpers. */
+  readonly helperPositions: Float32Array;
+  /** Index of the first helper morph vertex. */
+  readonly helperStart: number;
 
   private readonly mv: number;
   private readonly rv: number;
@@ -51,6 +55,8 @@ export class MorphEngine {
     this.rv = mesh.renderToMorph.length;
     this.base = mesh.positions;
     this.morphPos = Float32Array.from(mesh.positions);
+    this.helperStart = mesh.helperStart ?? this.mv;
+    this.helperPositions = this.morphPos.subarray(this.helperStart * 3);
     this.morphNormals = new Float32Array(this.mv * 3);
     this.renderToMorph = mesh.renderToMorph;
     for (const t of targets) this.targets.set(t.id, t);

@@ -112,4 +112,32 @@ describe("MorphEngine", () => {
     expect(e.targetIds).not.toContain("ok");
     expect(() => e.addTargets([targets[0]!])).toThrow(/duplicate/);
   });
+
+  it("helper vertices (never rendered) morph with the body and are exposed live", () => {
+    const base = gridMesh(6);
+    const mv = base.positions.length / 3;
+    const mesh = { ...base, helperStart: mv, positions: Float32Array.from([...base.positions, 5, 5, 5, 6, 6, 6]) };
+    const target = { id: "h", indices: Uint32Array.from([0, mv, mv + 1]), deltas: Float32Array.from([0, 0, 1, 1, 0, 0, 0, 2, 0]) };
+    const e = new MorphEngine(mesh, [target]);
+    expect(e.helperStart).toBe(mv);
+    expect([...e.helperPositions]).toEqual([5, 5, 5, 6, 6, 6]);
+    e.setWeights({ h: 0.5 });
+    expect([...e.helperPositions]).toEqual([5.5, 5, 5, 6, 7, 6]);
+    e.setWeights({});
+    expect([...e.helperPositions]).toEqual([5, 5, 5, 6, 6, 6]);
+    expect(e.renderVertexCount).toBe(base.renderToMorph.length); // helpers add no render vertices
+    expect(Math.abs(e.normals[2]!)).toBeCloseTo(1, 5);
+  });
+});
+
+import { NormalSolver } from "../src/normals.ts";
+describe("NormalSolver", () => {
+  it("reproduces the engine's normals for the engine's own positions, including across UV seams", () => {
+    const { mesh, targets } = setup(10, 5);
+    const e = new MorphEngine(mesh, targets);
+    e.setWeights({ t0: 0.8, t3: 0.5 });
+    const out = new Float32Array(e.normals.length);
+    new NormalSolver(mesh).compute(e.positions, out);
+    expect(maxDiff(out, e.normals)).toBeLessThan(1e-4);
+  });
 });

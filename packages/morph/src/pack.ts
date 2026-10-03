@@ -8,8 +8,13 @@
 
 export interface MorphMesh {
   name: string;
-  /** Rest positions of the morph vertices, metres, xyz interleaved. */
+  /**
+   * Rest positions of the morph vertices, metres, xyz interleaved. Vertices from `helperStart` on are *helpers*: they morph
+   * with the body but are never rendered (e.g. the vertices MakeHuman defines its joints from).
+   */
   positions: Float32Array;
+  /** Index of the first helper vertex; equals the vertex count when there are none. */
+  helperStart?: number;
   /** Render-vertex UVs, uv interleaved. */
   uvs: Float32Array;
   renderToMorph: Uint32Array;
@@ -30,6 +35,8 @@ export interface MeshPackMeta {
   name: string;
   units: "m";
   morphVertexCount: number;
+  /** First helper (non-rendered) morph vertex; absent = no helpers. */
+  helperStart?: number;
   renderVertexCount: number;
   triangleCount: number;
   indexBytes: 2 | 4;
@@ -84,8 +91,10 @@ export function encodeMeshPack(mesh: MorphMesh, source: Record<string, string> =
   };
   for (const i of mesh.renderToMorph) if (i >= morphVertexCount) throw new PackError("renderToMorph points outside the morph vertices");
   for (const i of mesh.indices) if (i >= renderVertexCount) throw new PackError("triangle index outside the render vertices");
+  const helperStart = mesh.helperStart ?? morphVertexCount;
+  if (helperStart > morphVertexCount) throw new PackError("helperStart is beyond the vertex count");
   return {
-    meta: { format: "cm-mesh/1", name: mesh.name, units: "m", morphVertexCount, renderVertexCount, triangleCount: mesh.indices.length / 3, indexBytes, sections, source },
+    meta: { format: "cm-mesh/1", name: mesh.name, units: "m", morphVertexCount, ...(helperStart < morphVertexCount ? { helperStart } : {}), renderVertexCount, triangleCount: mesh.indices.length / 3, indexBytes, sections, source },
     bin: w.finish(),
   };
 }
@@ -99,6 +108,7 @@ export function decodeMeshPack(meta: MeshPackMeta, bin: ArrayBuffer): MorphMesh 
   const wide = (off: number, n: number) => (idxSize === 2 ? Uint32Array.from(new Uint16Array(bin, off, n)) : new Uint32Array(bin.slice(off, off + n * 4)));
   return {
     name: meta.name,
+    ...(meta.helperStart !== undefined ? { helperStart: meta.helperStart } : {}),
     positions: new Float32Array(bin.slice(s.positions, s.positions + mv * 12)),
     uvs: new Float32Array(bin.slice(s.uvs, s.uvs + rv * 8)),
     renderToMorph: wide(s.renderToMorph, rv),

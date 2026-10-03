@@ -16,6 +16,18 @@ describe("mesh pack", () => {
     expect(back.renderToMorph).toEqual(m.renderToMorph);
     expect(back.indices).toEqual(m.indices);
   });
+  it("round-trips helper vertices and rejects a bad helperStart", () => {
+    const m = gridMesh(4);
+    const mv = m.positions.length / 3;
+    const withHelpers = { ...m, helperStart: mv, positions: Float32Array.from([...m.positions, 1, 2, 3]) };
+    const { meta, bin } = encodeMeshPack(withHelpers);
+    expect(meta.helperStart).toBe(mv);
+    const back = decodeMeshPack(JSON.parse(JSON.stringify(meta)), ab(bin));
+    expect(back.helperStart).toBe(mv);
+    expect(back.positions.length).toBe((mv + 1) * 3);
+    expect(encodeMeshPack(m).meta.helperStart).toBeUndefined();
+    expect(() => encodeMeshPack({ ...m, helperStart: mv + 5 })).toThrow(/helperStart/);
+  });
   it("rejects inconsistent or truncated data", () => {
     const m = gridMesh(4);
     expect(() => encodeMeshPack({ ...m, uvs: new Float32Array(3) })).toThrow(PackError);

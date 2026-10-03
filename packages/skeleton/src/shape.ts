@@ -91,6 +91,13 @@ export class SlShape {
 
   reset(): void { for (const p of this.params) this.weights.set(p.id, p.default); }
 
+  /** All current weights, to put back later with `restore`. */
+  snapshot(): Map<number, number> { return new Map(this.weights); }
+
+  restore(snapshot: ReadonlyMap<number, number>): void {
+    for (const [id, w] of snapshot) if (this.byId.has(id)) this.weights.set(id, w);
+  }
+
   /** Effective weights after drivers have set their driven parameters. */
   effectiveWeights(): Map<number, number> {
     const w = new Map(this.weights);

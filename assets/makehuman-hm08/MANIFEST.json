@@ -3,28 +3,42 @@
   "files": [
     {
       "path": "mesh.json",
-      "sha256": "fa38380d65530ff8d4ae1276d4209a3a129c0b5d227bf967e05d2c3069af8cf9",
+      "sha256": "505f4220f31e02d6143bd9f7373efaaa369a37a2d49bb6ceba646e1bd31b5a80",
       "license": "CC0-1.0",
       "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
       "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
     },
     {
       "path": "mesh.bin",
-      "sha256": "42dd0179e4b829e4fec5ce87d0cc29b74913df26558c38accd3971037c63cf27",
+      "sha256": "b7aeaf9bf1d38cc87d9196bc779152a391fa6e7ee1447df72e34b47a4f7d834b",
       "license": "CC0-1.0",
       "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
       "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
     },
     {
       "path": "targets.json",
-      "sha256": "774626625c45910911605e8eca9011d0719c0a631c579d6ba6875d3cbc9b1219",
+      "sha256": "7849461bad7450ecdc140f014cd206014eea105227d6c7a7deff465b2176e8cb",
       "license": "CC0-1.0",
       "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
       "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
     },
     {
       "path": "targets.bin",
-      "sha256": "b78c1a79f6590b947d9fd575c533b87a88941cf4e42aa69f28ada839c818e49b",
+      "sha256": "0abab75072ac1f46f70b164db6ac46f8bff8a97409de73949985cf3d2d948337",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "rig.json",
+      "sha256": "cfe103cdc8138073a32a59afb9afb7bd4486f5b5dcc934e01ae059864e0f50a6",
+      "license": "CC0-1.0",
+      "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
+      "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
+    },
+    {
+      "path": "rig.bin",
+      "sha256": "0f2f94870d845e44684cb11283acd91fcf31ccbc0a20f29709d506532bc02390",
       "license": "CC0-1.0",
       "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
       "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
