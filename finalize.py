@@ -40,12 +40,12 @@ except ImportError:
 
 try:
     from . import rig
-    from .lib import rigging, utils
+    from .lib import rigging, utils, bake
     from .common import manager as mm, MorpherCheckOperator
 except ImportError:
     try:
         import rig
-        from lib import rigging, utils
+        from lib import rigging, utils, bake
         from common import manager as mm, MorpherCheckOperator
     except ImportError:
         mm = None
@@ -191,8 +191,8 @@ def _do_vg_cleanup():
 
 def _bbox_correction_coeffs(mcore, bbox):
     def calc_boxes(data: numpy.ndarray):
-        boxes = data[bbox.reshape(-1)].reshape(bbox.shape+(3,))
-        axis = len(bbox.shape)-1
+        boxes = data[bbox.reshape(-1)].reshape(bbox.shape + (3,))
+        axis = len(bbox.shape) - 1
         result = boxes.max(axis)
         result -= boxes.min(axis)
         return result
@@ -377,6 +377,33 @@ class OpFinalize(MorpherCheckOperator):
         return {"FINISHED"}
 
 
+class OpBakePBR(bpy.types.Operator):
+    bl_idname = "charmorph.bake_pbr_materials"
+    bl_label = "Bake Materials"
+    bl_description = "Bake procedural character shader node trees into standard PBR texture maps using Cycles"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        has_active = context.active_object is not None
+        has_morpher = hasattr(mm, "morpher") and mm.morpher
+        return context.mode == "OBJECT" and (has_active or has_morpher)
+
+    def execute(self, context):
+        ui = context.window_manager.charmorph_ui
+        try:
+            saved_files = bake.bake_pbr_materials(context, ui)
+            if saved_files:
+                self.report({'INFO'}, f"Successfully baked {len(saved_files)} PBR texture maps.")
+            else:
+                self.report({'WARNING'}, "No texture maps were baked.")
+            return {'FINISHED'}
+        except Exception as e:
+            logger.exception("PBR baking failed")
+            self.report({'ERROR'}, f"PBR baking failed: {str(e)}")
+            return {'CANCELLED'}
+
+
 class UIProps:
     fin_morph: bpy.props.EnumProperty(
         name="Apply morphs",
@@ -404,7 +431,8 @@ class UIProps:
         items=[
             ("NO", "No", "Don't import expresion shape keys"),
             ("CH", "Character", "Import expression shape keys for character only"),
-            ("CA", "Character+Assets", "Import expression shape keys for assets if they affect them (breathing for example)"),
+            ("CA", "Character+Assets",
+             "Import expression shape keys for assets if they affect them (breathing for example)"),
         ],
     )
     fin_rig: bpy.props.BoolProperty(
@@ -452,6 +480,82 @@ class UIProps:
         default=False,
         description="Remove unused vertex groups after finalization")
 
+    # Cycles PBR Texture Baking Properties
+    bake_res: bpy.props.EnumProperty(
+        name="Resolution",
+        description="Texture resolution per material slot",
+        default="2048",
+        items=[
+            ("1024", "1024 x 1024", "1024x1024 pixel resolution"),
+            ("2048", "2048 x 2048", "2048x2048 pixel resolution"),
+            ("4096", "4096 x 4096", "4096x4096 pixel resolution"),
+        ],
+    )
+    bake_pass_base_color: bpy.props.BoolProperty(
+        name="Base Color",
+        description="Bake Base Color / Albedo map",
+        default=True,
+    )
+    bake_pass_normal: bpy.props.BoolProperty(
+        name="Tangent Normal",
+        description="Bake Tangent Space Normal map (retains fine micro-details and bump nodes)",
+        default=True,
+    )
+    bake_pass_roughness: bpy.props.BoolProperty(
+        name="Roughness",
+        description="Bake Roughness map",
+        default=True,
+    )
+    bake_pass_metallic: bpy.props.BoolProperty(
+        name="Metallic",
+        description="Bake Metallic map",
+        default=True,
+    )
+    bake_pass_ao: bpy.props.BoolProperty(
+        name="Ambient Occlusion",
+        description="Bake Ambient Occlusion map",
+        default=True,
+    )
+    bake_format: bpy.props.EnumProperty(
+        name="Format",
+        description="Output image format for saved texture maps",
+        default="PNG",
+        items=[
+            ("PNG", "PNG", "Portable Network Graphics (.png)"),
+            ("TARGA", "Targa", "Truevision TGA (.tga)"),
+        ],
+    )
+    bake_output_dir: bpy.props.StringProperty(
+        name="Output Directory",
+        description="Output directory path where baked texture files are saved",
+        default="//baked_textures/",
+        subtype='DIR_PATH',
+    )
+    bake_clean_nodetree: bpy.props.BoolProperty(
+        name="Clean Material Graphs",
+        description="Replace procedural shader node tree with single Principled BSDF connected to baked maps",
+        default=True,
+    )
+    bake_udim: bpy.props.BoolProperty(
+        name="UDIM Support",
+        description="Automatically detect and bake multi-tile UDIM image sequences",
+        default=True,
+    )
+    bake_samples: bpy.props.IntProperty(
+        name="Bake Samples",
+        description="Cycles render samples for baking evaluation",
+        default=16,
+        min=1,
+        max=4096,
+    )
+    bake_margin: bpy.props.IntProperty(
+        name="Margin (px)",
+        description="Extrusion margin in pixels for baking bleed",
+        default=16,
+        min=0,
+        max=64,
+    )
+
 
 class CHARMORPH_PT_Finalize(bpy.types.Panel):
     bl_label = "Finalization"
@@ -468,17 +572,51 @@ class CHARMORPH_PT_Finalize(bpy.types.Panel):
     def draw(self, context):
         l = self.layout
         ui = context.window_manager.charmorph_ui
-        ll = l
-        for prop in UIProps.__annotations__:  # pylint: disable=no-member
-            if prop.startswith("fin_cs_"):
-                if ll == l:
-                    ll = l.column()
-                    ll.enabled = ui.fin_csmooth
-            elif ll != l:
-                l.separator()
-                ll = l
-            ll.prop(ui, prop)
-        l.operator("charmorph.finalize")
+
+        # General Mesh Finalization Section
+        fin_box = l.box()
+        fin_box.label(text="Finalization Options", icon='SETTINGS')
+        fin_box.prop(ui, "fin_morph")
+        fin_box.prop(ui, "fin_subdivision")
+        fin_box.prop(ui, "fin_expressions")
+        fin_box.prop(ui, "fin_rig")
+
+        cs_box = fin_box.box()
+        cs_box.prop(ui, "fin_csmooth")
+        cs_col = cs_box.column()
+        cs_col.enabled = ui.fin_csmooth
+        cs_col.prop(ui, "fin_csmooth_assets")
+        cs_col.prop(ui, "fin_cs_limit")
+        cs_col.prop(ui, "fin_cs_lenweight")
+        cs_col.prop(ui, "fin_cs_morphing")
+
+        fin_box.prop(ui, "fin_subdiv_assets")
+        fin_box.prop(ui, "fin_vg_cleanup")
+        fin_box.operator("charmorph.finalize")
+
+        # Cycles PBR Texture Baking Section
+        bake_box = l.box()
+        bake_box.label(text="Cycles PBR Texture Baking", icon='NODE_MATERIAL')
+
+        bake_box.prop(ui, "bake_res")
+        bake_box.prop(ui, "bake_format")
+        bake_box.prop(ui, "bake_output_dir")
+
+        pass_box = bake_box.box()
+        pass_box.label(text="Bake Channels:")
+        grid = pass_box.grid_flow(columns=2, align=True) if hasattr(pass_box, "grid_flow") else pass_box.column()
+        grid.prop(ui, "bake_pass_base_color")
+        grid.prop(ui, "bake_pass_normal")
+        grid.prop(ui, "bake_pass_roughness")
+        grid.prop(ui, "bake_pass_metallic")
+        grid.prop(ui, "bake_pass_ao")
+
+        bake_box.prop(ui, "bake_udim")
+        bake_box.prop(ui, "bake_clean_nodetree")
+        bake_box.prop(ui, "bake_samples")
+        bake_box.prop(ui, "bake_margin")
+
+        bake_box.operator("charmorph.bake_pbr_materials", icon='RENDER_STILL')
 
 
-classes = [OpFinalize, CHARMORPH_PT_Finalize]
+classes = [OpFinalize, OpBakePBR, CHARMORPH_PT_Finalize]
