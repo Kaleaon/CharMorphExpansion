@@ -24,9 +24,21 @@ export function quatAxisAngle(axis: 0 | 1 | 2, deg: number): Quat {
   return q;
 }
 
-/** Euler degrees → quaternion, applied as Rx · Ry · Rz (three.js "XYZ" order). */
-export function quatFromEulerXYZ(e: Vec3): Quat {
-  return quatMul(quatMul(quatAxisAngle(0, e[0]), quatAxisAngle(1, e[1])), quatAxisAngle(2, e[2]));
+/**
+ * Euler degrees → quaternion the way the Second Life viewer reads `rot` attributes: `mayaQ(x, y, z, XYZ)` = `xQ * yQ * zQ`
+ * with LLQuaternion's reversed multiplication, which in the usual column-vector convention is Rz · Ry · Rx
+ * (rotate about X first, then Y, then Z). Verified against indra/llmath/llquaternion.cpp.
+ */
+export function quatFromMayaXYZ(e: Vec3): Quat {
+  return quatMul(quatMul(quatAxisAngle(2, e[2]), quatAxisAngle(1, e[1])), quatAxisAngle(0, e[0]));
+}
+
+/** Rotate a vector by a unit quaternion. */
+export function quatRotate(q: Quat, v: Vec3): Vec3 {
+  const [x, y, z, w] = q;
+  // t = 2 * cross(q.xyz, v); v' = v + w*t + cross(q.xyz, t)
+  const tx = 2 * (y * v[2] - z * v[1]), ty = 2 * (z * v[0] - x * v[2]), tz = 2 * (x * v[1] - y * v[0]);
+  return [v[0] + w * tx + (y * tz - z * ty), v[1] + w * ty + (z * tx - x * tz), v[2] + w * tz + (x * ty - y * tx)];
 }
 
 export const mat4Identity = (): Mat4 => {

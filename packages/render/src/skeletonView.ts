@@ -1,6 +1,6 @@
 import {
   BufferAttribute, BufferGeometry, Color, DynamicDrawUsage, Group, InstancedMesh, LineBasicMaterial, LineSegments, Matrix4,
-  MeshBasicMaterial, SphereGeometry, Vector3,
+  MeshBasicMaterial, SphereGeometry,
 } from "three";
 import { SL_TO_THREE, type Skeleton } from "@charmorph/skeleton";
 
@@ -24,7 +24,6 @@ export class SkeletonView extends Group {
   private readonly cvs: InstancedMesh;
   private readonly linePos: Float32Array;
   private readonly m = new Matrix4();
-  private readonly v = new Vector3();
   private selected = -1;
   private opts: SkeletonViewOptions = { showExtended: true, showCollisionVolumes: false };
 
@@ -97,8 +96,7 @@ export class SkeletonView extends Group {
     {
       // Always kept current (cheap) so bounds used for camera framing are right even while hidden.
       for (let c = 0; c < s.cvCount; c++) {
-        const cv = s.data.collisionVolumes[c]!;
-        this.m.fromArray(s.cvWorld, c * 16).scale(this.v.set(cv.scale[0], cv.scale[1], cv.scale[2]));
+        this.m.fromArray(s.cvWorld, c * 16); // already includes the ellipsoid scale
         this.cvs.setMatrixAt(c, this.m);
       }
       this.cvs.instanceMatrix.needsUpdate = true;

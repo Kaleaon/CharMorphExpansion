@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSlSkeleton, SL_SKELETON_DATA, SL_TO_THREE, slToThree, Skeleton, SkeletonError, validateSkeletonData } from "../src/index.ts";
+import { createSlSkeleton, quatFromMayaXYZ, quatRotate, SL_SKELETON_DATA, SL_TO_THREE, slToThree, Skeleton, SkeletonError, validateSkeletonData } from "../src/index.ts";
 
 const d = SL_SKELETON_DATA;
 const near = (a: number[], b: number[], eps = 1e-6) => a.forEach((v, i) => expect(v).toBeCloseTo(b[i]!, -Math.log10(eps)));
@@ -115,14 +115,40 @@ describe("Skeleton posing and shape deltas", () => {
     s.update();
     near(s.worldPosition("mHead"), [head[0], head[1], head[2] + 0.05], 1e-9);
   });
-  it("scale deltas are additive on the rest scale and lengthen child offsets (leg length)", () => {
+  it("a joint's scale stretches its *direct* children's offsets only (viewer: scaleChildOffset uses the parent's own scale)", () => {
     const s = createSlSkeleton();
-    const ankle0 = s.worldPosition("mAnkleLeft");
     const hip = s.worldPosition("mHipLeft");
-    s.setDeltas({ mHipLeft: { scale: [0, 0, 0.1] } }); // +10% along Z
+    const knee0 = s.worldPosition("mKneeLeft");
+    const ankle0 = s.worldPosition("mAnkleLeft");
+    s.setDeltas({ mHipLeft: { scale: [0, 0, 0.1] } }); // +10% along the hip's own Z
     s.update();
+    const knee1 = s.worldPosition("mKneeLeft");
     const ankle1 = s.worldPosition("mAnkleLeft");
-    expect(hip[2] - ankle1[2]).toBeCloseTo((hip[2] - ankle0[2]) * 1.1, 6);
+    expect(hip[2] - knee1[2]).toBeCloseTo((hip[2] - knee0[2]) * 1.1, 9); // knee is a direct child: stretched
+    // The ankle only moves because the knee moved; the hip's scale does NOT apply to the knee→ankle offset.
+    expect(knee1[2] - ankle1[2]).toBeCloseTo(knee0[2] - ankle0[2], 9);
+    expect(s.scaleOf("mHipLeft")).toEqual([1, 1, 1.1]);
+    expect(s.scaleOf("mKneeLeft")).toEqual([1, 1, 1]); // and scale does not propagate into the child's own scale
+  });
+  it("world matrices carry the joint's own scale only", () => {
+    const s = createSlSkeleton();
+    s.setDeltas({ mPelvis: { scale: [0.5, 0, 0] }, mTorso: { scale: [0, 0.25, 0] } });
+    s.update();
+    const m = (n: string) => s.world.subarray(s.indexOf(n) * 16, s.indexOf(n) * 16 + 16);
+    expect(m("mPelvis")[0]).toBeCloseTo(1.5, 12); // x column length = own scale x
+    expect(m("mTorso")[0]).toBeCloseTo(1, 12);    // not 1.5: the pelvis scale is not inherited
+    expect(m("mTorso")[5]).toBeCloseTo(1.25, 12);
+    expect(m("mChest")[5]).toBeCloseTo(1, 12);
+  });
+  it("shape deltas can target collision volumes by name", () => {
+    const s = createSlSkeleton();
+    const i = s.cvIndexOf("BELLY");
+    const before = s.cvWorld.slice(i * 16, i * 16 + 16);
+    s.setDeltas({ BELLY: { scale: [0.1, 0, 0], offset: [0.02, 0, 0] } });
+    s.update();
+    const after = s.cvWorld.slice(i * 16, i * 16 + 16);
+    expect(after[0]! / before[0]!).toBeGreaterThan(1);
+    expect(after[12]! - before[12]!).toBeCloseTo(0.02, 9);
   });
   it("clearing deltas restores rest; unknown joints throw", () => {
     const s = createSlSkeleton();
@@ -144,6 +170,21 @@ describe("validateSkeletonData / constructor", () => {
     expect(problems).toContain("duplicate joint name a");
     expect(problems).toContain("unknown parent zzz");
     expect(() => new Skeleton(bad)).toThrow(SkeletonError);
+  });
+});
+
+describe("rotation conventions (verified against llquaternion.cpp)", () => {
+  it("Euler XYZ from `rot` attributes applies X first, then Y, then Z (Rz·Ry·Rx)", () => {
+    const q = quatFromMayaXYZ([90, 0, 90]);
+    const v = quatRotate(q, [0, 1, 0]);
+    // X(90): (0,1,0)→(0,0,1); then Z(90): (0,0,1)→(0,0,1)
+    near(v, [0, 0, 1], 1e-9);
+    // the opposite order (three.js XYZ = Rx·Ry·Rz) would give (-1,0,0)
+    const w = quatRotate(quatFromMayaXYZ([90, 0, 0]), quatRotate(quatFromMayaXYZ([0, 0, 90]), [0, 1, 0]));
+    near(w, [-1, 0, 0], 1e-9);
+  });
+  it("quatRotate rotates 90° about Z from +X to +Y", () => {
+    near(quatRotate(quatFromMayaXYZ([0, 0, 90]), [1, 0, 0]), [0, 1, 0], 1e-12);
   });
 });
 

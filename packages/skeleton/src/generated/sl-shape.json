@@ -1,0 +1,11671 @@
+{
+ "source": {
+  "repo": "https://github.com/secondlife/viewer",
+  "ref": "18648fc51e2a0c750182d8aa3814ed5b6bf8445e",
+  "file": "indra/newview/character/avatar_lad.xml",
+  "sha256": "ace7a7aebac5bee593d2ec2f5a487404cf53859e54537d00e53173c8fa1ee2cd",
+  "license": "LGPL-2.1-only (repository license; the file carries no separate notice)",
+  "note": "Derived table: only the visual parameters that move bones/collision volumes, and the drivers that reach them. Regenerate with tools/import-sl-skeleton."
+ },
+ "params": [
+  {
+   "id": 32,
+   "name": "Male_Skeleton",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "bones": [
+    {
+     "name": "mNeck",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mCollarLeft",
+     "scale": [
+      0,
+      0.4,
+      0
+     ]
+    },
+    {
+     "name": "mCollarRight",
+     "scale": [
+      0,
+      0.4,
+      0
+     ]
+    },
+    {
+     "name": "mShoulderLeft",
+     "scale": [
+      0,
+      0.35,
+      0
+     ]
+    },
+    {
+     "name": "mShoulderRight",
+     "scale": [
+      0,
+      0.35,
+      0
+     ]
+    },
+    {
+     "name": "mElbowLeft",
+     "scale": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mElbowRight",
+     "scale": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mChest",
+     "scale": [
+      0.05,
+      0.05,
+      0.05
+     ]
+    },
+    {
+     "name": "mTorso",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mSpine3",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mSpine4",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mHipLeft",
+     "scale": [
+      0.05,
+      0.05,
+      0
+     ]
+    },
+    {
+     "name": "mHipRight",
+     "scale": [
+      0.05,
+      0.05,
+      0
+     ]
+    },
+    {
+     "name": "mKneeLeft",
+     "scale": [
+      0.05,
+      0.05,
+      0.1
+     ]
+    },
+    {
+     "name": "mKneeRight",
+     "scale": [
+      0.05,
+      0.05,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb1Left",
+     "scale": [
+      0.05,
+      0.05,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb1Right",
+     "scale": [
+      0.05,
+      0.05,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb2Left",
+     "scale": [
+      0.05,
+      0.05,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb2Right",
+     "scale": [
+      0.05,
+      0.05,
+      0.1
+     ]
+    },
+    {
+     "name": "mWingsRoot",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mWing1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.05,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mWing1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.05,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 33,
+   "name": "Height",
+   "group": 0,
+   "min": -2.3,
+   "max": 2,
+   "default": 0,
+   "label": "Height",
+   "wearable": "shape",
+   "editGroup": "shape_body",
+   "bones": [
+    {
+     "name": "mNeck",
+     "scale": [
+      0,
+      0,
+      0.02
+     ]
+    },
+    {
+     "name": "mCollarLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mCollarRight",
+     "scale": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mShoulderLeft",
+     "scale": [
+      0,
+      0.08,
+      0
+     ]
+    },
+    {
+     "name": "mShoulderRight",
+     "scale": [
+      0,
+      0.08,
+      0
+     ]
+    },
+    {
+     "name": "mElbowLeft",
+     "scale": [
+      0,
+      0.06,
+      0
+     ]
+    },
+    {
+     "name": "mElbowRight",
+     "scale": [
+      0,
+      0.06,
+      0
+     ]
+    },
+    {
+     "name": "mChest",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mTorso",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mSpine3",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mSpine4",
+     "scale": [
+      0,
+      0,
+      0.05
+     ]
+    },
+    {
+     "name": "mHipLeft",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHipRight",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mKneeLeft",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mKneeRight",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb1Left",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb1Right",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb2Left",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb2Right",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mWing1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mWing2Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.015,
+      0.015,
+      0
+     ]
+    },
+    {
+     "name": "mWing3Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.025,
+      0.025,
+      0
+     ]
+    },
+    {
+     "name": "mWing4Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.03,
+      0.03,
+      0
+     ]
+    },
+    {
+     "name": "mWing4FanLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.03,
+      0.03,
+      0
+     ]
+    },
+    {
+     "name": "mWing1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mWing2Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.015,
+      -0.015,
+      0
+     ]
+    },
+    {
+     "name": "mWing3Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.025,
+      -0.025,
+      0
+     ]
+    },
+    {
+     "name": "mWing4Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.03,
+      -0.03,
+      0
+     ]
+    },
+    {
+     "name": "mWing4FanRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.03,
+      -0.03,
+      0
+     ]
+    },
+    {
+     "name": "mTail1",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mTail2",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mTail3",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mTail4",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mTail5",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mTail6",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.02,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 34,
+   "name": "Thickness",
+   "group": 0,
+   "min": -0.7,
+   "max": 1.5,
+   "default": 0,
+   "label": "Body Thickness",
+   "wearable": "shape",
+   "editGroup": "shape_body",
+   "bones": [
+    {
+     "name": "mNeck",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mCollarLeft",
+     "scale": [
+      0,
+      0.2,
+      0
+     ]
+    },
+    {
+     "name": "mCollarRight",
+     "scale": [
+      0,
+      0.2,
+      0
+     ]
+    },
+    {
+     "name": "mShoulderLeft",
+     "scale": [
+      0.1,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mShoulderRight",
+     "scale": [
+      0.1,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mElbowLeft",
+     "scale": [
+      0.1,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mElbowRight",
+     "scale": [
+      0.1,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mChest",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mTorso",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mSpine3",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mSpine4",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mPelvis",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mSpine1",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mSpine2",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mHipLeft",
+     "scale": [
+      0.13,
+      0.13,
+      0
+     ]
+    },
+    {
+     "name": "mHipRight",
+     "scale": [
+      0.13,
+      0.13,
+      0
+     ]
+    },
+    {
+     "name": "mKneeLeft",
+     "scale": [
+      0.12,
+      0.12,
+      0
+     ]
+    },
+    {
+     "name": "mKneeRight",
+     "scale": [
+      0.12,
+      0.12,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimbsRoot",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb1Left",
+     "scale": [
+      0.13,
+      0.13,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb1Right",
+     "scale": [
+      0.13,
+      0.13,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb2Left",
+     "scale": [
+      0.12,
+      0.12,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb2Right",
+     "scale": [
+      0.12,
+      0.12,
+      0
+     ]
+    },
+    {
+     "name": "mTail1",
+     "scale": [
+      0.05,
+      0.1,
+      0.1
+     ]
+    },
+    {
+     "name": "mTail2",
+     "scale": [
+      0.05,
+      0.1,
+      0.1
+     ]
+    },
+    {
+     "name": "mTail3",
+     "scale": [
+      0.05,
+      0.1,
+      0.1
+     ]
+    },
+    {
+     "name": "mTail4",
+     "scale": [
+      0.05,
+      0.1,
+      0.1
+     ]
+    },
+    {
+     "name": "mTail5",
+     "scale": [
+      0.05,
+      0.1,
+      0.1
+     ]
+    },
+    {
+     "name": "mTail6",
+     "scale": [
+      0.05,
+      0.1,
+      0.1
+     ]
+    },
+    {
+     "name": "mWing1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.01,
+      -0.01,
+      0
+     ]
+    },
+    {
+     "name": "mWing1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.01,
+      0.01,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 36,
+   "name": "Shoulders",
+   "group": 0,
+   "min": -1.8,
+   "max": 1.4,
+   "default": -0.5,
+   "label": "Shoulders",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "bones": [
+    {
+     "name": "mNeck",
+     "scale": [
+      0.01,
+      0.03,
+      0
+     ]
+    },
+    {
+     "name": "mCollarLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.02,
+      0
+     ]
+    },
+    {
+     "name": "mCollarRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.02,
+      0
+     ]
+    },
+    {
+     "name": "mChest",
+     "scale": [
+      0.02,
+      0.08,
+      0
+     ]
+    },
+    {
+     "name": "mWing1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.02,
+      0
+     ]
+    },
+    {
+     "name": "mWing1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.02,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 37,
+   "name": "Hip Width",
+   "group": 0,
+   "min": -3.2,
+   "max": 2.8,
+   "default": 0,
+   "label": "Hip Width",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "bones": [
+    {
+     "name": "mPelvis",
+     "scale": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mSpine1",
+     "scale": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mSpine2",
+     "scale": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mHipLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.004,
+      0
+     ]
+    },
+    {
+     "name": "mHipRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.004,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimbsRoot",
+     "scale": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.004,
+      0
+     ]
+    },
+    {
+     "name": "mHindLimb1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.004,
+      0
+     ]
+    },
+    {
+     "name": "mTail1",
+     "scale": [
+      0,
+      0.05,
+      0
+     ]
+    },
+    {
+     "name": "mTail2",
+     "scale": [
+      0,
+      0.02,
+      0
+     ]
+    },
+    {
+     "name": "mTail3",
+     "scale": [
+      0,
+      0.01,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 842,
+   "name": "Hip Length",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "bones": [
+    {
+     "name": "mPelvis",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    },
+    {
+     "name": "mHindLimbsRoot",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    },
+    {
+     "name": "mSpine1",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    },
+    {
+     "name": "mSpine2",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    }
+   ]
+  },
+  {
+   "id": 38,
+   "name": "Torso Length",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "bones": [
+    {
+     "name": "mTorso",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    },
+    {
+     "name": "mSpine3",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    },
+    {
+     "name": "mSpine4",
+     "scale": [
+      0,
+      0,
+      0.3
+     ]
+    },
+    {
+     "name": "mPelvis",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mSpine1",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mSpine2",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHipLeft",
+     "scale": [
+      0,
+      0,
+      -0.1
+     ]
+    },
+    {
+     "name": "mHipRight",
+     "scale": [
+      0,
+      0,
+      -0.1
+     ]
+    },
+    {
+     "name": "mKneeRight",
+     "scale": [
+      0,
+      0,
+      -0.05
+     ]
+    },
+    {
+     "name": "mKneeLeft",
+     "scale": [
+      0,
+      0,
+      -0.05
+     ]
+    },
+    {
+     "name": "mHindLimbsRoot",
+     "scale": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHindLimb1Left",
+     "scale": [
+      0,
+      0,
+      -0.1
+     ]
+    },
+    {
+     "name": "mHindLimb1Right",
+     "scale": [
+      0,
+      0,
+      -0.1
+     ]
+    },
+    {
+     "name": "mHindLimb2Right",
+     "scale": [
+      0,
+      0,
+      -0.05
+     ]
+    },
+    {
+     "name": "mHindLimb2Left",
+     "scale": [
+      0,
+      0,
+      -0.05
+     ]
+    }
+   ]
+  },
+  {
+   "id": 195,
+   "name": "EyeBone_Spread",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "bones": [
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.005,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.005,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.008,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.008,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 661,
+   "name": "EyeBone_Head_Shear",
+   "group": 1,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "bones": [
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEar1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEar1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    }
+   ]
+  },
+  {
+   "id": 772,
+   "name": "EyeBone_Head_Elongate",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "bones": [
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.016,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.016,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 768,
+   "name": "EyeBone_Bug",
+   "group": 1,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "bones": [
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.002,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.002,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.0013,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.0013,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 655,
+   "name": "Head Size",
+   "group": 1,
+   "min": -0.25,
+   "max": 0.1,
+   "default": 0,
+   "label": "Head Size",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "bones": [
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mSkull",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0.1
+     ]
+    },
+    {
+     "name": "mHead",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceRoot",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTongueBase",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTongueTip",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceJaw",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceJawShaper",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceChin",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 197,
+   "name": "Shoe_Heels",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shoes",
+   "editGroup": "shoes",
+   "bones": [
+    {
+     "name": "mFootRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.08
+     ]
+    },
+    {
+     "name": "mFootLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.08
+     ]
+    },
+    {
+     "name": "mHindLimb4Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.08
+     ]
+    },
+    {
+     "name": "mHindLimb4Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.08
+     ]
+    }
+   ]
+  },
+  {
+   "id": 502,
+   "name": "Shoe_Platform",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shoes",
+   "editGroup": "shoes",
+   "bones": [
+    {
+     "name": "mFootRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.07
+     ]
+    },
+    {
+     "name": "mFootLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.07
+     ]
+    },
+    {
+     "name": "mHindLimb4Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.07
+     ]
+    },
+    {
+     "name": "mHindLimb4Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.07
+     ]
+    }
+   ]
+  },
+  {
+   "id": 675,
+   "name": "Hand Size",
+   "group": 0,
+   "min": -0.3,
+   "max": 0.3,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "bones": [
+    {
+     "name": "mWristRight",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mWristLeft",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandThumb1Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandThumb2Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandThumb3Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandIndex1Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandIndex2Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandIndex3Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandMiddle1Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandMiddle2Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandMiddle3Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandRing1Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandRing2Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandRing3Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandPinky1Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandPinky2Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandPinky3Right",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandThumb1Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandThumb2Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandThumb3Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandIndex1Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandIndex2Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandIndex3Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandMiddle1Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandMiddle2Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandMiddle3Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandRing1Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandRing2Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandRing3Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandPinky1Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandPinky2Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mHandPinky3Left",
+     "scale": [
+      1,
+      1,
+      1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 683,
+   "name": "Neck Thickness",
+   "group": 0,
+   "min": -0.4,
+   "max": 0.2,
+   "default": -0.15,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "bones": [
+    {
+     "name": "mNeck",
+     "scale": [
+      1,
+      1,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 689,
+   "name": "EyeBone_Big_Eyes",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "bones": [
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0.3,
+      0.7
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0.3,
+      0.7
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0.3,
+      0.7
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0.3,
+      0.7
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.005,
+      -0.008,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.005,
+      0.008,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 692,
+   "name": "Leg Length",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "bones": [
+    {
+     "name": "mHipLeft",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mHipRight",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mKneeRight",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mKneeLeft",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mHindLimb1Left",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mHindLimb1Right",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mHindLimb2Right",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    },
+    {
+     "name": "mHindLimb2Left",
+     "scale": [
+      0,
+      0,
+      0.2
+     ]
+    }
+   ]
+  },
+  {
+   "id": 693,
+   "name": "Arm Length",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0.6,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "bones": [
+    {
+     "name": "mShoulderLeft",
+     "scale": [
+      0,
+      0.2,
+      0
+     ]
+    },
+    {
+     "name": "mShoulderRight",
+     "scale": [
+      0,
+      0.2,
+      0
+     ]
+    },
+    {
+     "name": "mElbowRight",
+     "scale": [
+      0,
+      0.3,
+      0
+     ]
+    },
+    {
+     "name": "mElbowLeft",
+     "scale": [
+      0,
+      0.3,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 756,
+   "name": "Neck Length",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "bones": [
+    {
+     "name": "mNeck",
+     "scale": [
+      0,
+      0,
+      0.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": 11001,
+   "name": "Hover",
+   "group": 0,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_body",
+   "bones": []
+  },
+  {
+   "id": 30002,
+   "name": "Nose_Big_Out",
+   "group": 1,
+   "min": -0.8,
+   "max": 2.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0.5,
+      0.3,
+      0.1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0.3,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0.3,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      0.1,
+      0.1,
+      0
+     ],
+     "offset": [
+      0.006,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30004,
+   "name": "Broad_Nostrils",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.005,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.005,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30020,
+   "name": "Bulbous_Nose",
+   "group": 1,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0.2,
+      0.4,
+      0.2
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0.3,
+      0
+     ],
+     "offset": [
+      0,
+      0.0015,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0.3,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0015,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30517,
+   "name": "Wide_Nose",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0.1,
+      0.85,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0.013,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      -0.013,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30656,
+   "name": "Crooked_Nose",
+   "group": 1,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.009,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.007,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.005,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.005,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.002,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.002,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0008,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0008,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.004,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30155,
+   "name": "Lip Width",
+   "group": 1,
+   "min": -0.9,
+   "max": 1.3,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.005,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.005,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30653,
+   "name": "Tall_Lips",
+   "group": 1,
+   "min": -1,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.008,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.009,
+      0,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.009,
+      0,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.009,
+      0,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.008,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.008,
+      0,
+      -0.0015
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.008,
+      0,
+      -0.0025
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0.2,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.008,
+      0,
+      -0.0015
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30505,
+   "name": "Lip_Thickness",
+   "group": 1,
+   "min": 0,
+   "max": 0.7,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.012,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.015,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.012,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.01,
+      0,
+      0.008
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.01,
+      0,
+      0.008
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0.2,
+      0,
+      -0.6
+     ],
+     "offset": [
+      -0.01,
+      0,
+      0.008
+     ]
+    }
+   ]
+  },
+  {
+   "id": 31505,
+   "name": "Lip_Thickness",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0.2,
+      0,
+      0.1
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0.2,
+      0,
+      0.4
+     ],
+     "offset": [
+      0.004,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0.2,
+      0,
+      0.4
+     ],
+     "offset": [
+      0.004,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0.2,
+      0,
+      0.4
+     ],
+     "offset": [
+      0.004,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0.2,
+      0,
+      0.1
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0.2,
+      0,
+      0.3
+     ],
+     "offset": [
+      0.006,
+      0,
+      -0.003
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0.2,
+      0,
+      0.3
+     ],
+     "offset": [
+      0.006,
+      0,
+      -0.003
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0.2,
+      0,
+      0.3
+     ],
+     "offset": [
+      0.006,
+      0,
+      -0.003
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30797,
+   "name": "Fat_Upper_Lip",
+   "group": 1,
+   "min": 0,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0.1,
+      0,
+      0.6
+     ],
+     "offset": [
+      -0.004,
+      0,
+      0.006
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0.1,
+      0,
+      0.4
+     ],
+     "offset": [
+      -0.004,
+      0,
+      0.003
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0.1,
+      0,
+      0.6
+     ],
+     "offset": [
+      -0.004,
+      0,
+      0.006
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30798,
+   "name": "Fat_Lower_Lip",
+   "group": 1,
+   "min": 0,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      -0.003
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      -0.003
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      -0.003
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0.1,
+      0,
+      0.25
+     ],
+     "offset": [
+      -0.005,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0.1,
+      0,
+      0.25
+     ],
+     "offset": [
+      -0.005,
+      0,
+      -0.004
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0.1,
+      0,
+      0.25
+     ],
+     "offset": [
+      -0.005,
+      0,
+      -0.004
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30506,
+   "name": "Mouth_Height",
+   "group": 1,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.006
+     ]
+    },
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.006
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30658,
+   "name": "Frown_Mouth",
+   "group": 1,
+   "min": 0,
+   "max": 1.4,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30657,
+   "name": "Smile_Mouth",
+   "group": 1,
+   "min": 0,
+   "max": 1.4,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.005,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.005,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.002,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.0005
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.002,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.001,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30764,
+   "name": "Lip_Cleft_Deep",
+   "group": 1,
+   "min": -1,
+   "max": 1.2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0.3
+     ],
+     "offset": [
+      0,
+      0,
+      0.003
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0,
+      0,
+      -0.1
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0.3
+     ],
+     "offset": [
+      0,
+      0,
+      0.003
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30025,
+   "name": "Wide_Lip_Cleft",
+   "group": 1,
+   "min": -0.8,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0.1,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0.1,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.001,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 31663,
+   "name": "Shift_Mouth",
+   "group": 1,
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.004,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.006,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.006,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 32663,
+   "name": "Shift_Mouth",
+   "group": 1,
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.004,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.006,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.006,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30035,
+   "name": "Big_Ears",
+   "group": 1,
+   "min": -1,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEar1Left",
+     "scale": [
+      0.55,
+      0.55,
+      0.55
+     ],
+     "offset": [
+      0,
+      -0.002,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceEar1Right",
+     "scale": [
+      0.55,
+      0.55,
+      0.55
+     ],
+     "offset": [
+      0,
+      0.002,
+      0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30015,
+   "name": "Ears_Out",
+   "group": 1,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEar1Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEar1Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30796,
+   "name": "Pointy_Ears",
+   "group": 1,
+   "min": -0.4,
+   "max": 3,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEar2Left",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0149,
+      0.001,
+      0.016
+     ]
+    },
+    {
+     "name": "mFaceEar2Right",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0149,
+      -0.001,
+      0.016
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30185,
+   "name": "Deep_Chin",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.025
+     ]
+    }
+   ]
+  },
+  {
+   "id": 40185,
+   "name": "Deep_Chin",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.02
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30760,
+   "name": "Jaw_Angle",
+   "group": 1,
+   "min": -1.2,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceJawShaper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.03
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30665,
+   "name": "Jaw_Jut",
+   "group": 1,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.008,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.008,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30006,
+   "name": "Bulbous_Nose_Tip",
+   "group": 1,
+   "min": -1,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0.1,
+      0.1,
+      0.1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30007,
+   "name": "Weak_Chin",
+   "group": 1,
+   "min": -0.5,
+   "max": 0.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.06,
+      0,
+      0.01
+     ]
+    }
+   ]
+  },
+  {
+   "id": 40007,
+   "name": "Weak_Chin",
+   "group": 1,
+   "min": -0.5,
+   "max": 0.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.025,
+      0,
+      0.005
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30008,
+   "name": "Double_Chin",
+   "group": 1,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceJawShaper",
+     "scale": [
+      0,
+      0.125,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30024,
+   "name": "Wide_Eyes",
+   "group": 1,
+   "min": -1.5,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0.1,
+      0.2
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0.1,
+      0.2
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0.1,
+      0.2
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0.1,
+      0.2
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30650,
+   "name": "Eyelid_Corner_Up",
+   "group": 1,
+   "min": -1.3,
+   "max": 1.2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30880,
+   "name": "Eyelid_Inner_Corner_Up",
+   "group": 1,
+   "min": -1.3,
+   "max": 1.2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.004
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30765,
+   "name": "Puffy_Lower_Lids",
+   "group": 1,
+   "min": -0.3,
+   "max": 2.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0.05,
+      0.05,
+      0.05
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0.05,
+      0.05,
+      0.05
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0.05,
+      0.05,
+      0.05
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0.05,
+      0.05,
+      0.05
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 31629,
+   "name": "Forehead Angle",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      0,
+      0.08
+     ],
+     "offset": [
+      0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0.01,
+      0,
+      0.08
+     ],
+     "offset": [
+      0.002,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      0,
+      0.08
+     ],
+     "offset": [
+      0.02,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41629,
+   "name": "Forehead Angle",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      0,
+      0.08
+     ],
+     "offset": [
+      0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0.01,
+      0,
+      0.08
+     ],
+     "offset": [
+      0.002,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      0,
+      0.08
+     ],
+     "offset": [
+      0.02,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30647,
+   "name": "Squash_Stretch_Head",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceRoot",
+     "scale": [
+      0,
+      -0.1,
+      0.1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      -0.1,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.006
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0053,
+      -0.0047
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0045,
+      -0.0053
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.00225,
+      -0.0048
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0053,
+      -0.0047
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0045,
+      -0.0053
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.00225,
+      -0.0048
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0042,
+      -0.0035
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0042,
+      -0.0035
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0039,
+      -0.0032
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0039,
+      -0.0032
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0039,
+      -0.0032
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0039,
+      -0.0032
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.00225,
+      -0.0032
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.00225,
+      -0.0032
+     ]
+    },
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.002,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.002,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.003,
+      0.0032
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.003,
+      0.0032
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.0032
+     ]
+    },
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.0016
+     ]
+    }
+   ]
+  },
+  {
+   "id": 32629,
+   "name": "Forehead Angle",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.01,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.001,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.01,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.003
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.003
+     ]
+    }
+   ]
+  },
+  {
+   "id": 42629,
+   "name": "Forehead Angle",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.01,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.001,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.01,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.003
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.003
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30001,
+   "name": "Big_Brow",
+   "group": 1,
+   "min": -0.3,
+   "max": 2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.007,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0.1,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0.1,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0.1,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0.1,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30011,
+   "name": "Noble_Nose_Bridge",
+   "group": 1,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      0.15,
+      0.01,
+      0.7
+     ],
+     "offset": [
+      0.009,
+      0,
+      -0.006
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30758,
+   "name": "Lower_Bridge_Nose",
+   "group": 1,
+   "min": -1.5,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      0.0025,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30027,
+   "name": "Wide_Nose_Bridge",
+   "group": 1,
+   "min": -1.3,
+   "max": 1.2,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseBridge",
+     "scale": [
+      0,
+      0.4,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30759,
+   "name": "Low_Septum_Nose",
+   "group": 1,
+   "min": -1,
+   "max": 1.5,
+   "default": 0.5,
+   "bones": [
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.004
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30010,
+   "name": "Sunken_Cheeks",
+   "group": 1,
+   "min": -1.5,
+   "max": 3,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      0,
+      -0.12,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      0,
+      -0.12,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30017,
+   "name": "Square_Jaw",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0.5,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 40017,
+   "name": "Square_Jaw",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceJaw",
+     "scale": [
+      0,
+      0.5,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceJawShaper",
+     "scale": [
+      0,
+      0.5,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0038,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0038,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30018,
+   "name": "Puffy_Upper_Cheeks",
+   "group": 1,
+   "min": -1.5,
+   "max": 2.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceCheekUpperLeft",
+     "scale": [
+      0.15,
+      0.1,
+      0.1
+     ],
+     "offset": [
+      0.002,
+      0,
+      0.0015
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperRight",
+     "scale": [
+      0.15,
+      0.1,
+      0.1
+     ],
+     "offset": [
+      0.002,
+      0,
+      0.0015
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30021,
+   "name": "Upper_Eyelid_Fold",
+   "group": 1,
+   "min": -0.2,
+   "max": 1.3,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.006
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.006
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30023,
+   "name": "Baggy_Eyes",
+   "group": 1,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30014,
+   "name": "High_Cheek_Bones",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceCheekUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.02
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.02
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30019,
+   "name": "Upturned_Nose_Tip",
+   "group": 1,
+   "min": -1.5,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0,
+      -0.0015
+     ]
+    },
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.002,
+      0,
+      0.004
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.001,
+      0,
+      -0.002
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30879,
+   "name": "Male_Package",
+   "group": 1,
+   "min": -0.5,
+   "max": 2,
+   "default": 0,
+   "sex": "male",
+   "bones": [
+    {
+     "name": "mGroin",
+     "scale": [
+      0.5,
+      0.25,
+      0.1
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30193,
+   "name": "Square_Head",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      -0.2,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceRoot",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      0,
+      -0.2,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      0,
+      -0.2,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      -1,
+      0
+     ],
+     "offset": [
+      0,
+      0.01,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      -1,
+      0
+     ],
+     "offset": [
+      0,
+      -0.01,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceJawShaper",
+     "scale": [
+      0,
+      -0.3,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30646,
+   "name": "Egg_Head",
+   "group": 1,
+   "min": -1.3,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceRoot",
+     "scale": [
+      0,
+      -0.07,
+      0.07
+     ],
+     "offset": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "mFaceForeheadLeft",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.01,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceForeheadCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.001,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceForeheadRight",
+     "scale": [
+      0,
+      0,
+      0.2
+     ],
+     "offset": [
+      -0.01,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.015,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0033,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0033,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0033,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0033,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.0017,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.004,
+      0.0014
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.00377,
+      0.00061
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.00225,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0033,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0033,
+      0.002
+     ]
+    },
+    {
+     "name": "mFaceEyecornerInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.0017,
+      0.0025
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.004,
+      0.0014
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.00377,
+      0.00061
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.00225,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.0075
+     ]
+    },
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.0061
+     ]
+    },
+    {
+     "name": "mFaceTongueBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.0085
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.0085
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceCheekUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.006
+     ]
+    },
+    {
+     "name": "mFaceJawShaper",
+     "scale": [
+      0,
+      0.2,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30689,
+   "name": "EyeBone_Big_Eyes",
+   "group": 1,
+   "min": -1.1,
+   "max": 1.1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mEyeLeft",
+     "scale": [
+      0.248,
+      0.25,
+      0.25
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mEyeRight",
+     "scale": [
+      0.248,
+      0.25,
+      0.25
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0.248,
+      0.25,
+      0.25
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0.248,
+      0.25,
+      0.25
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30772,
+   "name": "EyeBone_Head_Elongate",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceRoot",
+     "scale": [
+      0.25,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0038,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0038,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0038,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeLidLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0038,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceNoseBase",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipUpperRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipCornerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerCenter",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceLipLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.007,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceCheekLowerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.007,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceChin",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.014,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethUpper",
+     "scale": [
+      0.28,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTeethLower",
+     "scale": [
+      0.28,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTongueBase",
+     "scale": [
+      0.3,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceTongueTip",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.004,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 31772,
+   "name": "EyeBone_Head_Elongate",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.0058,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0.0058,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 32772,
+   "name": "EyeBone_Head_Elongate",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyeAltLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0032,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyeAltRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      -0.0032,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30119,
+   "name": "Eyebrow Size",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "bones": [
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0.5
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30031,
+   "name": "Arced_Eyebrows",
+   "group": 1,
+   "min": 0,
+   "max": 2,
+   "default": 0.5,
+   "bones": [
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.001
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30757,
+   "name": "Lower_Eyebrows",
+   "group": 1,
+   "min": -4,
+   "max": 2,
+   "default": -1,
+   "bones": [
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.001
+     ]
+    }
+   ]
+  },
+  {
+   "id": 30016,
+   "name": "Pointy_Eyebrows",
+   "group": 1,
+   "min": -0.5,
+   "max": 3,
+   "default": 0,
+   "bones": [
+    {
+     "name": "mFaceEyebrowOuterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      -0.001,
+      0.0035
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerRight",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.002
+     ]
+    },
+    {
+     "name": "mFaceEyebrowOuterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "mFaceEyebrowCenterLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0.001,
+      0.0035
+     ]
+    },
+    {
+     "name": "mFaceEyebrowInnerLeft",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "offset": [
+      0,
+      0,
+      -0.002
+     ]
+    }
+   ]
+  },
+  {
+   "id": 187,
+   "name": "Squash_Stretch_Head",
+   "group": 1,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "label": "Squash/Stretch Head",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "volumes": [
+    {
+     "name": "HEAD",
+     "scale": [
+      -0.008,
+      -0.006,
+      0.015
+     ]
+    }
+   ]
+  },
+  {
+   "id": 770,
+   "name": "Elongate_Head",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Shear Face",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "volumes": [
+    {
+     "name": "HEAD",
+     "scale": [
+      0.02,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 104,
+   "name": "Big_Belly_Torso",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "BELLY",
+     "scale": [
+      0.075,
+      0.04,
+      0.03
+     ],
+     "pos": [
+      0.07,
+      0,
+      -0.07
+     ]
+    },
+    {
+     "name": "PELVIS",
+     "scale": [
+      0.075,
+      0.04,
+      0.03
+     ],
+     "pos": [
+      0.07,
+      0,
+      -0.02
+     ]
+    }
+   ]
+  },
+  {
+   "id": 626,
+   "name": "Big_Chest",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Chest Size",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0.0273,
+      0.0273,
+      0.0273
+     ],
+     "pos": [
+      0.038,
+      0.024,
+      -0.016
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0.0273,
+      0.0273,
+      0.0273
+     ],
+     "pos": [
+      0.038,
+      -0.024,
+      -0.016
+     ]
+    }
+   ]
+  },
+  {
+   "id": 627,
+   "name": "Small_Chest",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Chest Size",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      -0.05,
+      0,
+      0
+     ],
+     "pos": [
+      -0.01,
+      -0.01,
+      -0.02
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      -0.05,
+      0,
+      0
+     ],
+     "pos": [
+      -0.01,
+      0.01,
+      -0.02
+     ]
+    }
+   ]
+  },
+  {
+   "id": 843,
+   "name": "No_Chest",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Chest Size",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      -0.051,
+      0,
+      0
+     ],
+     "pos": [
+      -0.02,
+      -0.01,
+      -0.03
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      -0.051,
+      0,
+      0
+     ],
+     "pos": [
+      -0.02,
+      0.01,
+      -0.03
+     ]
+    }
+   ]
+  },
+  {
+   "id": 106,
+   "name": "Muscular_Torso",
+   "group": 1,
+   "min": 0,
+   "max": 1.4,
+   "default": 0,
+   "label": "Torso Muscles",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "male",
+   "volumes": [
+    {
+     "name": "L_CLAVICLE",
+     "scale": [
+      0.02,
+      0,
+      0.005
+     ],
+     "pos": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "L_UPPER_ARM",
+     "scale": [
+      0.015,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.015,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_ARM",
+     "scale": [
+      0.005,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_CLAVICLE",
+     "scale": [
+      0.02,
+      0,
+      0.005
+     ],
+     "pos": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "R_UPPER_ARM",
+     "scale": [
+      0.015,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.015,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_ARM",
+     "scale": [
+      0.005,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.005,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 107,
+   "name": "Muscular_Torso",
+   "group": 1,
+   "min": 0,
+   "max": 1.4,
+   "default": 0,
+   "label": "Torso Muscles",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "L_CLAVICLE",
+     "scale": [
+      0.02,
+      0,
+      0.005
+     ],
+     "pos": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "L_UPPER_ARM",
+     "scale": [
+      0.015,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.015,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_ARM",
+     "scale": [
+      0.005,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_CLAVICLE",
+     "scale": [
+      0.02,
+      0,
+      0.005
+     ],
+     "pos": [
+      0,
+      0,
+      0.005
+     ]
+    },
+    {
+     "name": "R_UPPER_ARM",
+     "scale": [
+      0.015,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.015,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_ARM",
+     "scale": [
+      0.005,
+      0,
+      0.005
+     ],
+     "pos": [
+      0.005,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 648,
+   "name": "Scrawny_Torso",
+   "group": 1,
+   "min": 0,
+   "max": 1.3,
+   "default": 0,
+   "label": "Torso Muscles",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "BELLY",
+     "scale": [
+      0,
+      -0.01,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "UPPER_BACK",
+     "scale": [
+      -0.01,
+      -0.01,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "CHEST",
+     "scale": [
+      -0.01,
+      -0.01,
+      0
+     ],
+     "pos": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_CLAVICLE",
+     "scale": [
+      0,
+      -0.03,
+      -0.005
+     ],
+     "pos": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "L_UPPER_ARM",
+     "scale": [
+      -0.01,
+      -0.01,
+      -0.02
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_ARM",
+     "scale": [
+      -0.005,
+      0,
+      -0.01
+     ],
+     "pos": [
+      -0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_CLAVICLE",
+     "scale": [
+      0,
+      -0.03,
+      -0.005
+     ],
+     "pos": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "R_UPPER_ARM",
+     "scale": [
+      -0.01,
+      -0.01,
+      -0.02
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_ARM",
+     "scale": [
+      -0.005,
+      0,
+      -0.01
+     ],
+     "pos": [
+      -0.005,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 677,
+   "name": "Scrawny_Torso_Male",
+   "group": 1,
+   "min": 0,
+   "max": 1.3,
+   "default": 0,
+   "label": "Torso Scrawny",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "male",
+   "volumes": [
+    {
+     "name": "BELLY",
+     "scale": [
+      -0.01,
+      -0.01,
+      0
+     ],
+     "pos": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "UPPER_BACK",
+     "scale": [
+      -0.01,
+      -0.01,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "CHEST",
+     "scale": [
+      -0.02,
+      -0.02,
+      0
+     ],
+     "pos": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_CLAVICLE",
+     "scale": [
+      0,
+      -0.03,
+      -0.005
+     ],
+     "pos": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "L_UPPER_ARM",
+     "scale": [
+      -0.01,
+      -0.01,
+      -0.02
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_ARM",
+     "scale": [
+      -0.005,
+      0,
+      -0.01
+     ],
+     "pos": [
+      -0.005,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_CLAVICLE",
+     "scale": [
+      0,
+      -0.03,
+      -0.005
+     ],
+     "pos": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "R_UPPER_ARM",
+     "scale": [
+      -0.01,
+      -0.01,
+      -0.02
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_ARM",
+     "scale": [
+      -0.005,
+      0,
+      -0.01
+     ],
+     "pos": [
+      -0.005,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 634,
+   "name": "Fat_Torso",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Fat Torso",
+   "wearable": "shape",
+   "editGroup": "shape_body",
+   "volumes": [
+    {
+     "name": "CHEST",
+     "scale": [
+      0.02,
+      0.03,
+      0.03
+     ],
+     "pos": [
+      0,
+      0,
+      -0.03
+     ]
+    },
+    {
+     "name": "PELVIS",
+     "scale": [
+      0.02,
+      0.03,
+      0.03
+     ],
+     "pos": [
+      0,
+      0,
+      -0.03
+     ]
+    },
+    {
+     "name": "UPPER_BACK",
+     "scale": [
+      0.01,
+      0.03,
+      0
+     ],
+     "pos": [
+      -0.03,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "LOWER_BACK",
+     "scale": [
+      0.04,
+      0.06,
+      0
+     ],
+     "pos": [
+      -0.06,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "LEFT_HANDLE",
+     "pos": [
+      0,
+      0.08,
+      0
+     ]
+    },
+    {
+     "name": "RIGHT_HANDLE",
+     "pos": [
+      0,
+      -0.08,
+      0
+     ]
+    },
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0.0367,
+      0.0367,
+      0.016
+     ],
+     "pos": [
+      0,
+      -0.005,
+      -0.013
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0.0367,
+      0.0367,
+      0.016
+     ],
+     "pos": [
+      0,
+      0.005,
+      -0.013
+     ]
+    },
+    {
+     "name": "BELLY",
+     "scale": [
+      0.09,
+      0.08,
+      0.07
+     ],
+     "pos": [
+      0,
+      0,
+      -0.05
+     ]
+    },
+    {
+     "name": "L_CLAVICLE",
+     "scale": [
+      0,
+      0,
+      0.015
+     ]
+    },
+    {
+     "name": "L_UPPER_ARM",
+     "scale": [
+      0.02,
+      0,
+      0.02
+     ],
+     "pos": [
+      0,
+      0,
+      -0.02
+     ]
+    },
+    {
+     "name": "L_LOWER_ARM",
+     "scale": [
+      0.01,
+      0,
+      0.01
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "R_CLAVICLE",
+     "scale": [
+      0,
+      0,
+      0.015
+     ]
+    },
+    {
+     "name": "R_UPPER_ARM",
+     "scale": [
+      0.02,
+      0,
+      0.02
+     ],
+     "pos": [
+      0,
+      0,
+      -0.02
+     ]
+    },
+    {
+     "name": "R_LOWER_ARM",
+     "scale": [
+      0.01,
+      0,
+      0.01
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "NECK",
+     "scale": [
+      0.015,
+      0.01,
+      0
+     ]
+    },
+    {
+     "name": "HEAD",
+     "scale": [
+      0,
+      0,
+      0.01
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    }
+   ]
+  },
+  {
+   "id": 507,
+   "name": "Breast_Gravity",
+   "group": 0,
+   "min": -1.5,
+   "max": 2,
+   "default": 0,
+   "label": "Breast Buoyancy",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0.004,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0.004,
+      0,
+      -0.01
+     ]
+    }
+   ]
+  },
+  {
+   "id": 855,
+   "name": "Love_Handles",
+   "group": 1,
+   "min": -1,
+   "max": 2,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "BELLY",
+     "scale": [
+      0,
+      0.02,
+      0
+     ]
+    },
+    {
+     "name": "LOWER_BACK",
+     "scale": [
+      0,
+      0.02,
+      0
+     ]
+    },
+    {
+     "name": "LEFT_HANDLE",
+     "pos": [
+      0,
+      0.025,
+      0
+     ]
+    },
+    {
+     "name": "RIGHT_HANDLE",
+     "pos": [
+      0,
+      -0.025,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 684,
+   "name": "Breast_Female_Cleavage",
+   "group": 0,
+   "min": -0.3,
+   "max": 1.3,
+   "default": 0,
+   "label": "Breast Cleavage",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      -0.026,
+      0
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0.026,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 685,
+   "name": "Chest_Male_No_Pecs",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.1,
+   "default": 0,
+   "label": "Pectorals",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "male",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      -0.03,
+      -0.024,
+      -0.01
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      -0.03,
+      0.024,
+      -0.01
+     ]
+    }
+   ]
+  },
+  {
+   "id": 100,
+   "name": "Male_Torso",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "CHEST",
+     "scale": [
+      0.03,
+      0.04,
+      0.02
+     ],
+     "pos": [
+      -0.03,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "BELLY",
+     "scale": [
+      0.03,
+      0.03,
+      0
+     ],
+     "pos": [
+      -0.03,
+      0,
+      0.02
+     ]
+    },
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0.008,
+      -0.03,
+      0.01
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0.008,
+      0.03,
+      0.01
+     ]
+    },
+    {
+     "name": "L_CLAVICLE",
+     "scale": [
+      0.02,
+      0,
+      0.01
+     ],
+     "pos": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_UPPER_ARM",
+     "scale": [
+      0.01,
+      0,
+      0.01
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "L_LOWER_ARM",
+     "scale": [
+      0.005,
+      0,
+      0.005
+     ],
+     "pos": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "R_CLAVICLE",
+     "scale": [
+      0.02,
+      0,
+      0.01
+     ],
+     "pos": [
+      -0.02,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_UPPER_ARM",
+     "scale": [
+      0.01,
+      0,
+      0.01
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "R_LOWER_ARM",
+     "scale": [
+      0.005,
+      0,
+      0.005
+     ],
+     "pos": [
+      0,
+      0,
+      -0.005
+     ]
+    },
+    {
+     "name": "NECK",
+     "scale": [
+      0.015,
+      0.01,
+      0
+     ]
+    },
+    {
+     "name": "HEAD",
+     "scale": [
+      0,
+      0,
+      0.01
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1200,
+   "name": "Breast_Physics_UpDown_Driven",
+   "group": 1,
+   "min": -3,
+   "max": 3,
+   "default": 0,
+   "wearable": "physics",
+   "editGroup": "driven",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      -0.01
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1201,
+   "name": "Breast_Physics_InOut_Driven",
+   "group": 1,
+   "min": -1.25,
+   "max": 1.25,
+   "default": 0,
+   "wearable": "physics",
+   "editGroup": "driven",
+   "sex": "female",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      -0.026,
+      0
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0.026,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1204,
+   "name": "Belly_Physics_Torso_UpDown_Driven",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "physics",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "BELLY",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0.05
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1207,
+   "name": "Breast_Physics_LeftRight_Driven",
+   "group": 1,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "wearable": "physics",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "LEFT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0.03,
+      0
+     ]
+    },
+    {
+     "name": "RIGHT_PEC",
+     "scale": [
+      0,
+      0,
+      0
+     ],
+     "pos": [
+      0,
+      0.03,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 151,
+   "name": "Big_Butt_Legs",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Butt Size",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "volumes": [
+    {
+     "name": "PELVIS",
+     "scale": [
+      0.03,
+      0,
+      0.02
+     ],
+     "pos": [
+      -0.03,
+      0,
+      -0.025
+     ]
+    }
+   ]
+  },
+  {
+   "id": 794,
+   "name": "Small_Butt",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Butt Size",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "volumes": [
+    {
+     "name": "PELVIS",
+     "scale": [
+      -0.01,
+      0,
+      0
+     ],
+     "pos": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "BUTT",
+     "scale": [
+      0,
+      0.0886,
+      0
+     ],
+     "pos": [
+      0.03,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 152,
+   "name": "Muscular_Legs",
+   "group": 1,
+   "min": 0,
+   "max": 1.5,
+   "default": 0,
+   "label": "Leg Muscles",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "volumes": [
+    {
+     "name": "L_UPPER_LEG",
+     "scale": [
+      0.015,
+      0.015,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_LEG",
+     "scale": [
+      0.01,
+      0.01,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_UPPER_LEG",
+     "scale": [
+      0.015,
+      0.015,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_LEG",
+     "scale": [
+      0.01,
+      0.01,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 651,
+   "name": "Scrawny_Legs",
+   "group": 1,
+   "min": 0,
+   "max": 1.5,
+   "default": 0,
+   "label": "Scrawny Leg",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "volumes": [
+    {
+     "name": "L_UPPER_LEG",
+     "scale": [
+      -0.03,
+      -0.03,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_LEG",
+     "scale": [
+      -0.015,
+      -0.015,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_UPPER_LEG",
+     "scale": [
+      -0.03,
+      -0.03,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_LEG",
+     "scale": [
+      -0.015,
+      -0.015,
+      0
+     ],
+     "pos": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 853,
+   "name": "Bowed_Legs",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Knee Angle",
+   "wearable": "shape",
+   "volumes": [
+    {
+     "name": "L_UPPER_LEG",
+     "pos": [
+      0,
+      0.03,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_LEG",
+     "pos": [
+      0,
+      0.03,
+      0
+     ]
+    },
+    {
+     "name": "R_UPPER_LEG",
+     "pos": [
+      0,
+      -0.03,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_LEG",
+     "pos": [
+      0,
+      -0.03,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 515,
+   "name": "Foot_Size",
+   "group": 0,
+   "min": -1,
+   "max": 3,
+   "default": 0,
+   "label": "Foot Size",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "volumes": [
+    {
+     "name": "L_FOOT",
+     "scale": [
+      0.02,
+      0.01,
+      0
+     ],
+     "pos": [
+      0.01,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "R_FOOT",
+     "scale": [
+      0.02,
+      0.01,
+      0
+     ],
+     "pos": [
+      0.01,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 635,
+   "name": "Fat_Legs",
+   "group": 1,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "label": "Fat Torso",
+   "wearable": "shape",
+   "editGroup": "shape_body",
+   "volumes": [
+    {
+     "name": "PELVIS",
+     "scale": [
+      0.03,
+      0.06,
+      0
+     ]
+    },
+    {
+     "name": "R_UPPER_LEG",
+     "scale": [
+      0.02,
+      0.02,
+      0
+     ],
+     "pos": [
+      0,
+      -0.02,
+      0
+     ]
+    },
+    {
+     "name": "R_LOWER_LEG",
+     "scale": [
+      0.01,
+      0.01,
+      0
+     ]
+    },
+    {
+     "name": "L_UPPER_LEG",
+     "scale": [
+      0.02,
+      0.02,
+      0
+     ],
+     "pos": [
+      0,
+      0.02,
+      0
+     ]
+    },
+    {
+     "name": "L_LOWER_LEG",
+     "scale": [
+      0.01,
+      0.01,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 854,
+   "name": "Saddlebags",
+   "group": 1,
+   "min": -0.5,
+   "max": 3,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "PELVIS",
+     "scale": [
+      0,
+      0.025,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1205,
+   "name": "Butt_Physics_UpDown_Driven",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "physics",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "BUTT",
+     "pos": [
+      0,
+      0,
+      0.05
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1206,
+   "name": "Butt_Physics_LeftRight_Driven",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "wearable": "physics",
+   "editGroup": "driven",
+   "volumes": [
+    {
+     "name": "BUTT",
+     "pos": [
+      0,
+      0.05,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "Nose_Big_Out",
+   "group": 0,
+   "min": -0.8,
+   "max": 2.5,
+   "default": 0,
+   "label": "Nose Size",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30002,
+     "min1": -0.8,
+     "max1": 2.5,
+     "max2": 2.5,
+     "min2": 2.5
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "name": "Broad_Nostrils",
+   "group": 0,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "label": "Nostril Width",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30004,
+     "min1": -0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 517,
+   "name": "Wide_Nose",
+   "group": 0,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "label": "Nose Width",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30517,
+     "min1": -0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 20,
+   "name": "Bulbous_Nose",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "label": "Nose Thickness",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30020,
+     "min1": -0.5,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 656,
+   "name": "Crooked_Nose",
+   "group": 0,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "label": "Crooked Nose",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30656,
+     "min1": -2,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 653,
+   "name": "Tall_Lips",
+   "group": 0,
+   "min": -1,
+   "max": 2,
+   "default": 0,
+   "label": "Lip Fullness",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30653,
+     "min1": -1,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 506,
+   "name": "Mouth_Height",
+   "group": 0,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "label": "Mouth Position",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30506,
+     "min1": -2,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 764,
+   "name": "Lip_Cleft_Deep",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.2,
+   "default": 0,
+   "label": "Lip Cleft Depth",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30764,
+     "min1": -0.5,
+     "max1": 1.2,
+     "max2": 1.2,
+     "min2": 1.2
+    }
+   ]
+  },
+  {
+   "id": 25,
+   "name": "Wide_Lip_Cleft",
+   "group": 0,
+   "min": -0.8,
+   "max": 1.5,
+   "default": 0,
+   "label": "Lip Cleft",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30025,
+     "min1": -0.8,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 663,
+   "name": "Shift_Mouth",
+   "group": 0,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "label": "Shift Mouth",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 31663,
+     "min1": -2,
+     "max1": -2,
+     "max2": -2,
+     "min2": 0
+    },
+    {
+     "id": 32663,
+     "min1": 0,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 35,
+   "name": "Big_Ears",
+   "group": 0,
+   "min": -1,
+   "max": 2,
+   "default": 0,
+   "label": "Ear Size",
+   "wearable": "shape",
+   "editGroup": "shape_ears",
+   "driven": [
+    {
+     "id": 30035,
+     "min1": -1,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "name": "Ears_Out",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "label": "Ear Angle",
+   "wearable": "shape",
+   "editGroup": "shape_ears",
+   "driven": [
+    {
+     "id": 30015,
+     "min1": -0.5,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 796,
+   "name": "Pointy_Ears",
+   "group": 0,
+   "min": -0.4,
+   "max": 3,
+   "default": 0,
+   "label": "Ear Tips",
+   "wearable": "shape",
+   "editGroup": "shape_ears",
+   "driven": [
+    {
+     "id": 30796,
+     "min1": -0.4,
+     "max1": 3,
+     "max2": 3,
+     "min2": 3
+    }
+   ]
+  },
+  {
+   "id": 185,
+   "name": "Deep_Chin",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Chin Depth",
+   "wearable": "shape",
+   "editGroup": "shape_chin",
+   "driven": [
+    {
+     "id": 30185,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 760,
+   "name": "Jaw_Angle",
+   "group": 0,
+   "min": -1.2,
+   "max": 2,
+   "default": 0,
+   "label": "Jaw Angle",
+   "wearable": "shape",
+   "editGroup": "shape_chin",
+   "driven": [
+    {
+     "id": 30760,
+     "min1": -1.2,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 665,
+   "name": "Jaw_Jut",
+   "group": 0,
+   "min": -2,
+   "max": 2,
+   "default": 0,
+   "label": "Jaw Jut",
+   "wearable": "shape",
+   "editGroup": "shape_chin",
+   "driven": [
+    {
+     "id": 30665,
+     "min1": -2,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "name": "Bulbous_Nose_Tip",
+   "group": 0,
+   "min": -0.3,
+   "max": 1,
+   "default": 0,
+   "label": "Nose Tip Shape",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30006,
+     "min1": -0.3,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "name": "Weak_Chin",
+   "group": 0,
+   "min": -0.5,
+   "max": 0.5,
+   "default": 0,
+   "label": "Chin Angle",
+   "wearable": "shape",
+   "editGroup": "shape_chin",
+   "driven": [
+    {
+     "id": 30007,
+     "min1": -0.5,
+     "max1": 0.5,
+     "max2": 0.5,
+     "min2": 0.5
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "name": "Double_Chin",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "label": "Chin-Neck",
+   "wearable": "shape",
+   "editGroup": "shape_chin",
+   "driven": [
+    {
+     "id": 30008,
+     "min1": -0.5,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 24,
+   "name": "Wide_Eyes",
+   "group": 0,
+   "min": -1.5,
+   "max": 2,
+   "default": 0,
+   "label": "Eye Opening",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 30024,
+     "min1": -1.5,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 650,
+   "name": "Eyelid_Corner_Up",
+   "group": 0,
+   "min": -1.3,
+   "max": 1.2,
+   "default": 0,
+   "label": "Outer Eye Corner",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 30650,
+     "min1": -1.3,
+     "max1": 1.2,
+     "max2": 1.2,
+     "min2": 1.2
+    }
+   ]
+  },
+  {
+   "id": 880,
+   "name": "Eyelid_Inner_Corner_Up",
+   "group": 0,
+   "min": -1.3,
+   "max": 1.2,
+   "default": 0,
+   "label": "Inner Eye Corner",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 30880,
+     "min1": -1.3,
+     "max1": 1.2,
+     "max2": 1.2,
+     "min2": 1.2
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "name": "Upper_Eyelid_Fold",
+   "group": 0,
+   "min": -0.2,
+   "max": 1.3,
+   "default": 0,
+   "label": "Upper Eyelid Fold",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 30021,
+     "min1": -0.2,
+     "max1": 1.3,
+     "max2": 1.3,
+     "min2": 1.3
+    }
+   ]
+  },
+  {
+   "id": 23,
+   "name": "Baggy_Eyes",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "label": "Eye Bags",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 30023,
+     "min1": -0.5,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 765,
+   "name": "Puffy_Lower_Lids",
+   "group": 0,
+   "min": -0.3,
+   "max": 2.5,
+   "default": 0,
+   "label": "Puffy Eyelids",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 30765,
+     "min1": -0.3,
+     "max1": 2.5,
+     "max2": 2.5,
+     "min2": 2.5
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "name": "Big_Brow",
+   "group": 0,
+   "min": -0.3,
+   "max": 2,
+   "default": 0,
+   "label": "Brow Size",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 30001,
+     "min1": -0.3,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "name": "Noble_Nose_Bridge",
+   "group": 0,
+   "min": -0.5,
+   "max": 1.5,
+   "default": 0,
+   "label": "Upper Bridge",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30011,
+     "min1": -0.5,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 758,
+   "name": "Lower_Bridge_Nose",
+   "group": 0,
+   "min": -1.5,
+   "max": 1.5,
+   "default": 0,
+   "label": "Lower Bridge",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30758,
+     "min1": -1.5,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 27,
+   "name": "Wide_Nose_Bridge",
+   "group": 0,
+   "min": -1.3,
+   "max": 1.2,
+   "default": 0,
+   "label": "Bridge Width",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30027,
+     "min1": -1.3,
+     "max1": 1.2,
+     "max2": 1.2,
+     "min2": 1.2
+    }
+   ]
+  },
+  {
+   "id": 759,
+   "name": "Low_Septum_Nose",
+   "group": 0,
+   "min": -1,
+   "max": 1.5,
+   "default": 0.5,
+   "label": "Nostril Division",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30759,
+     "min1": -1,
+     "max1": 1.5,
+     "max2": 1.5,
+     "min2": 1.5
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "name": "Sunken_Cheeks",
+   "group": 0,
+   "min": -1.5,
+   "max": 3,
+   "default": 0,
+   "label": "Lower Cheeks",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 30010,
+     "min1": -1.5,
+     "max1": 3,
+     "max2": 3,
+     "min2": 3
+    }
+   ]
+  },
+  {
+   "id": 17,
+   "name": "Square_Jaw",
+   "group": 0,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "label": "Jaw Shape",
+   "wearable": "shape",
+   "editGroup": "shape_chin",
+   "driven": [
+    {
+     "id": 30017,
+     "min1": -0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 18,
+   "name": "Puffy_Upper_Cheeks",
+   "group": 0,
+   "min": -1.5,
+   "max": 2.5,
+   "default": 0,
+   "label": "Upper Cheeks",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 30018,
+     "min1": -1.5,
+     "max1": 2.5,
+     "max2": 2.5,
+     "min2": 2.5
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "name": "High_Cheek_Bones",
+   "group": 0,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "label": "Cheek Bones",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 30014,
+     "min1": -0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 19,
+   "name": "Upturned_Nose_Tip",
+   "group": 0,
+   "min": -1.5,
+   "max": 1,
+   "default": 0,
+   "label": "Nose Tip Angle",
+   "wearable": "shape",
+   "editGroup": "shape_nose",
+   "driven": [
+    {
+     "id": 30019,
+     "min1": -1.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 505,
+   "name": "Lip Thickness",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30505,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 31505,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 799,
+   "name": "Lip Ratio",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "label": "Lip Ratio",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30797,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 30798,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 155,
+   "name": "Lip Width",
+   "group": 0,
+   "min": -0.9,
+   "max": 1.3,
+   "default": 0,
+   "label": "Lip Width",
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30155,
+     "min1": -0.9,
+     "max1": 1.3,
+     "max2": 1.3,
+     "min2": 1.3
+    }
+   ]
+  },
+  {
+   "id": 196,
+   "name": "Eye Spacing",
+   "group": 0,
+   "min": -2,
+   "max": 1,
+   "default": 0,
+   "label": "Eye Spacing",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 195,
+     "min1": -2,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 769,
+   "name": "Eye Depth",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 768,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 198,
+   "name": "Heel Height",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shoes",
+   "editGroup": "shoes",
+   "driven": [
+    {
+     "id": 197,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 503,
+   "name": "Platform Height",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shoes",
+   "editGroup": "shoes",
+   "driven": [
+    {
+     "id": 502,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 193,
+   "name": "Head Shape",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "label": "Head Shape",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 30193,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 157,
+   "name": "Belly Size",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "driven": [
+    {
+     "id": 104,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 637,
+   "name": "Body Fat",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "shape_body",
+   "driven": [
+    {
+     "id": 634,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 635,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 105,
+   "name": "Breast Size",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "driven": [
+    {
+     "id": 843,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.01
+    },
+    {
+     "id": 627,
+     "min1": 0,
+     "max1": 0.01,
+     "max2": 0.01,
+     "min2": 0.5
+    },
+    {
+     "id": 626,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 629,
+   "name": "Forehead Angle",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 31629,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 32629,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 646,
+   "name": "Egg_Head",
+   "group": 0,
+   "min": -1.3,
+   "max": 1,
+   "default": 0,
+   "label": "Egg Head",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 30646,
+     "min1": -1.3,
+     "max1": -1.3,
+     "max2": -1.3,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 647,
+   "name": "Squash_Stretch_Head",
+   "group": 0,
+   "min": -0.5,
+   "max": 1,
+   "default": 0,
+   "label": "Head Stretch",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 187,
+     "min1": -0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 30647,
+     "min1": -0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 649,
+   "name": "Torso Muscles",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "label": "Torso Muscles",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "female",
+   "driven": [
+    {
+     "id": 648,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 107,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 678,
+   "name": "Torso Muscles",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "sex": "male",
+   "driven": [
+    {
+     "id": 677,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 106,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 652,
+   "name": "Leg Muscles",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "driven": [
+    {
+     "id": 651,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 152,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 80,
+   "name": "male",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "wearable": "shape",
+   "editGroup": "dummy",
+   "driven": [
+    {
+     "id": 32,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 100,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 659,
+   "name": "Mouth Corner",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_mouth",
+   "driven": [
+    {
+     "id": 30658,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.5
+    },
+    {
+     "id": 30657,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 662,
+   "name": "Face Shear",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 661,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 773,
+   "name": "Head Length",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 770,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 772,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 30772,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 31772,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.45
+    },
+    {
+     "id": 32772,
+     "min1": 0.5,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 682,
+   "name": "Head Size",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "label": "Head Size",
+   "wearable": "shape",
+   "editGroup": "shape_head",
+   "driven": [
+    {
+     "id": 655,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 690,
+   "name": "Eye Size",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "label": "Eye Size",
+   "wearable": "shape",
+   "editGroup": "shape_eyes",
+   "driven": [
+    {
+     "id": 689,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    },
+    {
+     "id": 30689,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 795,
+   "name": "Butt Size",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.25,
+   "label": "Butt Size",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "driven": [
+    {
+     "id": 794,
+     "min1": 0,
+     "max1": 0,
+     "max2": 0,
+     "min2": 0.3
+    },
+    {
+     "id": 151,
+     "min1": 0.3,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 879,
+   "name": "Male_Package",
+   "group": 0,
+   "min": -0.5,
+   "max": 2,
+   "default": 0,
+   "label": "Package",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "sex": "male",
+   "driven": [
+    {
+     "id": 30879,
+     "min1": -0.5,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 841,
+   "name": "Bowed_Legs",
+   "group": 0,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Knee Angle",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "driven": [
+    {
+     "id": 853,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 753,
+   "name": "Saddlebags",
+   "group": 0,
+   "min": -0.5,
+   "max": 3,
+   "default": 0,
+   "label": "Saddle Bags",
+   "wearable": "shape",
+   "editGroup": "shape_legs",
+   "driven": [
+    {
+     "id": 854,
+     "min1": -0.5,
+     "max1": 3,
+     "max2": 3,
+     "min2": 3
+    }
+   ]
+  },
+  {
+   "id": 676,
+   "name": "Love_Handles",
+   "group": 0,
+   "min": -1,
+   "max": 2,
+   "default": 0,
+   "label": "Love Handles",
+   "wearable": "shape",
+   "editGroup": "shape_torso",
+   "driven": [
+    {
+     "id": 855,
+     "min1": -1,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 119,
+   "name": "Eyebrow Size",
+   "group": 0,
+   "min": 0,
+   "max": 1,
+   "default": 0.5,
+   "wearable": "hair",
+   "editGroup": "hair_eyebrows",
+   "driven": [
+    {
+     "id": 30119,
+     "min1": 0,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "name": "Pointy_Eyebrows",
+   "group": 0,
+   "min": -0.5,
+   "max": 3,
+   "default": 0,
+   "label": "Eyebrow Points",
+   "wearable": "hair",
+   "editGroup": "hair_eyebrows",
+   "driven": [
+    {
+     "id": 30016,
+     "min1": -0.5,
+     "max1": 3,
+     "max2": 3,
+     "min2": 3
+    }
+   ]
+  },
+  {
+   "id": 757,
+   "name": "Lower_Eyebrows",
+   "group": 0,
+   "min": -4,
+   "max": 2,
+   "default": -1,
+   "label": "Eyebrow Height",
+   "wearable": "hair",
+   "editGroup": "hair_eyebrows",
+   "driven": [
+    {
+     "id": 30757,
+     "min1": -4,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 31,
+   "name": "Arced_Eyebrows",
+   "group": 0,
+   "min": 0,
+   "max": 2,
+   "default": 0.5,
+   "label": "Eyebrow Arc",
+   "wearable": "hair",
+   "editGroup": "hair_eyebrows",
+   "driven": [
+    {
+     "id": 30031,
+     "min1": 0,
+     "max1": 2,
+     "max2": 2,
+     "min2": 2
+    }
+   ]
+  },
+  {
+   "id": 1100,
+   "name": "Breast_Physics_UpDown_Controller",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Breast Physics UpDown Controller",
+   "wearable": "physics",
+   "sex": "female",
+   "driven": [
+    {
+     "id": 1200,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 1101,
+   "name": "Breast_Physics_InOut_Controller",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Breast Physics InOut Controller",
+   "wearable": "physics",
+   "sex": "female",
+   "driven": [
+    {
+     "id": 1201,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 1102,
+   "name": "Belly_Physics_UpDown_Controller",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Belly Physics UpDown Controller",
+   "wearable": "physics",
+   "driven": [
+    {
+     "id": 1204,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 1103,
+   "name": "Butt_Physics_UpDown_Controller",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Butt Physics UpDown Controller",
+   "wearable": "shape",
+   "driven": [
+    {
+     "id": 1205,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 1104,
+   "name": "Butt_Physics_LeftRight_Controller",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Butt Physics LeftRight Controller",
+   "wearable": "shape",
+   "driven": [
+    {
+     "id": 1206,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  },
+  {
+   "id": 1105,
+   "name": "Breast_Physics_LeftRight_Controller",
+   "group": 1,
+   "min": -1,
+   "max": 1,
+   "default": 0,
+   "label": "Breast Physics LeftRight Controller",
+   "wearable": "shape",
+   "driven": [
+    {
+     "id": 1207,
+     "min1": -1,
+     "max1": 1,
+     "max2": 1,
+     "min2": 1
+    }
+   ]
+  }
+ ]
+}
