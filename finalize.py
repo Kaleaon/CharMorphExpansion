@@ -266,24 +266,66 @@ def _import_expresions(add_assets):
                 sk.data.foreach_set("co", fitted_data.reshape(-1))
 
 
-def _process_vertex_weights(vertices, deform_indices):
-    for v in vertices:
-        try:
-            groups = v.groups
-        except AttributeError:
-            continue
-        if not groups:
-            continue
-        total_w = 0.0
-        for g in groups:
-            if g.group in deform_indices:
-                total_w += g.weight
+import gc
+import os
+import sys
 
-        if total_w > 1.0:
-            scale_factor = 1.0 / total_w
+_c_fast_weight = None
+try:
+    so_dir = os.path.dirname(os.path.abspath(__file__))
+    lib_dir = os.path.join(so_dir, "lib")
+    so_path = os.path.join(lib_dir, "c_fast_weight.so")
+    c_path = os.path.join(lib_dir, "c_fast_weight.c")
+    if not os.path.exists(so_path) and os.path.exists(c_path):
+        import subprocess, sysconfig
+        inc = sysconfig.get_path("include")
+        subprocess.run(
+            ["gcc", "-O3", "-shared", "-fPIC", f"-I{inc}", c_path, "-o", so_path],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    if lib_dir not in sys.path:
+        sys.path.insert(0, lib_dir)
+    import c_fast_weight as _c_fast_weight
+except Exception:
+    _c_fast_weight = None
+
+
+def _process_vertex_weights(vertices, deform_indices):
+    if not deform_indices:
+        return
+    gc_was_enabled = gc.isenabled()
+    if gc_was_enabled:
+        gc.disable()
+    try:
+        if _c_fast_weight is not None:
+            try:
+                _c_fast_weight.fast_normalize_weights(vertices, deform_indices)
+                return
+            except Exception:
+                pass
+
+        is_deform = deform_indices.__contains__
+        for v in vertices:
+            try:
+                groups = v.groups
+            except AttributeError:
+                continue
+            if not groups:
+                continue
+            tot = 0.0
             for g in groups:
-                if g.group in deform_indices:
-                    g.weight *= scale_factor
+                if is_deform(g.group):
+                    tot += g.weight
+            if tot > 1.0:
+                inv = 1.0 / tot
+                for g in groups:
+                    if is_deform(g.group):
+                        g.weight *= inv
+    finally:
+        if gc_was_enabled:
+            gc.enable()
 
 
 def _normalize_vertex_weights(obj=None):
