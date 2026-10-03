@@ -272,18 +272,16 @@ def _process_vertex_weights(vertices, deform_indices):
             groups = v.groups
         except AttributeError:
             continue
-        if not groups:
-            continue
         total_w = 0.0
+        deform_gs = []
         for g in groups:
             if g.group in deform_indices:
                 total_w += g.weight
-
+                deform_gs.append(g)
         if total_w > 1.0:
             scale_factor = 1.0 / total_w
-            for g in groups:
-                if g.group in deform_indices:
-                    g.weight *= scale_factor
+            for g in deform_gs:
+                g.weight *= scale_factor
 
 
 def _normalize_vertex_weights(obj=None):
