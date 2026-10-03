@@ -33,7 +33,8 @@ class UIProps:
         items=[
             ("yaml", "CharMorph (yaml)", ""),
             ("json", "MB-Lab (json)", ""),
-            ("dae", "Collada (.dae)", "Second Life / OpenSim Collada format")
+            ("dae", "Collada (.dae)", "Second Life / OpenSim Collada format"),
+            ("sl_dae", "Second Life Collada (.dae)", "Dynamic Weight Collada exporter")
         ])
 
 
@@ -62,6 +63,8 @@ class CHARMORPH_PT_ImportExport(bpy.types.Panel):
             col.operator("charmorph.export_yaml")
         elif ui.export_format == "dae":
             col.operator("charmorph.export_dae")
+        elif ui.export_format == "sl_dae":
+            col.operator("charmorph.export_sl_collada")
         col.operator("charmorph.import")
 
 
@@ -156,6 +159,67 @@ class OpExportCollada(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
             return {'CANCELLED'}
 
 
+class OpExportSLCollada(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+    bl_idname = "charmorph.export_sl_collada"
+    bl_label = "Export Second Life Collada"
+    bl_description = "Export character mesh and dynamic weights to Second Life Collada (.dae) file"
+    filename_ext = ".dae"
+
+    filter_glob: bpy.props.StringProperty(default="*.dae", options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, _):
+        return bool(mm.morpher)
+
+    def execute(self, _):
+        import os
+        from .lib.sl_bone_mapping import SLBoneMapper, WeightAggregator
+        from .lib.collada_exporter import ColladaExporter
+
+        m = mm.morpher
+        obj = m.core.obj
+        if not obj or obj.type != 'MESH':
+            self.report({'ERROR'}, "Active CharMorph object is not a mesh")
+            return {'CANCELLED'}
+
+        mapper = SLBoneMapper()
+
+        # Extract mesh geometry
+        mesh = obj.data
+        positions = [(v.co.x, v.co.y, v.co.z) for v in mesh.vertices]
+
+        mesh.calc_normals_split()
+        normals = [(n.normal.x, n.normal.y, n.normal.z) for n in mesh.loops] if mesh.loops else [(0.0, 0.0, 1.0)]
+
+        uv_layer = mesh.uv_layers.active
+        uvs = [(loop_uv.uv[0], loop_uv.uv[1]) for loop_uv in uv_layer.data] if uv_layer else [(0.0, 0.0)]
+
+        polygons = []
+        for poly in mesh.polygons:
+            poly_verts = []
+            for loop_idx in poly.loop_indices:
+                v_idx = mesh.loops[loop_idx].vertex_index
+                n_idx = loop_idx if loop_idx < len(normals) else 0
+                uv_idx = loop_idx if loop_idx < len(uvs) else 0
+                poly_verts.append((v_idx, n_idx, uv_idx))
+            polygons.append(poly_verts)
+
+        # Dynamic weight aggregation
+        vertex_weights, diagnostics = WeightAggregator.aggregate_blender_object_weights(obj, mapper)
+
+        if diagnostics["has_warnings"]:
+            unmapped_str = ", ".join(diagnostics["unmapped_source_groups"])
+            self.report({'WARNING'}, f"Unmapped bone groups during Second Life export: {unmapped_str}")
+        else:
+            self.report({'INFO'}, f"Successfully mapped {diagnostics['mapped_source_groups_count']} bone groups to Second Life skeleton")
+
+        exporter = ColladaExporter(positions, normals, uvs, polygons, vertex_weights)
+        exporter.save_file(self.filepath)
+
+        self.report({'INFO'}, f"Saved Second Life Collada file to {self.filepath}")
+        return {'FINISHED'}
+
+
 class OpImport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     bl_idname = "charmorph.import"
     bl_label = "Import morphs"
@@ -190,4 +254,4 @@ class OpImport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         return {"FINISHED"}
 
 
-classes = [OpImport, OpExportJson, OpExportYaml, OpExportCollada, CHARMORPH_PT_ImportExport]
+classes = [OpImport, OpExportJson, OpExportYaml, OpExportCollada, OpExportSLCollada, CHARMORPH_PT_ImportExport]
