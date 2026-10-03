@@ -77,10 +77,6 @@ async def ingest_model(
         )
         report = pipeline.run()
 
-        output_dir = pipeline.output_root / pipeline.session_id
-        if output_dir.exists():
-            _schedule_cleanup(background_tasks, output_dir)
-
         if not report.success:
             raise HTTPException(status_code=400, detail=report.message)
 
