@@ -87,6 +87,22 @@ class MorpherCore(utils.ObjTracker):
         name = self.char.types.get(self.L1, {}).get("L2")
         return name if name else self.L1
 
+    def _get_L2_morph_keys(self):
+        yield ""
+        k = self._get_L2_morph_key()
+        if k:
+            yield k
+
+    def _enum_l2_raw_morphs(self):
+        return
+        yield
+
+    def _build_l2_combiner(self) -> morphs.MorphCombiner:
+        combiner = morphs.MorphCombiner()
+        for morph in self._enum_l2_raw_morphs():
+            combiner.add_morph(morph)
+        return combiner
+
     def set_L1(self, value):
         self.L1 = value
         self._update_L1()
@@ -219,23 +235,20 @@ class ShapeKeysMorpher(MorpherCore):
                 return True
         return False
 
-    def _get_L2_morph_keys(self):
-        yield ""
-        k = self._get_L2_morph_key()
-        if k:
-            yield k
+    def _enum_l2_raw_morphs(self):
+        if not self.obj.data.shape_keys:
+            return
+        for key in self._get_L2_morph_keys():
+            prefix = f"L2_{key}_"
+            for sk in self.obj.data.shape_keys.key_blocks:
+                if sk.name.startswith(prefix):
+                    yield morphs.MinMaxMorphData(sk.name[len(prefix):], sk, sk.slider_min, sk.slider_max)
 
     def get_morphs_L2(self):
         if not self.obj.data.shape_keys:
             return []
 
-        combiner = morphs.MorphCombiner()
-
-        for key in self._get_L2_morph_keys():
-            prefix = f"L2_{key}_"
-            for sk in self.obj.data.shape_keys.key_blocks:
-                if sk.name.startswith(prefix):
-                    combiner.add_morph(morphs.MinMaxMorphData(sk.name[len(prefix):], sk, sk.slider_min, sk.slider_max))
+        combiner = self._build_l2_combiner()
 
         for k, v in combiner.morphs_combo.items():
             names = list(enum_combo_names(k))
@@ -327,6 +340,7 @@ class ShapeKeysMorpher(MorpherCore):
             return
 
         basis_cache = {}
+
         def get_basis(sk):
             result = basis_cache.get(sk)
             if result is not None:
@@ -406,15 +420,17 @@ class NumpyMorpher(MorpherCore):
         return L1, morphs_l1
 
     def enum_morphs(self, level):
-        yield from self.storage.enum(level)
-        key = self._get_L2_morph_key()
-        if key:
-            yield from self.storage.enum(level, key)
+        for key in self._get_L2_morph_keys():
+            if key:
+                yield from self.storage.enum(level, key)
+            else:
+                yield from self.storage.enum(level)
+
+    def _enum_l2_raw_morphs(self):
+        yield from self.enum_morphs(2)
 
     def get_morphs_L2(self):
-        combiner = morphs.MorphCombiner()
-        for morph in self.enum_morphs(2):
-            combiner.add_morph(morph)
+        combiner = self._build_l2_combiner()
         self.morphs_combo = combiner.morphs_combo
         return combiner.morphs_list
 
