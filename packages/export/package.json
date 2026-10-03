@@ -1,0 +1,13 @@
+{
+  "name": "@charmorph/export",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@charmorph/rig": "workspace:*",
+    "@charmorph/skeleton": "workspace:*",
+    "fflate": "^0.8.2",
+    "@charmorph/morph": "workspace:*"
+  }
+}

@@ -147,6 +147,12 @@ describe("sex gating and fixture behaviour", () => {
     s.set(80, 1);
     expect(s.evaluate().deltas["BELLY"]).toBeUndefined(); // male: default weight 0 → no effect
   });
+  it("treats exactly 0.5 as female", () => {
+    const s = new SlShape(fixture(), skel);
+    s.set(1, 1);
+    s.set(80, 0.5);
+    expect(s.evaluate().deltas["BELLY"]?.scale).toEqual([1, 0, 0]);
+  });
   it("applies a non-zero default for unset parameters", () => {
     const s = new SlShape(fixture(), skel);
     expect(s.evaluate().deltas["PELVIS"]?.scale).toEqual([0, 0.25, 0]);

@@ -35,8 +35,8 @@ export interface ShapeResult {
  *  - `volume_morph` adds `w·scale` / `w·pos` to a collision volume;
  *  - driver parameters set their driven parameters through a trapezoid curve;
  *  - weights are clamped to the parameter's range, and an unset parameter has its default weight (0 unless specified).
- * Sex gating (`sex="male|female"`) uses the `male` parameter (id 80): an avatar is male if it is ≥ 0.5. That rule is inferred
- * (the viewer's `getSex()` is outside the files read), not verified.
+ * Sex gating (`sex="male|female"`) uses the `male` parameter (id 80): an avatar is male if it is > 0.5
+ * (verified: llvoavatar.cpp `updateVisualParams`).
  */
 export class SlShape {
   readonly params: ShapeParam[];
@@ -111,7 +111,7 @@ export class SlShape {
 
   evaluate(): ShapeResult {
     const w = this.effectiveWeights();
-    const male = (w.get(80) ?? 0) >= 0.5;
+    const male = (w.get(80) ?? 0) > 0.5; // LLVOAvatar::updateVisualParams: male if getVisualParamWeight("male") > 0.5
     const deltas: Record<string, JointDelta> = {};
     const bump = (name: string, scale: Vec3 | undefined, offset: Vec3 | undefined, k: number) => {
       const d = (deltas[name] ??= {});

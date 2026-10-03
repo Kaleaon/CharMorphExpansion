@@ -3,7 +3,7 @@
 A cross-platform (web / desktop / mobile) character designer with PBR rendering,
 a slider-driven morph system, and a Second Life–compatible skeleton.
 
-Status: **M5 (Second Life binding)**. See [`docs/PLAN_character_designer.md`](docs/PLAN_character_designer.md)
+Status: **M6 (export) in progress — LL mesh export done; COLLADA, GLB, BVH and shape export pending**. See [`docs/PLAN_character_designer.md`](docs/PLAN_character_designer.md)
 for the research, architecture and milestone plan.
 
 ## Layout

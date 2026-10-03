@@ -23,6 +23,9 @@ importers:
       '@charmorph/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@charmorph/export':
+        specifier: workspace:*
+        version: link:../../packages/export
       '@charmorph/morph':
         specifier: workspace:*
         version: link:../../packages/morph
@@ -70,6 +73,21 @@ importers:
   packages/assets: {}
 
   packages/core: {}
+
+  packages/export:
+    dependencies:
+      '@charmorph/morph':
+        specifier: workspace:*
+        version: link:../morph
+      '@charmorph/rig':
+        specifier: workspace:*
+        version: link:../rig
+      '@charmorph/skeleton':
+        specifier: workspace:*
+        version: link:../skeleton
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
 
   packages/morph: {}
 

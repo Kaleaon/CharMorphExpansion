@@ -253,3 +253,22 @@ What it can and cannot do for this project: OpenSim has no renderer, so it **can
 - No Bento face bones are weighted (the head moves rigidly); no export yet (M6); the toes tilt ~1 cm vs. MakeHuman's pose because the foot is re-aimed to SL's orientation.
 - Weights are MakeHuman's; quality was inspected at a few poses only. Legs end up touching at the thighs because SL's hips are straight below the pelvis.
 - Not verifiable here: how SL itself renders the result (no account; OpenSim cannot render).
+
+## M6 notes (export — LL mesh first)
+
+### Done
+- `packages/export`: binary LLSD (`llsd.ts`), LL mesh asset encoder **and** decoder (`llmesh.ts`), and `exportBodyMesh` (`body.ts`), which writes the T-posed MakeHuman body weighted to the SL joints it uses (53 joints, ≤110 allowed), with inverse bind matrices for the character's own skeleton and, optionally, that skeleton as `alt_inverse_bind_matrix` joint-position overrides (+ `lock_scale_if_joint_position`, `pelvis_offset`).
+- Web app: an **Export** tab downloads `character.llmesh` (options: joint overrides, lock scale, pelvis offset, one or four LODs).
+- Format details follow the viewer source (`llmeshrepository`/`llmodel`): zlib blocks, quantized u16 positions/normals/UVs, normalization compensated in the bind-shape matrix, top-4 weights, matrices column-major with translation at 12–14.
+
+### Verified
+- Our own decoder round-trips the encoder; the viewer's skinning formula applied to the decoded file reproduces the T-posed body (max error < 1e-3 m) when joints sit at bind.
+- **Independent decode:** `tools/opensim/verify-llmesh.fsx` loads the file with libopenmetaverse (the library OpenSimulator ships). For the default body it reports 14517 vertices, 80268 indices, 53 joints, alt binds present; vertex positions/normals/UVs match our decoder to ~1e-7.
+
+### Not verified (honest limits)
+- **Not uploaded to a grid, not seen in-world.** OpenSim has no renderer and no mesh-upload service in standalone mode, so it can only store the asset opaquely; I did not push it through OpenSim. Whether the SL uploader/viewer accepts the file, and whether the feet land on the ground, is unverified. The automatic `pelvis_offset` is left at 0 on purpose (the viewer's `pelvisToFoot` quirk makes an automatic value unsafe).
+- LODs are four copies of the high LOD (valid, large: ~1.5 MB). No real decimation, no physics block, single face (no material split), no fitted-mesh collision-volume weights.
+- A neutral SL shape: with the viewer's default sliders the driven face parameters already deform the skeleton, so "all weights 0" is not reachable through the driver curves. I left the SL view on the default shape rather than inventing a baseline.
+
+### Not done yet in M6
+COLLADA export (what the SL uploader takes), GLB with morph targets, BVH import, SL shape (visual-param) export.

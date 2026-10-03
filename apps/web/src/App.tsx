@@ -5,6 +5,7 @@ import type { Skeleton, Vec3 } from "@charmorph/skeleton";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group } from "three";
 import { LibraryPanel } from "./shape/LibraryPanel.tsx";
+import { ExportPanel } from "./export/ExportPanel.tsx";
 import { ShapePanel } from "./shape/ShapePanel.tsx";
 import { useCharacter } from "./shape/useCharacter.ts";
 import { SlController } from "./sl/SlController.ts";
@@ -15,8 +16,8 @@ declare global {
 }
 
 const AXES = ["X", "Y", "Z"] as const;
-type Tab = "shape" | "library" | "sl" | "skeleton" | "scene";
-const TAB_LABEL: Record<Tab, string> = { shape: "Shape", library: "Library", sl: "SL", skeleton: "Skeleton", scene: "Scene" };
+type Tab = "shape" | "library" | "sl" | "export" | "skeleton" | "scene";
+const TAB_LABEL: Record<Tab, string> = { shape: "Shape", library: "Library", sl: "SL", export: "Export", skeleton: "Skeleton", scene: "Scene" };
 
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -177,7 +178,7 @@ export function App() {
       </div>
       <aside className="side">
         <div className="tabs" role="tablist">
-          {(["shape", "library", "sl", "skeleton", "scene"] as const).map((t) => (
+          {(["shape", "library", "sl", "export", "skeleton", "scene"] as const).map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
               {TAB_LABEL[t]}
             </button>
@@ -197,6 +198,7 @@ export function App() {
           {tab === "sl" && (sl
             ? <SlPanel sl={sl} enabled={slOn} onEnabled={setSlOn} onChange={showSl} ready={sl.ready || ch.status === "ready"} />
             : <p className="note">Loading the Second Life rig…</p>)}
+          {tab === "export" && <ExportPanel ch={ch} />}
           {tab === "scene" && (
             <div className="grid">
               <label>Lighting

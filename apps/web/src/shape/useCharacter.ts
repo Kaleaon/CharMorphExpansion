@@ -37,6 +37,8 @@ export interface Character {
    * show the frame unchanged. Passing null restores the plain view. Re-applies the latest frame immediately.
    */
   setFrameProcessor: (fn: ((f: MorphFrame) => { positions: Float32Array; normals: Float32Array } | null) | null) => void;
+  /** The latest morph frame (positions of the shown character, before any SL processing), or null before the first. */
+  latestFrame: () => MorphFrame | null;
   /** Bumps whenever the model or a pack changed, to re-render sliders. */
   version: number;
   set: (id: string, v: number) => void;
@@ -146,6 +148,7 @@ export function useCharacter(): Character {
       if (shown) view.applyFrame(shown.positions, shown.normals); else view.applyFrame(raw.positions, raw.normals);
       window.dispatchEvent(new Event("cm-frame"));
     },
+    latestFrame: () => lastRaw.current,
     get stats() { return stats.current; },
     version,
     set: (id, v) => { modelRef.current?.set(id, v); push(); },
