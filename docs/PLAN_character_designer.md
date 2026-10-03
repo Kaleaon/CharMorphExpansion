@@ -1,6 +1,8 @@
 # Character Designer — Research Summary & Proposed Architecture
 
-Status: **PROPOSAL — awaiting approval. No app code has been written.**
+Status: **APPROVED. M0 done; M1 next.**
+
+Decisions (approved): MIT code + CC0/CC-BY assets only · MakeHuman CC0 first, Vitruvian second · Second Life only (OpenSim out of scope for now) · SL retarget of a CC0 base done in-house (M5) · old Blender add-on and Android app frozen in `legacy/` · no SL/OpenSim test account yet, so M6 upload validation stays offline until one is available.
 Date: 2026-10-03
 
 Legend: **[V]** verified this session by reading the source · **[S]** from search-result snippets only · **[?]** not verified, needs follow-up.
