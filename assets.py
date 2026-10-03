@@ -49,7 +49,6 @@ def get_asset_conf(context):
 def do_refit(_ui, _ctx):
     f = mm.morpher.fitter
     if f:
-        f.clear_cache()
         f.refit_all()
 
 
@@ -151,10 +150,10 @@ class CHARMORPH_PT_Assets(bpy.types.Panel):
             l.operator("charmorph.fit_local")
         l.separator()
         l.operator("charmorph.fit_external")
-        asset = get_asset_conf(context) or fitting.EmptyAsset
+        asset = get_asset_conf(context)
         col = l.column(align=True)
-        col.label(text="Author: " + asset.author)
-        col.label(text="License: " + asset.license)
+        col.label(text="Author: " + (asset.author if asset else ""))
+        col.label(text="License: " + (asset.license if asset else ""))
         l.prop(ui, "fitting_library_asset")
 
         l.operator("charmorph.fit_library")
@@ -230,8 +229,14 @@ class OpFitExternal(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         return fitExtPoll(context)
 
     def execute(self, context):
-        name, _ = os.path.splitext(self.filepath)
-        if fitter_from_ctx(context).fit_import((Asset(name, self.filepath),)):
+        ui = context.window_manager.charmorph_ui
+        name, _ = os.path.splitext(os.path.basename(self.filepath))
+        fitter = fitter_from_ctx(context)
+        obj = utils.import_obj(self.filepath, name)
+        if obj is not None:
+            utils.apply_transforms(obj)
+            fitter.fit_new([obj])
+            ui.fitting_asset = obj
             return {"FINISHED"}
         self.report({'ERROR'}, "Import failed")
         return {"CANCELLED"}
@@ -248,11 +253,19 @@ class OpFitLibrary(bpy.types.Operator):
         return fitExtPoll(context)
 
     def execute(self, context):
+        ui = context.window_manager.charmorph_ui
         asset_data = get_asset_conf(context)
         if asset_data is None:
             self.report({'ERROR'}, "Asset is not found")
             return {"CANCELLED"}
-        if fitter_from_ctx(context).fit_import((asset_data,)):
+        fitter = fitter_from_ctx(context)
+        obj = utils.import_obj(asset_data.blend_file, asset_data.name)
+        if obj is not None:
+            if fitter.mcore.char.assets.get(asset_data.name) is asset_data:
+                obj.data["charmorph_asset"] = asset_data.name
+            utils.apply_transforms(obj)
+            fitter.fit_new([obj])
+            ui.fitting_asset = obj
             return {"FINISHED"}
         self.report({'ERROR'}, "Import failed")
         return {"CANCELLED"}
@@ -286,7 +299,6 @@ class OpUnfit(bpy.types.Operator):
             if not char or char == asset or 'charmorph_fit_id' in char.data:
                 continue
             f = get_fitter(char)
-            f.remove_cache(asset)
             if mask in char.modifiers:
                 char.modifiers.remove(char.modifiers[mask])
             if mask in char.vertex_groups:

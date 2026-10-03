@@ -306,114 +306,6 @@ class MorphStorage:
         return self._enum_fs(path, level, *names)
 
 
-class MorphImporter:
-    _counter_lev: int
-    _counter_cnt: int
-    basis: numpy.ndarray
-
-    def __init__(self, storage: MorphStorage, obj):
-        self.storage = storage
-        self.obj = obj
-        self._L1_data = {}
-
-    def _ensure_basis(self):
-        basis = self.storage.char.np_basis
-        if not self.obj.data.shape_keys or not self.obj.data.shape_keys.key_blocks:
-            sk = self.obj.shape_key_add(name="Basis", from_mix=False)
-            if basis is not None:
-                sk.data.foreach_set("co", basis.reshape(-1))
-
-        if basis is None:
-            basis = utils.get_basis_numpy(self.obj)
-        self.basis = basis
-
-    def _create_morph_sk(self, prefix, morph):
-        if morph is Separator:
-            self.obj.shape_key_add(name=f"---- sep-{self._counter_lev}-{self._counter_cnt} ----", from_mix=False)
-            self._counter_cnt += 1
-            return None
-
-        sk = self.obj.shape_key_add(name=prefix + morph.name, from_mix=False)
-        sk.slider_min = morph.min
-        sk.slider_max = morph.max
-        return sk
-
-    def _import_to_sk(self, morph: MinMaxMorphData, level, *names):
-        sk = self._create_morph_sk("_".join((f"L{level}",) + names) + "_", morph)
-        if not sk:
-            return Separator, None
-
-        basis = self.basis
-        if level > 1 and names[0]:
-            data = self._L1_data.get(names[0])
-            if data:
-                sk.relative_key = data[0]
-                basis = data[1]
-            else:
-                sk_rel = self.obj.data.shape_keys.key_blocks.get("L1_" + names[0])
-                if sk_rel:
-                    sk.relative_key = sk_rel
-                    basis = utils.verts_to_numpy(sk_rel.data)
-                    self._L1_data[names[0]] = (sk_rel, basis)
-
-        data = morph.data.resolve()
-        if isinstance(data, Morph):
-            data = data.apply(basis.copy())
-
-        sk.data.foreach_set("co", data.reshape(-1))
-        return sk, data
-
-    def import_morphs(self, progress):
-        self._ensure_basis()
-
-        L1 = []
-        L2 = [(morph, "") for morph in self.storage.enum(2)]
-        for morph in list(self.storage.enum(1)):
-            L1.append(morph)
-            L2.extend((morph2, morph.name) for morph2 in self.storage.enum(2, morph.name))
-
-        self._counter_lev = 2
-        self._counter_cnt = 1
-
-        progress.enter_substeps(len(L1) + len(L2), "Importing morphs")
-
-        self._L1_data.clear()
-        for morph in L1:
-            data = self._import_to_sk(morph, 1)
-            self._L1_data[morph.name] = data
-            try:
-                progress.step(data[0].name)
-            except OSError:
-                pass
-
-        for morph, L1_name in L2:
-            data = self._import_to_sk(morph, 2, L1_name)
-            try:
-                progress.step(data[0].name)
-            except OSError:
-                pass
-
-        progress.leave_substeps("Morphs done")
-
-    def import_expressions(self, progress):
-        self._ensure_basis()
-        lst = [(morph, "") for morph in self.storage.enum(3)]
-        lst.extend(
-            (morph3, morph1.name)
-            for morph1 in self.storage.enum(1)
-            for morph3 in self.storage.enum(3, morph1.name))
-
-        self._counter_lev = 3
-        self._counter_cnt = 1
-        progress.enter_substeps(len(lst), "Importing expressions")
-        for morph, L1_name in lst:
-            data = self._import_to_sk(morph, 3, L1_name)
-            try:
-                progress.step(data[0].name)
-            except OSError:
-                pass
-        progress.leave_substeps("Expressions done")
-
 
 def convertSigns(signs):
     try:
@@ -500,20 +392,6 @@ def mblab_to_charmorph(data):
         "type": data.get("type", ()),
     }
 
-
-def charmorph_to_mblab(data: dict):
-    return {
-        "structural": {k: (v + 1) / 2 for k, v in data.get("morphs", {}).items()},
-        "metaproperties": {
-            k: v
-            for sublist, v in (
-                ([("character_" + k), ("last_character_" + k)], v)
-                for k, v in data.get("meta", {}).items()
-            ) for k in sublist
-        },
-        "materialproperties": data.get("materials"),
-        "type": data.get("type", ()),
-    }
 
 
 def load_morph_data(fn: str):

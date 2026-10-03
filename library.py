@@ -40,34 +40,6 @@ class OpReloadLib(bpy.types.Operator):
         return {"FINISHED"}
 
 
-def _import_moprhs(wm, obj, char):
-    ui = wm.charmorph_ui
-    if not ui.use_sk:
-        ui.import_morphs = False
-        ui.import_expressions = False
-
-    steps = int(ui.import_morphs) + int(ui.import_expressions)
-    if not steps:
-        return None
-
-    storage = morphs.MorphStorage(char)
-    importer = morphs.MorphImporter(storage, obj)
-
-    with ProgressReport(wm) as progress:
-        progress.enter_substeps(steps, "Importing shape keys...")
-        if ui.import_morphs:
-            importer.import_morphs(progress)
-            # ??? without extra empty step, progress resets to 0% after loadging morphs. TODO: investigate
-            progress.step()
-            progress.step("Morphs imported")
-        if ui.import_expressions:
-            importer.import_expressions(progress)
-            progress.step("Expressions imported")
-        progress.leave_substeps("Shape keys done")
-
-    return storage
-
-
 class OpImport(bpy.types.Operator):
     bl_idname = "charmorph.import_char"
     bl_label = "Import character"
@@ -110,9 +82,9 @@ class OpImport(bpy.types.Operator):
                 self.report({'ERROR'}, "Import failed")
                 return {"CANCELLED"}
 
-            storage = _import_moprhs(context.window_manager, obj, char)
+            storage = morphs.MorphStorage(char)
 
-            if not ui.import_morphs and os.path.isdir(char.path("morphs")):
+            if os.path.isdir(char.path("morphs")):
                 obj.data["cm_morpher"] = "ext"
 
             materials.init_materials(obj, char)
@@ -141,7 +113,15 @@ class OpImport(bpy.types.Operator):
         if not prefs.is_adult_mode():
             add_assets(char.underwear)
 
-        m.fitter.fit_import(asset_list)
+        objs = []
+        for asset in asset_list:
+            obj_asset = utils.import_obj(asset.blend_file, asset.name)
+            if obj_asset is not None:
+                if m.fitter.mcore.char.assets.get(asset.name) is asset:
+                    obj_asset.data["charmorph_asset"] = asset.name
+                utils.apply_transforms(obj_asset)
+                objs.append(obj_asset)
+        m.fitter.fit_new(objs)
         m.update()
 
         return {"FINISHED"}
@@ -199,12 +179,6 @@ class UIProps:
         name="Use shape keys for morphing", default=False,
         description="Use shape keys during morphing"
                     "(should be on if you plan to resume morphing later, maybe with other versions of CharMorph)")
-    import_morphs: bpy.props.BoolProperty(
-        name="Import morphing shape keys", default=False,
-        description="Import and morph character using shape keys")
-    import_expressions: bpy.props.BoolProperty(
-        name="Import expression shape keys", default=False,
-        description="Import and morph character using shape keys")
     alt_topo: bpy.props.EnumProperty(
         name="Alt topo",
         default="<Base>",
@@ -262,10 +236,6 @@ class CHARMORPH_PT_Library(bpy.types.Panel):
         l.prop(ui, "import_cursor_z")
         c = l.column()
         c.prop(ui, "use_sk")
-        c = c.column()
-        c.enabled = ui.use_sk and ui.alt_topo == "<Base>"
-        c.prop(ui, "import_morphs")
-        c.prop(ui, "import_expressions")
         c = l.column()
         c.enabled = bool(char and char.basis and char.has_faces)
         c.prop(ui, "alt_topo")

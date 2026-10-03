@@ -262,13 +262,6 @@ def apply_surface_clearance_and_relaxation(
         curr_verts = next_verts
 
     return curr_verts
-
-
-class EmptyAsset:
-    author = ""
-    license = ""
-
-
 class Fitter(hair.HairFitter):
     children: list[fit_calc.AssetFitData] = None
     transfer_calc: fit_calc.FitCalculator = None
@@ -540,25 +533,6 @@ class Fitter(hair.HairFitter):
 
         self.transfer_calc = None
 
-    def fit_import(self, lst):
-        result = True
-        objs = []
-        ui = bpy.context.window_manager.charmorph_ui
-        for asset in lst:
-            obj = utils.import_obj(asset.blend_file, asset.name)
-            if obj is None:
-                result = False
-                continue
-            if self.mcore.char.assets.get(asset.name) is asset:
-                obj.data["charmorph_asset"] = asset.name
-            #if ui.fitting_transforms: # Make apply_transforms after import disablable???
-            utils.apply_transforms(obj)
-            objs.append(obj)
-        self.fit_new(objs)
-        if len(lst) == 1:
-            ui.fitting_asset = obj
-        return result
-
     def _get_children(self):
         if self.children is None:
             self.children = [
@@ -595,19 +569,3 @@ class Fitter(hair.HairFitter):
             self.fit(afd)
             if hair_deform:
                 self.fit_obj_hair(afd.obj)
-
-    def remove_cache(self, asset):
-        keys = [asset.name]
-        if "charmorph_fit_id" in asset.data:
-            keys.append(asset.data["charmorph_fit_id"])
-        for key in keys:
-            for cache in (self.bind_cache, self.geom_cache):
-                try:
-                    del cache[key]
-                except KeyError:
-                    pass
-
-    def clear_cache(self):
-        self.bind_cache.clear()
-        self.geom_cache.clear()
-        self.children = None

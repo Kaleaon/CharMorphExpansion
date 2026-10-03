@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from webapp.processing import ModelIngestionPipeline, persist_upload
+from webapp.processing import ModelIngestionPipeline
 from lib.xml_base_mesh import WeightLayer, BaseMesh, load_base_mesh, load_dir
 import finalize
 
