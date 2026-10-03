@@ -6,6 +6,21 @@ export interface BipolarBinding {
   pos?: TargetId;
 }
 
+/**
+ * Drives a named material parameter (e.g. `wrinkleNormalStrength`) from a slider, alongside its morph bindings.
+ * `response` picks which part of the slider range contributes: `pos` = v>0, `neg` = v<0 (as -v), `abs` = |v|.
+ * Contributions from several sliders to the same parameter add up.
+ */
+export interface MaterialBinding {
+  param: string;
+  response: "pos" | "neg" | "abs";
+  /** Multiplier on the response (default 1). */
+  gain?: number;
+}
+
+/** Basic sliders are always shown; advanced ones sit behind a per-section "show advanced" toggle. */
+export type SliderTier = "basic" | "advanced";
+
 export interface SliderDef {
   id: string;
   label: string;
@@ -14,8 +29,14 @@ export interface SliderDef {
   min: -1 | 0;
   max: 1;
   default: number;
-  /** Several bindings let one slider drive e.g. both left and right limbs. */
+  /** Several bindings let one slider drive e.g. both left and right limbs. May be empty if `material` is set. */
   bindings: BipolarBinding[];
+  /** Material parameters this slider also drives. */
+  material?: MaterialBinding[];
+  /** UI tier; absent means "basic". */
+  tier?: SliderTier;
+  /** Sort key within a group (ascending); sliders without one keep spec order after those with one. */
+  order?: number;
 }
 
 export interface ScalarVariable {

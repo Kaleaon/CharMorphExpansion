@@ -3,7 +3,7 @@ import type { PackInfo } from "@charmorph/packs";
 import { memo, useMemo, useRef, useState } from "react";
 import type { Character } from "./useCharacter.ts";
 
-interface Row { id: string; label: string; min: number; max: number; step: number; readout?: (v: number) => string }
+interface Row { id: string; label: string; min: number; max: number; step: number; advanced?: boolean; order?: number; readout?: (v: number) => string }
 interface Section { title: string; rows: Row[] }
 
 /** Piecewise-linear readout, e.g. age 0..1 → "25 years". */
@@ -27,8 +27,10 @@ function sections(model: CharacterModel): Section[] {
     if (v.kind === "scalar") add(v.group, { id: v.id, label: v.label, min: 0, max: 1, step: 0.01, readout: v.readout && readoutFn(v.readout.unit, v.readout.stops) });
     else for (const c of v.components) add(v.group, { id: `${v.id}.${c.name}`, label: c.label, min: 0, max: 1, step: 0.01 });
   }
-  for (const s of model.spec.sliders as SliderDef[]) add(s.group, { id: s.id, label: s.label, min: s.min, max: s.max, step: 0.01 });
-  return [...out].map(([title, rows]) => ({ title, rows }));
+  for (const s of model.spec.sliders as SliderDef[]) add(s.group, { id: s.id, label: s.label, min: s.min, max: s.max, step: 0.01, advanced: s.tier === "advanced", order: s.order });
+  // Stable sort: rows with an `order` come first (ascending), the rest keep spec order.
+  const byOrder = (a: Row, b: Row) => (a.order ?? Infinity) === (b.order ?? Infinity) ? 0 : (a.order ?? Infinity) - (b.order ?? Infinity);
+  return [...out].map(([title, rows]) => ({ title, rows: [...rows].sort(byOrder) }));
 }
 
 interface SliderProps { row: Row; value: number; onChange: (id: string, v: number) => void; onReset: (id: string) => void }
@@ -71,6 +73,7 @@ export function ShapePanel({ ch }: { ch: Character }) {
   const [note, setNote] = useState("");
   const [filter, setFilter] = useState("");
   const [open, setOpen] = useState<Set<string>>(new Set(["Body type"]));
+  const [advanced, setAdvanced] = useState<Set<string>>(new Set());
   const model = ch.model;
   const secs = useMemo(() => (model ? sections(model) : []), [model, ch.version]); // eslint-disable-line react-hooks/exhaustive-deps
   const onChange = ch.set;
@@ -102,6 +105,7 @@ export function ShapePanel({ ch }: { ch: Character }) {
       setNote(`Could not load preset: ${(e as Error).message}`);
     }
   };
+  const toggleAdvanced = (title: string) => setAdvanced((o) => { const n = new Set(o); if (n.has(title)) n.delete(title); else n.add(title); return n; });
   const toggle = (title: string) => setOpen((o) => { const n = new Set(o); if (n.has(title)) n.delete(title); else n.add(title); return n; });
 
   return (
@@ -118,10 +122,18 @@ export function ShapePanel({ ch }: { ch: Character }) {
       {visible.length === 0 && <p className="note">No slider matches “{filter}”. Face and body details need their packs downloaded first.</p>}
       {visible.map((sec) => {
         const isOpen = q !== "" || open.has(sec.title);
+        const nAdvanced = sec.rows.filter((r) => r.advanced).length;
+        const showAdvanced = q !== "" || advanced.has(sec.title); // searching reveals advanced sliders too
+        const rows = showAdvanced ? sec.rows : sec.rows.filter((r) => !r.advanced);
         return (
           <details key={sec.title} open={isOpen} data-section={sec.title}>
-            <summary onClick={(e) => { e.preventDefault(); if (!q) toggle(sec.title); }}>{sec.title} <span className="count">{sec.rows.length}</span></summary>
-            {isOpen && sec.rows.map((r) => <Slider key={r.id} row={r} value={model.get(r.id)} onChange={onChange} onReset={onReset} />)}
+            <summary onClick={(e) => { e.preventDefault(); if (!q) toggle(sec.title); }}>{sec.title} <span className="count">{sec.rows.filter((r) => !r.advanced || advanced.has(sec.title) || q !== "").length}</span></summary>
+            {isOpen && rows.map((r) => <Slider key={r.id} row={r} value={model.get(r.id)} onChange={onChange} onReset={onReset} />)}
+            {isOpen && nAdvanced > 0 && !q && (
+              <button type="button" className="link" aria-expanded={showAdvanced} onClick={() => toggleAdvanced(sec.title)}>
+                {showAdvanced ? "Hide advanced" : `Show advanced (${nAdvanced})`}
+              </button>
+            )}
           </details>
         );
       })}

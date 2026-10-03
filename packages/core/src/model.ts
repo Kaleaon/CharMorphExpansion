@@ -14,7 +14,12 @@ export function validateSpec(spec: CharacterSpec, knownTargets?: ReadonlySet<Tar
   for (const s of spec.sliders) {
     claim(s.id, "slider");
     if (s.default < s.min || s.default > s.max) out.push(`${s.id}: default outside range`);
-    if (s.bindings.length === 0) out.push(`${s.id}: no bindings`);
+    if (s.bindings.length === 0 && !s.material?.length) out.push(`${s.id}: no bindings`);
+    for (const m of s.material ?? []) {
+      if (!m.param) out.push(`${s.id}: material binding without a param`);
+      if (m.response === "neg" && s.min === 0) out.push(`${s.id}: unipolar slider has a neg material response`);
+      if (m.gain !== undefined && !Number.isFinite(m.gain)) out.push(`${s.id}: material gain is not finite`);
+    }
     for (const b of s.bindings) {
       if (b.neg !== undefined && s.min === 0) out.push(`${s.id}: unipolar slider has a neg binding`);
       if (b.neg === undefined && b.pos === undefined) out.push(`${s.id}: empty binding`);
@@ -168,6 +173,19 @@ export class CharacterModel {
     for (const m of this.spec.macros) for (const [t, w] of macroWeights(m, this.variableById, this.values)) add(t, w);
     // Canonical order, so the same sliders give a bit-identical body no matter which packs loaded first.
     return new Map([...out].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+  }
+
+  /** Material parameter values driven by sliders (zero contributions dropped), sorted by name. Presets already capture them via the slider values. */
+  materialParams(): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const s of this.spec.sliders) {
+      const v = this.values[s.id]!;
+      for (const m of s.material ?? []) {
+        const r = m.response === "pos" ? Math.max(0, v) : m.response === "neg" ? Math.max(0, -v) : Math.abs(v);
+        if (r > EPS) out[m.param] = (out[m.param] ?? 0) + r * (m.gain ?? 1);
+      }
+    }
+    return Object.fromEntries(Object.entries(out).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
   }
 
   toPreset(name: string): Preset {

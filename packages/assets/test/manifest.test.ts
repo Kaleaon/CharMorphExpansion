@@ -13,11 +13,16 @@ describe("validateManifest", () => {
   it("accepts a CC0 entry", () => {
     expect(validateManifest({ pack: "p", files: [good()] }, "m")).toEqual([]);
   });
-  it.each(["AGPL-3.0-only", "GPL-3.0-or-later", "LGPL-2.1-only", "CC-BY-SA-4.0", "CC-BY-NC-4.0", "NOASSERTION"])(
+  it.each(["AGPL-3.0-only", "GPL-3.0-or-later", "LGPL-2.1-only", "CC-BY-NC-4.0", "NOASSERTION"])(
     "rejects %s", (license) => {
       const p = validateManifest({ pack: "p", files: [good({ license })] }, "m");
       expect(p.some((x) => x.message.includes("not allowed"))).toBe(true);
     });
+  it("accepts CC-BY-SA with attribution (anatomy-pack exception, approved 2026-10-03)", () => {
+    const p = validateManifest({ pack: "p", files: [good({ license: "CC-BY-SA-4.0" })] }, "m");
+    expect(p.some((x) => x.message.includes("attribution"))).toBe(true);
+    expect(validateManifest({ pack: "p", files: [good({ license: "CC-BY-SA-4.0", attribution: "Z-Anatomy contributors, CC-BY-SA-4.0" })] }, "m")).toEqual([]);
+  });
   it("requires attribution for CC-BY", () => {
     const p = validateManifest({ pack: "p", files: [good({ license: "CC-BY-4.0" })] }, "m");
     expect(p.some((x) => x.message.includes("attribution"))).toBe(true);

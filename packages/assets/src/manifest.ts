@@ -7,6 +7,12 @@ export const ALLOWED_LICENSES: ReadonlySet<string> = new Set([
   "CC0-1.0",
   "CC-BY-3.0",
   "CC-BY-4.0",
+  // CC-BY-SA is allowed ONLY for anatomy packs derived from Z-Anatomy (or
+  // similar share-alike sources). Such geometry must ship as separate,
+  // attributed asset files — never baked into code or mixed into a CC0/CC-BY
+  // pack. Approved by project owner 2026-10-03.
+  "CC-BY-SA-3.0",
+  "CC-BY-SA-4.0",
   "MIT",
   "Apache-2.0",
   "BSD-2-Clause",

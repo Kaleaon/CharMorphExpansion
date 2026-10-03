@@ -206,3 +206,35 @@ describe("CharacterModel.extend (lazy packs)", () => {
     expect(parsePreset({ format: "cm-preset/1", name: "legacy", values: { torso: 1 } }).packs).toBeUndefined();
   });
 });
+
+describe("material-param channel", () => {
+  const slack = (over: object = {}) => ({
+    id: "skin.slack_neck", label: "Neck slack", group: "skin", min: -1 as const, max: 1 as const, default: 0, tier: "advanced" as const,
+    bindings: [{ neg: "neck-tight", pos: "neck-sag" }],
+    material: [{ param: "wrinkleNormalStrength", response: "pos" as const }],
+    ...over,
+  });
+  const mk = (...sliders: ReturnType<typeof slack>[]) => new CharacterModel({ variables: [], macros: [], sliders }, new Set(["neck-tight", "neck-sag", "ear-sag"]));
+
+  it("scales with the positive side only and is empty at default", () => {
+    const m = mk(slack());
+    expect(m.materialParams()).toEqual({});
+    m.set("skin.slack_neck", 0.5);
+    expect(m.materialParams()).toEqual({ wrinkleNormalStrength: 0.5 });
+    m.set("skin.slack_neck", -0.8); // tight skin flattens wrinkles
+    expect(m.materialParams()).toEqual({});
+  });
+  it("sums contributions across sliders and honors abs/neg/gain", () => {
+    const m = mk(slack(), slack({ id: "skin.slack_ears", bindings: [{ pos: "ear-sag" }], material: [{ param: "wrinkleNormalStrength", response: "abs", gain: 0.5 }, { param: "tension", response: "neg" }] }));
+    m.set("skin.slack_neck", 0.4); m.set("skin.slack_ears", -0.6);
+    const p = m.materialParams();
+    expect(p.wrinkleNormalStrength).toBeCloseTo(0.4 + 0.3);
+    expect(p.tension).toBeCloseTo(0.6);
+  });
+  it("allows a material-only slider but rejects bad material bindings", () => {
+    expect(validateSpec({ variables: [], macros: [], sliders: [slack({ bindings: [] })] })).toEqual([]);
+    expect(validateSpec({ variables: [], macros: [], sliders: [slack({ bindings: [] , material: undefined })] }).join()).toContain("no bindings");
+    expect(validateSpec({ variables: [], macros: [], sliders: [slack({ min: 0, bindings: [{ pos: "x" }], material: [{ param: "p", response: "neg" }] })] }).join()).toContain("neg material");
+    expect(validateSpec({ variables: [], macros: [], sliders: [slack({ material: [{ param: "", response: "abs" }] })] }).join()).toContain("without a param");
+  });
+});
