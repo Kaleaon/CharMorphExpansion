@@ -14,22 +14,22 @@ class ObjParserTest {
     fun parse_validObjString_parsesVerticesNormalsUvsGroupsAndFaces() {
         val objContent = """
             # Sample OBJ File
-            
+
             v  1.0  2.0  3.0
             v  4.0  5.0  6.0
             v  7.0  8.0  9.0
-            
+
             vt 0.1 0.2
             vt 0.3 0.4
             vt 0.5 0.6
-            
+
             vn 0.0 1.0 0.0
             vn 0.0 0.0 1.0
             vn 1.0 0.0 0.0
-            
+
             g  genital_area
             f 1/1/1 2/2/2 3/3/3
-            
+
             g group_two
             f 3/3/3 2/2/2 1/1/1
         """.trimIndent()
