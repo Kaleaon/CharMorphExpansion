@@ -23,9 +23,7 @@ try:
     import bpy  # pylint: disable=import-error
     from mathutils import Matrix, Vector, Quaternion  # pylint: disable=import-error
     if not hasattr(Matrix, "Identity"):
-        Matrix = None
-        Vector = None
-        Quaternion = None
+        raise ImportError("mathutils missing Matrix.Identity")
 except Exception:
     bpy = None
     Matrix = None
