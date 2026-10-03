@@ -24,6 +24,7 @@ import bpy  # pylint: disable=import-error
 from mathutils import Matrix, Vector  # pylint: disable=import-error
 
 from .lib.charlib import library
+from . import preview_manager
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +238,26 @@ class OpApplyPose(bpy.types.Operator):
 
 
 def get_poses(_, context):
-    return [(" ", "<select pose>", "")] + [(k, k, "") for k in sorted(library.obj_char(context.object).poses.keys())]
+    obj = context.object if context and hasattr(context, "object") else None
+    char = library.obj_char(obj)
+    none_icon = preview_manager.get_icon_value("poses", "none", None)
+    result = [(" ", "<select pose>", "", none_icon, 0)]
+
+    if not char or not hasattr(char, "poses") or not char.poses:
+        return result
+
+    idx = 1
+    for k in sorted(char.poses.keys()):
+        thumb_file = preview_manager.find_item_thumbnail(char.dirpath, k, [
+            char.path("poses", f"{k}.png"),
+            char.path("poses", f"{k}.jpg"),
+            char.path("poses", f"thumb_{k}.png"),
+        ])
+        icon_val = preview_manager.get_icon_value("poses", f"{char.name}_{k}", thumb_file)
+        result.append((k, k, "", icon_val, idx))
+        idx += 1
+
+    return result
 
 
 class UIProps:
@@ -264,8 +284,12 @@ class CHARMORPH_PT_Pose(bpy.types.Panel):
 
     def draw(self, context):
         l = self.layout
+        ui = context.window_manager.charmorph_ui
         for prop in UIProps.__annotations__:  # pylint: disable=no-member
-            l.prop(context.window_manager.charmorph_ui, prop)
+            if prop == "pose":
+                l.template_icon_view(ui, prop)
+            else:
+                l.prop(ui, prop)
         l.operator("charmorph.apply_pose")
 
 

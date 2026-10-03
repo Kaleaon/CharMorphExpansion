@@ -24,6 +24,7 @@ import bpy, bpy_extras  # pylint: disable=import-error
 from .lib import fitting, morpher, utils
 from .lib.charlib import library, Asset
 from .common import manager as mm
+from . import preview_manager
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +55,40 @@ def do_refit(_ui, _ctx):
 
 
 def get_assets(ui, _):
-    char = library.obj_char(ui.fitting_char)
-    return [("char_" + k, k, '') for k in sorted(char.assets.keys())]\
-        + [("add_" + k, k, '') for k in sorted(library.additional_assets.keys())]
+    char = library.obj_char(ui.fitting_char) if ui else None
+    items = []
+    idx = 0
+
+    if char and hasattr(char, "assets"):
+        for k in sorted(char.assets.keys()):
+            asset = char.assets[k]
+            extra_paths = [
+                os.path.splitext(asset.blend_file)[0] + ".png",
+                os.path.splitext(asset.blend_file)[0] + ".jpg",
+            ] if asset and hasattr(asset, "blend_file") and asset.blend_file else []
+            dirpath = asset.dirpath if asset and hasattr(asset, "dirpath") else None
+            thumb_file = preview_manager.find_item_thumbnail(dirpath, k, extra_paths)
+            icon_val = preview_manager.get_icon_value("assets", "char_" + k, thumb_file)
+            items.append(("char_" + k, k, "", icon_val, idx))
+            idx += 1
+
+    if hasattr(library, "additional_assets"):
+        for k in sorted(library.additional_assets.keys()):
+            asset = library.additional_assets[k]
+            extra_paths = [
+                os.path.splitext(asset.blend_file)[0] + ".png",
+                os.path.splitext(asset.blend_file)[0] + ".jpg",
+            ] if asset and hasattr(asset, "blend_file") and asset.blend_file else []
+            dirpath = asset.dirpath if asset and hasattr(asset, "dirpath") else None
+            thumb_file = preview_manager.find_item_thumbnail(dirpath, k, extra_paths)
+            icon_val = preview_manager.get_icon_value("assets", "add_" + k, thumb_file)
+            items.append(("add_" + k, k, "", icon_val, idx))
+            idx += 1
+
+    if not items:
+        return [("NONE", "None", "", preview_manager.get_icon_value("assets", "none", None), 0)]
+
+    return items
 
 
 class UIProps:
@@ -155,7 +187,7 @@ class CHARMORPH_PT_Assets(bpy.types.Panel):
         col = l.column(align=True)
         col.label(text="Author: " + asset.author)
         col.label(text="License: " + asset.license)
-        l.prop(ui, "fitting_library_asset")
+        l.template_icon_view(ui, "fitting_library_asset")
 
         l.operator("charmorph.fit_library")
         l.prop(ui, "fitting_library_dir")
