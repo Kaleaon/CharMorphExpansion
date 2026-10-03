@@ -90,12 +90,13 @@ class TestSLBento(unittest.TestCase):
         """Verify character config files offer Second Life Bento armature."""
         data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
         chars_dir = os.path.join(data_dir, "characters")
+        data_lib = DataDir(data_dir)
 
         for char_name in ["mb_female", "mb_male", "antonia", "reom"]:
             config_path = os.path.join(chars_dir, char_name, "config.yaml")
             self.assertTrue(os.path.exists(config_path), f"Missing config for {char_name}")
 
-            char = Character(char_name, DataDir(data_dir))
+            char = Character(char_name, data_lib)
             armatures = char.armature
             self.assertIn("sl_bento", armatures, f"sl_bento missing in {char_name} config")
             self.assertEqual(armatures["sl_bento"].title, "Second Life Bento")
