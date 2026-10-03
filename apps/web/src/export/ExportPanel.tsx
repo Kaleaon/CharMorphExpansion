@@ -1,4 +1,4 @@
-import { exportBodyMesh, type BodyExport } from "@charmorph/export";
+import { exportBodyCollada, exportBodyMesh, type BodyExport } from "@charmorph/export";
 import { useState } from "react";
 import type { Character } from "../shape/useCharacter.ts";
 
@@ -35,6 +35,19 @@ export function ExportPanel({ ch }: { ch: Character }) {
     }
   };
 
+  const runDae = () => {
+    const f = ch.latestFrame();
+    if (!f) { setNote("No frame yet — move a slider first."); return; }
+    try {
+      const out = exportBodyCollada(f, ch.rig!, ch.mesh!, { jointOverrides: overrides });
+      save(new TextEncoder().encode(out.xml), "character.dae");
+      setResult(null);
+      setNote(`COLLADA: ${kb(out.xml.length)} · ${out.vertices} vertices · ${out.triangles} triangles · ${out.joints.length} joints`);
+    } catch (e) {
+      setNote(`Could not export: ${(e as Error).message}`);
+    }
+  };
+
   return (
     <div className="grid">
       <p className="note">
@@ -53,7 +66,8 @@ export function ExportPanel({ ch }: { ch: Character }) {
         <input type="range" min={-0.2} max={0.2} step={0.001} value={pelvis} disabled={!overrides} onChange={(e) => setPelvis(Number(e.target.value))} />
       </label>
       <button type="button" onClick={run}>Download .llmesh</button>
-      {note && <p className="note error" role="alert">{note}</p>}
+      <button type="button" onClick={runDae}>Download COLLADA (.dae) for the uploader</button>
+      {note && <p className="note" role="status">{note}</p>}
       {result && (
         <p className="note" role="status">
           {kb(result.bytes.length)} · {result.vertices} vertices · {result.triangles} triangles · {result.joints.length} joints

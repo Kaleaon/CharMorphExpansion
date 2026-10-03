@@ -5,9 +5,12 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
+    "@charmorph/morph": "workspace:*",
     "@charmorph/rig": "workspace:*",
     "@charmorph/skeleton": "workspace:*",
-    "fflate": "^0.8.2",
-    "@charmorph/morph": "workspace:*"
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.12"
   }
 }

@@ -1,5 +1,7 @@
 import { NormalSolver, type MorphMesh } from "@charmorph/morph";
 import type { BodyFrame, BodyRig } from "@charmorph/rig";
+import { SL_SKELETON_DATA } from "@charmorph/skeleton";
+import { buildCollada } from "./collada.ts";
 import { encodeLlMesh, type LlFace, type LlMeshInfo } from "./llmesh.ts";
 
 export interface BodyExportOptions {
@@ -34,11 +36,19 @@ const toSl = (src: Float32Array): Float32Array => {
   return out;
 };
 
-/**
- * Export the current character as a rigged Second Life mesh asset: the T-posed body, weighted to the SL joints it uses, with
- * inverse bind matrices for the character's own skeleton and (optionally) that skeleton as joint-position overrides.
- */
-export function exportBodyMesh(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh, opts: BodyExportOptions = {}): BodyExport {
+/** Everything both file formats need from the character, in Second Life space. */
+export interface BodyData {
+  face: LlFace;
+  joints: string[];
+  bind: Map<string, [number, number, number]>;
+  /** Local rest offset of every SL joint for this character (SL space). */
+  rest: Record<string, [number, number, number]>;
+  triangles: number;
+  vertices: number;
+}
+
+/** T-pose the body, solve its normals and gather the joints that carry weight. */
+export function prepareBody(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh): BodyData {
   const rt = rig.retarget(frame);
   const tposed = new Float32Array(frame.positions.length);
   rig.tpose(frame, rt, tposed);
@@ -62,9 +72,6 @@ export function exportBodyMesh(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh, 
       if (w > 0) { infJoints[r * 4 + k] = remap.get(indices[m * 4 + k]!)!; infWeights[r * 4 + k] = w; }
     }
   }
-
-  const bind = rig.bindPositions(rt);
-  const rest = rig.customRest(rt);
   const face: LlFace = {
     positions: toSl(tposed),
     normals: toSl(normals),
@@ -72,6 +79,22 @@ export function exportBodyMesh(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh, 
     indices: mesh.indices,
     influences: { joints: infJoints, weights: infWeights },
   };
+  return {
+    face, joints,
+    bind: rig.bindPositions(rt) as BodyData["bind"],
+    rest: rig.customRest(rt) as BodyData["rest"],
+    triangles: mesh.indices.length / 3,
+    vertices: nv,
+  };
+}
+
+/**
+ * Export the current character as a rigged Second Life mesh asset: the T-posed body, weighted to the SL joints it uses, with
+ * inverse bind matrices for the character's own skeleton and (optionally) that skeleton as joint-position overrides.
+ */
+export function exportBodyMesh(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh, opts: BodyExportOptions = {}): BodyExport {
+  const d = prepareBody(frame, rig, mesh);
+  const { face, joints, bind, rest } = d;
   const overrides = opts.jointOverrides ?? true;
   const { bytes, info } = encodeLlMesh({
     lods: opts.lods === "high" ? { high: [face] } : { lowest: [face], low: [face], medium: [face], high: [face] },
@@ -81,5 +104,27 @@ export function exportBodyMesh(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh, 
       ...(overrides ? { jointPositions: joints.map((j) => rest[j]!), lockScaleIfJointPosition: opts.lockScale ?? true, pelvisOffset: opts.pelvisOffset ?? 0 } : {}),
     },
   });
-  return { bytes, info, joints, bindPositions: bind as BodyExport["bindPositions"], triangles: mesh.indices.length / 3, vertices: nv };
+  return { bytes, info, joints, bindPositions: bind, triangles: d.triangles, vertices: d.vertices };
+}
+
+export interface ColladaExportOptions {
+  /** Write this character's joint positions; otherwise the stock SL positions (which the uploader treats as "no override"). Default true. */
+  jointOverrides?: boolean;
+  /** Name of the mesh and its material in the file. Default "body". */
+  name?: string;
+}
+
+export function exportBodyCollada(frame: BodyFrame, rig: BodyRig, mesh: MorphMesh, opts: ColladaExportOptions = {}): { xml: string; joints: string[]; triangles: number; vertices: number } {
+  const d = prepareBody(frame, rig, mesh);
+  const overrides = opts.jointOverrides ?? true;
+  const stock: Record<string, [number, number, number]> = {};
+  for (const j of SL_SKELETON_DATA.joints) stock[j.name] = [...j.pos] as [number, number, number];
+  const xml = buildCollada({
+    name: opts.name ?? "body",
+    face: d.face,
+    joints: d.joints,
+    bindPositions: d.joints.map((j) => d.bind.get(j)!),
+    hierarchy: SL_SKELETON_DATA.joints.map((j) => ({ name: j.name, parent: j.parent, position: (overrides ? d.rest : stock)[j.name]! })),
+  });
+  return { xml, joints: d.joints, triangles: d.triangles, vertices: d.vertices };
 }

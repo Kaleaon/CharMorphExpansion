@@ -272,3 +272,10 @@ What it can and cannot do for this project: OpenSim has no renderer, so it **can
 
 ### Not done yet in M6
 COLLADA export (what the SL uploader takes), GLB with morph targets, BVH import, SL shape (visual-param) export.
+
+### COLLADA export (M6, second step)
+- `packages/export/src/collada.ts` (`buildCollada`) + `exportBodyCollada`: COLLADA 1.4.1, Z_UP, metres, one skin controller (identity bind shape, SL joint names, 53 joints), strongest-4 weights per vertex, joint nodes named after the SL joints with `<translate sid="location">` local offsets (character's own, or stock SL when overrides are off). Export tab has a "Download COLLADA" button.
+- **Read from the viewer source** (`lldaeloader.cpp`, same commit as before): `inv_bind_matrix` is read row-major with translation at elements 3/7/11; the bind shape matrix is composed with the loader's own normalization; joint overrides come only from each joint node's *translation*; joints are found by walking the scene's nodes when no `<skeleton>` element exists (so none is written — a sid-path lookup from a skeleton root is the less certain route); weights are keyed by vertex position, then trimmed to 4 and normalized; Y_UP would rotate vertices but not joints, hence Z_UP.
+- **Verified**: tests parse the output with an XML parser and check structure, the matrix layout, hierarchy/translations vs inverse binds, and weights. An independent reader (pycollada) loads it: Z_UP, 14517 vertices, 26756 triangles, 53 joints, inverse-bind translations equal to minus the joint positions.
+- **Not verified**: the SL uploader itself (not run here). Blender-style importers need a `<skeleton>` element to find the armature, so this file is for the SL uploader, not for round-tripping through Blender (the GLB export is meant for that).
+- Not covered: multiple materials/faces, LOD files (the uploader derives lower LODs itself), physics shape.

@@ -88,6 +88,10 @@ importers:
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
+    devDependencies:
+      '@xmldom/xmldom':
+        specifier: ^0.9.12
+        version: 0.9.12
 
   packages/morph: {}
 
@@ -622,6 +626,10 @@ packages:
 
   '@webgpu/types@0.1.74':
     resolution: {integrity: sha512-lgiI4hbuLcI9unnm2cL/tvCaQU45dp0xcLWJh5uB/9MBGvIA4F8XIk7nSiBeg+K4xWGYwgZKn80LmERI5CxoTA==}
+
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
+    engines: {node: '>=14.6'}
 
   anynum@1.0.1:
     resolution: {integrity: sha512-N6//FLET/tXYNM/F6ABca1oH6fWB+KlTt909Le28WMDBk8oaT4vY17DCrwg2MvmuqUKt3Ni4N5dGJ/EoBgcO6A==}
@@ -1369,6 +1377,8 @@ snapshots:
       tinyrainbow: 2.0.0
 
   '@webgpu/types@0.1.74': {}
+
+  '@xmldom/xmldom@0.9.12': {}
 
   anynum@1.0.1: {}
 
