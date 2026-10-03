@@ -21,8 +21,8 @@
 import json
 import bpy, bpy_extras  # pylint: disable=import-error
 
-from .lib import morphs, utils
-from .common import manager as mm
+from lib import morphs, utils
+from common import manager as mm
 
 
 class UIProps:
@@ -142,7 +142,7 @@ class OpExportCollada(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         if not armature_obj and m:
             armature_obj = m.rig
 
-        from . import sl_bento
+        import sl_bento
         if not sl_bento.is_sl_armature_valid(char_obj, armature_obj):
             self.report({'ERROR'}, "Export failed: Active character mesh must be rigged to a Second Life compatible armature (sl_bento) before Collada export.")
             return {'CANCELLED'}

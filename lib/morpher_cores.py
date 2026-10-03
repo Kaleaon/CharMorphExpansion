@@ -20,7 +20,7 @@
 
 import numpy
 
-from . import charlib, morphs, utils
+import charlib, morphs, utils
 
 
 class MorpherCore(utils.ObjTracker):

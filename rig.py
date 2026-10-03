@@ -22,8 +22,8 @@ import logging, json
 
 import bpy  # pylint: disable=import-error
 
-from .lib import rigging, utils, drivers
-from .common import manager as mm, MorpherCheckOperator
+from lib import rigging, utils, drivers
+from common import manager as mm, MorpherCheckOperator
 
 logger = logging.getLogger(__name__)
 

@@ -21,8 +21,8 @@
 import logging
 import bpy  # pylint: disable=import-error
 
-from .lib import morpher, fit_calc, utils
-from .common import manager
+from lib import morpher, fit_calc, utils
+from common import manager
 
 logger = logging.getLogger(__name__)
 

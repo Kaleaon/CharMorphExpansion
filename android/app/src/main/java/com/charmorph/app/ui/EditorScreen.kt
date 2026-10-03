@@ -40,11 +40,11 @@ fun EditorScreen(
     var filamentView: FilamentView? by remember { mutableStateOf(null) }
 
     val categories = remember(uiState.morphs) {
-        uiState.morphs.map { it.category }.distinct().sorted()
+        uiState.morphs.map { morph: MorphState -> morph.category }.distinct().sorted()
     }
 
     val activeMorphs = remember(uiState.morphs, uiState.activeCategory) {
-        uiState.morphs.filter { it.category == uiState.activeCategory }
+        uiState.morphs.filter { morph: MorphState -> morph.category == uiState.activeCategory }
     }
 
     val texturePicker = rememberLauncherForActivityResult(
@@ -86,7 +86,7 @@ fun EditorScreen(
                         },
                         update = { view ->
                             // Apply Morphs
-                            uiState.morphs.forEach { morph ->
+                            uiState.morphs.forEach { morph: MorphState ->
                                  view.updateMorphWeight(morph.name, morph.value)
                             }
 
@@ -125,11 +125,11 @@ fun EditorScreen(
                                 selectedTabIndex = categories.indexOf(uiState.activeCategory).coerceAtLeast(0),
                                 edgePadding = 16.dp
                             ) {
-                                categories.forEach { category ->
+                                for (category in categories) {
                                     Tab(
                                         selected = category == uiState.activeCategory,
                                         onClick = { viewModel.setCategory(category) },
-                                        text = { Text(category) }
+                                        text = { Text(text = category) }
                                     )
                                 }
                             }

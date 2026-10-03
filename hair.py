@@ -21,9 +21,9 @@
 import logging, random
 import bpy, bmesh # pylint: disable=import-error
 
-from .lib import utils
-from .lib.charlib import library, empty_char
-from . import common, assets
+from lib import utils
+from lib.charlib import library, empty_char
+import common, assets
 
 logger = logging.getLogger(__name__)
 

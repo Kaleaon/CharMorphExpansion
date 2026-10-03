@@ -95,6 +95,8 @@ from lib import rigging
 
 
 BASE_MESH_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "base_meshes")
+if not os.path.exists(os.path.join(BASE_MESH_DIR, "SuperMesh.xml")):
+    BASE_MESH_DIR = os.path.join(os.path.dirname(__file__), "..", "base_meshes")
 SUPER_MESH_XML = os.path.join(BASE_MESH_DIR, "SuperMesh.xml")
 
 
@@ -112,6 +114,9 @@ class MockCharacter:
 class MockVertices(list):
     def foreach_get(self, attr, arr):
         arr.fill(0.0)
+
+    def foreach_set(self, attr, arr):
+        pass
 
 
 class MockObjectData:

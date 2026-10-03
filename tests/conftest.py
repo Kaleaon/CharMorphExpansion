@@ -1,6 +1,15 @@
 import sys
+import os
 import types
 import numpy as np
+
+# Ensure CharMorph root and lib directories are in sys.path
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+lib_dir = os.path.join(root_dir, "lib")
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+if lib_dir not in sys.path:
+    sys.path.insert(0, lib_dir)
 
 # Injected mock modules for headless testing
 for mod_name in ['addon_utils', 'rna_prop_ui', 'gpu', 'gpu_extras', 'idprop']:

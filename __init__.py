@@ -24,9 +24,9 @@ try:
 except ImportError:
     pass
 
-from . import addon_updater_ops
-from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit
-from .lib import charlib
+import addon_updater_ops
+import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit
+from lib import charlib
 
 logger = logging.getLogger(__name__)
 

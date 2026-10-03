@@ -23,7 +23,7 @@ import typing, logging, math, os
 import bpy                                   # pylint: disable=import-error
 from mathutils import Vector, Quaternion     # pylint: disable=import-error, no-name-in-module
 
-from . import sliding_joints, utils
+import sliding_joints, utils
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ class ArpRigHandler(RigHandler):
 
 class SLBentoRigHandler(RigHandler):
     def finalize(self, rigger: "Rigger"):
-        from . import sl_bento
+        import sl_bento
         sl_bento.transfer_sl_weights(self.morpher.core.obj)
         super().finalize(rigger)
 

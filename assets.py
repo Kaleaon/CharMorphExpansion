@@ -21,9 +21,9 @@
 import os, logging
 import bpy, bpy_extras  # pylint: disable=import-error
 
-from .lib import fitting, morpher, utils
-from .lib.charlib import library, Asset
-from .common import manager as mm
+from lib import fitting, morpher, utils
+from lib.charlib import library, Asset
+from common import manager as mm
 
 logger = logging.getLogger(__name__)
 

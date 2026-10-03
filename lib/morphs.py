@@ -20,7 +20,7 @@
 
 import os, abc, json, logging, numpy
 
-from . import utils
+import utils
 
 logger = logging.getLogger(__name__)
 

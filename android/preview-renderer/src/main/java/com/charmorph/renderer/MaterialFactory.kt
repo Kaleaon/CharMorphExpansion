@@ -18,17 +18,16 @@ object MaterialFactory {
             .blending(MaterialBuilder.BlendingMode.OPAQUE)
 
             // Attributes needed for PBR
-            .require(com.google.android.filament.VertexBuffer.VertexAttribute.UV0)
-            .require(com.google.android.filament.VertexBuffer.VertexAttribute.COLOR)
+            .require(MaterialBuilder.VertexAttribute.UV0)
+            .require(MaterialBuilder.VertexAttribute.COLOR)
 
             // Parameters
-            .parameter(MaterialBuilder.SamplerType.SAMPLER_2D, "baseColorMap")
-            .parameter(MaterialBuilder.SamplerType.SAMPLER_2D, "normalMap")
-            .parameter(MaterialBuilder.SamplerType.SAMPLER_2D, "roughnessMap")
-            .parameter(MaterialBuilder.UniformType.FLOAT4, "baseColorFactor")
-            .parameter(MaterialBuilder.UniformType.FLOAT, "roughnessFactor")
-            .parameter(MaterialBuilder.UniformType.FLOAT, "metallicFactor")
-
+            .samplerParameter(MaterialBuilder.SamplerType.SAMPLER_2D, MaterialBuilder.SamplerFormat.FLOAT, MaterialBuilder.ParameterPrecision.DEFAULT, "baseColorMap")
+            .samplerParameter(MaterialBuilder.SamplerType.SAMPLER_2D, MaterialBuilder.SamplerFormat.FLOAT, MaterialBuilder.ParameterPrecision.DEFAULT, "normalMap")
+            .samplerParameter(MaterialBuilder.SamplerType.SAMPLER_2D, MaterialBuilder.SamplerFormat.FLOAT, MaterialBuilder.ParameterPrecision.DEFAULT, "roughnessMap")
+            .uniformParameter(MaterialBuilder.UniformType.FLOAT4, "baseColorFactor")
+            .uniformParameter(MaterialBuilder.UniformType.FLOAT, "roughnessFactor")
+            .uniformParameter(MaterialBuilder.UniformType.FLOAT, "metallicFactor")
             // Shader logic (Simplified for Builder)
             // Filament's Builder automatically generates standard PBR shader code
             // if we don't provide custom code, but we configure it to use the parameters.
@@ -40,8 +39,8 @@ object MaterialFactory {
 
         // Actually, for Filament Android, compiling via Builder is the safest way to get a valid material package
         // without external tools.
-
-        val buffer = builder.build(engine)
+        val pkg = builder.build(engine)
+        val buffer = pkg.buffer
         val material = Material.Builder().payload(buffer, buffer.limit()).build(engine)
         return material
     }

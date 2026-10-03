@@ -26,8 +26,8 @@
 import math, typing
 import bpy, rna_prop_ui  # pylint: disable=import-error
 
-from .lib import rigging, sliding_joints, utils
-from .common import manager as mm
+from lib import rigging, sliding_joints, utils
+from common import manager as mm
 
 
 def apply_metarig_parameters(metarig):

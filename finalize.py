@@ -39,9 +39,9 @@ except ImportError:
     bpy = MockBpy()
 
 try:
-    from . import rig
-    from .lib import rigging, utils
-    from .common import manager as mm, MorpherCheckOperator
+    import rig
+    from lib import rigging, utils
+    from common import manager as mm, MorpherCheckOperator
 except ImportError:
     try:
         import rig

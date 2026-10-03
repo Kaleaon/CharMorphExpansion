@@ -20,7 +20,10 @@
 
 import bpy, mathutils  # pylint: disable=import-error
 
-from ..lib import utils
+try:
+    from ..lib import utils
+except (ImportError, ValueError):
+    from lib import utils
 
 
 def is_deform(group_name):

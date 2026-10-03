@@ -22,9 +22,9 @@ import os, logging
 import bpy  # pylint: disable=import-error
 from bpy_extras.wm_utils.progress_report import ProgressReport  # pylint: disable=import-error, no-name-in-module
 
-from . import common, prefs
-from .lib import morpher, materials, morphs, utils
-from .lib.charlib import library, empty_char
+import common, prefs
+from lib import morpher, materials, morphs, utils
+from lib.charlib import library, empty_char
 
 logger = logging.getLogger(__name__)
 
