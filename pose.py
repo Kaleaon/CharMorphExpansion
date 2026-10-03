@@ -266,6 +266,8 @@ class CHARMORPH_PT_Pose(bpy.types.Panel):
         l = self.layout
         for prop in UIProps.__annotations__:  # pylint: disable=no-member
             l.prop(context.window_manager.charmorph_ui, prop)
+        op = l.operator("charmorph.asset_picker", text="Open Visual Browser", icon='VIEW_ZOOM')
+        op.mode = 'POSE'
         l.operator("charmorph.apply_pose")
 
 

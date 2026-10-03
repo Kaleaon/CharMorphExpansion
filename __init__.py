@@ -25,7 +25,7 @@ except ImportError:
     pass
 
 from . import addon_updater_ops
-from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit
+from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit, asset_picker
 from .lib import charlib
 
 logger = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ classes: list[type] = [None, prefs.CharMorphPrefs, VIEW3D_PT_CharMorph]
 
 uiprops = [bpy.types.PropertyGroup]
 
-for module in library, morphing, randomize, file_io, assets, hair, rig, rigify, finalize, pose:
+for module in library, morphing, randomize, file_io, assets, hair, rig, rigify, finalize, pose, asset_picker:
     classes.extend(module.classes)
     if hasattr(module, "UIProps"):
         uiprops.append(module.UIProps)
@@ -111,6 +111,7 @@ def register():
     addon_updater_ops.register(bl_info)
     logger.debug("Charmorph register")
     charlib.library.load()
+    asset_picker.get_preview_collection()
     class_register()
     common.register()
     bpy.types.WindowManager.charmorph_ui = bpy.props.PointerProperty(type=CharMorphUIProps, options={"SKIP_SAVE"})
@@ -144,6 +145,7 @@ def unregister():
 
     common.unregister()
     class_unregister()
+    asset_picker.clear_preview_collections()
 
 
 if __name__ == "__main__":

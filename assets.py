@@ -157,6 +157,8 @@ class CHARMORPH_PT_Assets(bpy.types.Panel):
         col.label(text="License: " + asset.license)
         l.prop(ui, "fitting_library_asset")
 
+        op = l.operator("charmorph.asset_picker", text="Open Visual Browser", icon='VIEW_ZOOM')
+        op.mode = 'ASSETS'
         l.operator("charmorph.fit_library")
         l.prop(ui, "fitting_library_dir")
         l.separator()

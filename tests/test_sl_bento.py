@@ -94,7 +94,6 @@ class TestSLBento(unittest.TestCase):
         for char_name in ["mb_female", "mb_male", "antonia", "reom"]:
             config_path = os.path.join(chars_dir, char_name, "config.yaml")
             self.assertTrue(os.path.exists(config_path), f"Missing config for {char_name}")
-
             char = Character(char_name, DataDir(data_dir))
             armatures = char.armature
             self.assertIn("sl_bento", armatures, f"sl_bento missing in {char_name} config")
