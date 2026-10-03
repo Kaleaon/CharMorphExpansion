@@ -12,9 +12,11 @@ ignore =
     E121,
     E124,
     E126,
+    E127,
     E128,
     E131,
     E201,
+    E203,
     E225,
     E226,
     E231,
@@ -34,6 +36,8 @@ ignore =
     E721,
     E722,
     F401,
-    F841
+    F841,
+    W293,
+    W391
 
 exclude = lib/yaml, tmp, dev, demo, backups

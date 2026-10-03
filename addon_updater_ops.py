@@ -31,7 +31,11 @@ from bpy.app.handlers import persistent
 # Prevents popups for users with invalid python installs e.g. missing libraries
 # and will replace with a fake class instead if it fails (so UI draws work).
 try:
-    from .addon_updater import Updater as updater
+    try:
+        from .addon_updater import Updater as updater
+    except (ImportError, ValueError):
+        import addon_updater
+        updater = addon_updater.Updater
 except Exception as e:
     print("ERROR INITIALIZING UPDATER")
     print(str(e))

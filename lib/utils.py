@@ -34,9 +34,15 @@ generative_modifiers = frozenset((
 # YAML stuff
 
 try:
-    from yaml import load as yload, dump as ydump, CSafeLoader as SafeLoader, Dumper
-except ImportError:
-    from .yaml import load as yload, dump as ydump, SafeLoader, Dumper
+    try:
+        from yaml import load as yload, dump as ydump, CSafeLoader as SafeLoader, Dumper
+    except (ImportError, AttributeError):
+        from yaml import load as yload, dump as ydump, SafeLoader, Dumper
+except (ImportError, ValueError):
+    try:
+        from .yaml import load as yload, dump as ydump, SafeLoader, Dumper
+    except (ImportError, ValueError):
+        from yaml import load as yload, dump as ydump, SafeLoader, Dumper
     logger.debug("Using bundled yaml library!")
 
 

@@ -22,8 +22,14 @@ import logging
 
 import bpy  # pylint: disable=import-error
 
-from ..lib import utils
-from . import assets, file_io, rigging, vg_calc, symmetry
+try:
+    from ..lib import utils
+except (ImportError, ValueError):
+    from lib import utils
+try:
+    from . import assets, file_io, rigging, vg_calc, symmetry
+except (ImportError, ValueError):
+    from cmedit import assets, file_io, rigging, vg_calc, symmetry
 
 logger = logging.getLogger(__name__)
 

@@ -22,7 +22,11 @@ import random, logging, numpy
 
 import bpy, bmesh, mathutils  # pylint: disable=import-error
 
-from . import fit_calc, hair, utils
+import fit_calc, utils
+try:
+    from . import hair
+except (ImportError, ValueError):
+    from lib import hair
 
 logger = logging.getLogger(__name__)
 special_groups = {"corrective_smooth", "corrective_smooth_inv", "preserve_volume", "preserve_volume_inv"}

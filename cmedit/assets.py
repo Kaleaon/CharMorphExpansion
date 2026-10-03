@@ -22,8 +22,14 @@ import numpy
 
 import bpy, bpy_extras, bmesh  # pylint: disable=import-error
 
-from . import file_io
-from ..lib import morpher_cores, fit_calc, utils
+try:
+    from . import file_io
+except (ImportError, ValueError):
+    from cmedit import file_io
+try:
+    from ..lib import morpher_cores, fit_calc, utils
+except (ImportError, ValueError):
+    from lib import morpher_cores, fit_calc, utils
 
 class CMEDIT_PT_Assets(bpy.types.Panel):
     bl_label = "Assets"

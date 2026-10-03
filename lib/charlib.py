@@ -25,7 +25,7 @@ try:
 except ImportError:
     bpy = None
 
-from . import morphs, utils, xml_base_mesh
+import morphs, utils, xml_base_mesh
 
 logger = logging.getLogger(__name__)
 

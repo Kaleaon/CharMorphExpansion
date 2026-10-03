@@ -21,8 +21,14 @@
 import os, logging, json
 import bpy, bpy_extras, mathutils  # pylint: disable=import-error
 
-from ..lib import rigging, drivers, utils
-from . import vg_calc
+try:
+    from ..lib import rigging, drivers, utils
+except (ImportError, ValueError):
+    from lib import rigging, drivers, utils
+try:
+    from . import vg_calc
+except (ImportError, ValueError):
+    from cmedit import vg_calc
 
 logger = logging.getLogger(__name__)
 

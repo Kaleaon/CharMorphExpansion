@@ -1,0 +1,54 @@
+name: Python CI
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - '.flake8'
+      - '.pylintrc'
+      - '.mypy.ini'
+      - 'pyrightconfig.json'
+      - '.github/workflows/python-ci.yml'
+  pull_request:
+    paths:
+      - '**.py'
+      - '.flake8'
+      - '.pylintrc'
+      - '.mypy.ini'
+      - 'pyrightconfig.json'
+      - '.github/workflows/python-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Python Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Analysis Tools & Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pylint mypy pyright numpy fastapi uvicorn pydantic pytest scipy
+
+      - name: Run Flake8
+        run: |
+          flake8 .
+
+      - name: Run Pylint
+        run: |
+          PYTHONPATH=. pylint --rcfile=.pylintrc --exit-zero webapp cmedit tests
+
+      - name: Run Mypy
+        run: |
+          mypy --config-file=.mypy.ini .
+
+      - name: Run Pyright
+        run: |
+          pyright

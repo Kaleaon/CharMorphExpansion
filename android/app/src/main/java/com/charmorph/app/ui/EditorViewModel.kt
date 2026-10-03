@@ -15,6 +15,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class MorphState(
+    val name: String,
+    val displayName: String,
+    val category: String,
+    val value: Float = 0f,
+    val min: Float = 0f,
+    val max: Float = 1f
+)
+
 data class BoneState(
     val id: Int,
     val name: String,
@@ -59,7 +68,7 @@ class EditorViewModel @Inject constructor(
                 currentCharacter = character
 
                 val activeWeights = character.activeMorphs
-                val morphs = getAvailableMorphs().map { morph ->
+                val morphs = getAvailableMorphs().map { morph: MorphState ->
                     morph.copy(value = activeWeights[morph.name] ?: morph.value)
                 }
 
@@ -86,7 +95,7 @@ class EditorViewModel @Inject constructor(
 
     fun updateMorph(name: String, value: Float) {
         val currentMorphs = _uiState.value.morphs.toMutableList()
-        val index = currentMorphs.indexOfFirst { it.name == name }
+        val index = currentMorphs.indexOfFirst { morph: MorphState -> morph.name == name }
         if (index != -1) {
             currentMorphs[index] = currentMorphs[index].copy(value = value)
             _uiState.value = _uiState.value.copy(morphs = currentMorphs)
@@ -110,7 +119,7 @@ class EditorViewModel @Inject constructor(
 
     private fun saveCurrentState() {
         viewModelScope.launch {
-            val weights = _uiState.value.morphs.associate { it.name to it.value }
+            val weights = _uiState.value.morphs.associate { morph: MorphState -> morph.name to morph.value }
             repository.updateMorphWeights(characterId, weights)
         }
     }

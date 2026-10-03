@@ -22,7 +22,7 @@ import logging, numpy
 
 import bpy  # pylint: disable=import-error
 
-from . import fit_calc, utils
+import fit_calc, utils
 
 logger = logging.getLogger(__name__)
 

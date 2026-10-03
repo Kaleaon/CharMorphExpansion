@@ -13,7 +13,7 @@ import uuid
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
-from . import processing
+import processing
 
 logger = logging.getLogger(__name__)
 

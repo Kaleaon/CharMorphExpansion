@@ -21,8 +21,12 @@
 import os, re, json, numpy
 import bpy, bpy_extras, bmesh, idprop  # pylint: disable=import-error
 
-from ..lib import morphs, utils
-from ..lib.hair import update_hair, export_hair
+try:
+    from ..lib import morphs, utils
+    from ..lib.hair import update_hair, export_hair
+except (ImportError, ValueError):
+    from lib import morphs, utils
+    from lib.hair import update_hair, export_hair
 
 prop_precision = bpy.props.EnumProperty(
     name="Precision",

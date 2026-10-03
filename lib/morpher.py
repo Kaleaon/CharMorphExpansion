@@ -22,7 +22,7 @@ import re, typing, logging
 
 import bpy, mathutils  # pylint: disable=import-error
 
-from . import charlib, morpher_cores, materials, fitting, fit_calc, sliding_joints, rigging, utils
+import charlib, morpher_cores, materials, fitting, fit_calc, sliding_joints, rigging, utils
 
 logger = logging.getLogger(__name__)
 
@@ -311,7 +311,7 @@ class Morpher:
             self.rig = None
 
         if not self.rig and conf.type == "sl_bento":
-            from . import sl_bento
+            import sl_bento
             self.rig = sl_bento.build_sl_bento_armature()
 
         if not self.rig:

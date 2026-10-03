@@ -113,6 +113,9 @@ class MockVertices(list):
     def foreach_get(self, attr, arr):
         arr.fill(0.0)
 
+    def foreach_set(self, attr, arr):
+        pass
+
 
 class MockObjectData:
     """Mock Blender Object Data."""

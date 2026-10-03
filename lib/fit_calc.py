@@ -22,7 +22,7 @@ import logging, numpy
 
 import bpy, mathutils  # pylint: disable=import-error
 
-from . import charlib, morphs, utils
+import charlib, morphs, utils
 
 logger = logging.getLogger(__name__)
 

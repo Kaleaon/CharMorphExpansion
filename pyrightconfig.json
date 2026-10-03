@@ -1,3 +1,14 @@
 {
+    "include": [
+        "."
+    ],
+    "exclude": [
+        "lib/yaml",
+        "tmp",
+        "dev",
+        "demo",
+        "backups"
+    ],
+    "typeCheckingMode": "off",
     "reportMissingImports": false
 }

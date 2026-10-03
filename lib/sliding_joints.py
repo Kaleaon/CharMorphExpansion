@@ -31,7 +31,7 @@ try:
 except ImportError:
     def rna_idprop_ui_create(*args, **kwargs): pass
 
-from . import charlib, utils
+import charlib, utils
 
 logger = logging.getLogger(__name__)
 eval_unsafe = re.compile(r"__|\(\s*\)|[:;,{'\"\[]")

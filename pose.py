@@ -23,7 +23,7 @@ import bpy  # pylint: disable=import-error
 
 from mathutils import Matrix, Vector  # pylint: disable=import-error
 
-from .lib.charlib import library
+from lib.charlib import library
 
 logger = logging.getLogger(__name__)
 
