@@ -178,4 +178,3 @@ async def test_max_concurrent_uploads_semaphore(create_zip_bytes, monkeypatch):
             assert resp.status_code == 200
 
     assert max_observed_active <= server.MAX_CONCURRENT_UPLOADS
-
