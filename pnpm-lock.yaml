@@ -32,6 +32,9 @@ importers:
       '@charmorph/render':
         specifier: workspace:*
         version: link:../../packages/render
+      '@charmorph/rig':
+        specifier: workspace:*
+        version: link:../../packages/rig
       '@charmorph/skeleton':
         specifier: workspace:*
         version: link:../../packages/skeleton

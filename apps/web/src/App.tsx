@@ -1,27 +1,28 @@
 import {
   BACKGROUND_PRESETS, LIGHTING_PRESETS, SkeletonView, Viewport,
 } from "@charmorph/render";
-import { createSlSkeleton, type Skeleton, type Vec3 } from "@charmorph/skeleton";
-import { useEffect, useMemo, useRef, useState } from "react";
+import type { Skeleton, Vec3 } from "@charmorph/skeleton";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group } from "three";
 import { LibraryPanel } from "./shape/LibraryPanel.tsx";
 import { ShapePanel } from "./shape/ShapePanel.tsx";
 import { useCharacter } from "./shape/useCharacter.ts";
+import { SlController } from "./sl/SlController.ts";
+import { SlPanel } from "./sl/SlPanel.tsx";
 
 declare global {
-  interface Window { __viewport?: Viewport; __skeleton?: Skeleton }
+  interface Window { __viewport?: Viewport; __skeleton?: Skeleton; __sl?: SlController }
 }
 
 const AXES = ["X", "Y", "Z"] as const;
-type Tab = "shape" | "library" | "skeleton" | "scene";
-const TAB_LABEL: Record<Tab, string> = { shape: "Shape", library: "Library", skeleton: "Skeleton", scene: "Scene" };
+type Tab = "shape" | "library" | "sl" | "skeleton" | "scene";
+const TAB_LABEL: Record<Tab, string> = { shape: "Shape", library: "Library", sl: "SL", skeleton: "Skeleton", scene: "Scene" };
 
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const vpRef = useRef<Viewport | null>(null);
   const contentRef = useRef<Group>(new Group());
-  const viewRef = useRef<SkeletonView | null>(null);
-  const skel = useMemo(() => createSlSkeleton(), []);
+  const skelViewRef = useRef<SkeletonView | null>(null);
   const poses = useRef(new Map<string, Vec3>());
   const ch = useCharacter();
 
@@ -29,6 +30,7 @@ export function App() {
   const [lighting, setLighting] = useState("studio-3point");
   const [background, setBackground] = useState("studio-grey");
   const [turntable, setTurntable] = useState(false);
+  const [slOn, setSlOn] = useState(false);
   const [showSkel, setShowSkel] = useState(false);
   const [showBento, setShowBento] = useState(true);
   const [showCv, setShowCv] = useState(false);
@@ -36,6 +38,9 @@ export function App() {
   const [, bump] = useState(0);
   const [hud, setHud] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // The SL controller exists once the rig has loaded; it owns the skeleton the overlay draws.
+  const sl = useMemo(() => (ch.rig && ch.mesh ? new SlController(ch.rig, ch.mesh) : null), [ch.rig, ch.mesh]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,11 +54,6 @@ export function App() {
     }
     vpRef.current = vp;
     window.__viewport = vp;
-    window.__skeleton = skel;
-    const view = new SkeletonView(skel);
-    view.visible = false;
-    viewRef.current = view;
-    contentRef.current.add(view);
     vp.setContent(contentRef.current);
     const onFrame = () => vp.invalidate();
     window.addEventListener("cm-frame", onFrame);
@@ -64,13 +64,29 @@ export function App() {
     return () => {
       window.removeEventListener("cm-frame", onFrame);
       clearInterval(timer);
-      view.dispose();
       vp.dispose();
       vpRef.current = null;
       window.__viewport = undefined;
-      window.__skeleton = undefined;
     };
-  }, [skel]);
+  }, []);
+
+  // Skeleton overlay on the controller's skeleton.
+  useEffect(() => {
+    if (!sl) return;
+    const view = new SkeletonView(sl.skeleton);
+    view.visible = false;
+    skelViewRef.current = view;
+    contentRef.current.add(view);
+    window.__skeleton = sl.skeleton;
+    window.__sl = sl;
+    return () => {
+      contentRef.current.remove(view);
+      view.dispose();
+      skelViewRef.current = null;
+      window.__skeleton = undefined;
+      window.__sl = undefined;
+    };
+  }, [sl]);
 
   // Add the body once it has loaded, and frame the camera on it.
   const body = ch.view;
@@ -81,36 +97,76 @@ export function App() {
     return () => { contentRef.current.remove(body); };
   }, [body]);
 
+  /** Push the SL controller's latest deformation to the display. */
+  const showSl = useCallback(() => {
+    if (!sl || !ch.view || !sl.ready) return;
+    const o = sl.update();
+    ch.view.applyFrame(o.positions, o.normals);
+    contentRef.current.position.y = o.groundShift;
+    skelViewRef.current?.sync();
+    vpRef.current?.invalidate();
+  }, [sl, ch.view]);
+
+  const { setFrameProcessor } = ch;
+  useEffect(() => {
+    if (!sl) return;
+    if (slOn) {
+      setFrameProcessor((f) => {
+        const o = sl.setFrame(f);
+        contentRef.current.position.y = o.groundShift;
+        skelViewRef.current?.sync();
+        return o;
+      });
+    } else {
+      setFrameProcessor(null);
+      contentRef.current.position.y = 0;
+      sl.skeleton.setRestPositions({});
+      sl.skeleton.setDeltas({});
+      sl.skeleton.resetPose();
+      poses.current.forEach((e, j) => sl.skeleton.setPoseEuler(j, e));
+      sl.skeleton.update();
+      skelViewRef.current?.sync();
+    }
+    vpRef.current?.invalidate();
+    // setFrameProcessor identity changes every render; only the toggle and the controller matter here
+  }, [slOn, sl]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => { vpRef.current?.setLighting(lighting); }, [lighting]);
   useEffect(() => { vpRef.current?.setBackground(background); }, [background]);
   useEffect(() => { vpRef.current?.setTurntable(turntable); }, [turntable]);
   useEffect(() => {
-    const v = viewRef.current;
+    const v = skelViewRef.current;
     if (!v) return;
     v.visible = showSkel;
     v.setOptions({ showExtended: showBento, showCollisionVolumes: showCv });
     vpRef.current?.invalidate();
-  }, [showSkel, showBento, showCv]);
-  useEffect(() => { viewRef.current?.select(joint); vpRef.current?.invalidate(); }, [joint]);
+  }, [showSkel, showBento, showCv, sl]);
+  useEffect(() => { skelViewRef.current?.select(joint); vpRef.current?.invalidate(); }, [joint, sl]);
 
   const euler = poses.current.get(joint) ?? [0, 0, 0];
+  const poseChanged = () => {
+    if (!sl) return;
+    if (slOn) showSl();
+    else {
+      sl.skeleton.resetPose();
+      poses.current.forEach((e, j) => sl.skeleton.setPoseEuler(j, e));
+      sl.skeleton.update();
+      skelViewRef.current?.sync();
+      vpRef.current?.invalidate();
+    }
+    bump((n) => n + 1);
+  };
   const setAxis = (axis: number, value: number) => {
     const e: Vec3 = [...euler] as Vec3;
     e[axis] = value;
     poses.current.set(joint, e);
-    skel.setPoseEuler(joint, e);
-    skel.update();
-    viewRef.current?.sync();
-    vpRef.current?.invalidate();
-    bump((n) => n + 1);
+    sl?.setPose(joint, e);
+    poseChanged();
   };
   const resetPose = () => {
     poses.current.clear();
-    skel.resetPose();
-    skel.update();
-    viewRef.current?.sync();
-    vpRef.current?.invalidate();
-    bump((n) => n + 1);
+    sl?.resetPose();
+    poseChanged();
   };
 
   return (
@@ -121,7 +177,7 @@ export function App() {
       </div>
       <aside className="side">
         <div className="tabs" role="tablist">
-          {(["shape", "library", "skeleton", "scene"] as const).map((t) => (
+          {(["shape", "library", "sl", "skeleton", "scene"] as const).map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
               {TAB_LABEL[t]}
             </button>
@@ -138,6 +194,9 @@ export function App() {
             </>
           )}
           {tab === "library" && <LibraryPanel ch={ch} thumbnail={() => vpRef.current?.thumbnail() ?? ""} />}
+          {tab === "sl" && (sl
+            ? <SlPanel sl={sl} enabled={slOn} onEnabled={setSlOn} onChange={showSl} ready={sl.ready || ch.status === "ready"} />
+            : <p className="note">Loading the Second Life rig…</p>)}
           {tab === "scene" && (
             <div className="grid">
               <label>Lighting
@@ -154,15 +213,18 @@ export function App() {
               <button type="button" onClick={() => vpRef.current?.frame()}>Reset view</button>
             </div>
           )}
-          {tab === "skeleton" && (
+          {tab === "skeleton" && sl && (
             <div className="grid">
-              <p className="note">SL skeleton: {skel.count} joints · {skel.cvCount} collision volumes. It is not fitted to the MakeHuman body yet (milestone M5).</p>
+              <p className="note">
+                SL skeleton: {sl.skeleton.count} joints · {sl.skeleton.cvCount} collision volumes.
+                {slOn ? " Showing this character's skeleton (joint overrides)." : " Turn on the SL view (SL tab) to fit it to the body."}
+              </p>
               <label className="check"><input type="checkbox" checked={showSkel} onChange={(e) => setShowSkel(e.target.checked)} /> Show skeleton</label>
               <label className="check"><input type="checkbox" checked={showBento} onChange={(e) => setShowBento(e.target.checked)} /> Bento bones</label>
               <label className="check"><input type="checkbox" checked={showCv} onChange={(e) => setShowCv(e.target.checked)} /> Collision volumes</label>
               <label>Joint
                 <select value={joint} onChange={(e) => setJoint(e.target.value)}>
-                  {skel.names.map((n) => <option key={n} value={n}>{n}</option>)}
+                  {sl.skeleton.names.map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
               </label>
               {AXES.map((a, i) => (
@@ -173,6 +235,7 @@ export function App() {
               <button type="button" onClick={resetPose}>Reset pose</button>
             </div>
           )}
+          {tab === "skeleton" && !sl && <p className="note">Loading the Second Life rig…</p>}
         </div>
       </aside>
     </div>

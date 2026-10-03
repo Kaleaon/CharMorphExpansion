@@ -1,6 +1,6 @@
 # Character Designer — Research Summary & Proposed Architecture
 
-Status: **APPROVED. M0 done; M1 (viewport) implemented, on-device performance check pending; M2 (SL skeleton) implemented; M3 (morph engine + sliders) implemented, on-device performance check pending; M4 (lazy packs, full slider set, library) implemented; M5 next.**
+Status: **APPROVED. M0 done; M1 (viewport) implemented, on-device performance check pending; M2 (SL skeleton) implemented; M3 (morph engine + sliders) implemented, on-device performance check pending; M4 (lazy packs, full slider set, library) implemented; M5 (SL binding) implemented except fitted-mesh weights and any in-world verification; M6 (export) next.**
 
 Decisions (approved): MIT code + CC0/CC-BY assets only · MakeHuman CC0 first, Vitruvian second · Second Life only (OpenSim out of scope for now) · SL retarget of a CC0 base done in-house (M5) · old Blender add-on and Android app frozen in `legacy/` · no SL/OpenSim test account yet, so M6 upload validation stays offline until one is available.
 Date: 2026-10-03
@@ -214,3 +214,42 @@ Verified in headless Chromium: at startup only the core files are requested; dow
 - Slider labels are machine-generated from target names ("Scale width", "Lowerarm fat", "Eye bag (in/out)") and need a copy-edit pass; asymmetry (`asym` targets) isn't exposed.
 - Tests: the full set (>170 values across core + 3 packs) round-trips through preset JSON into a fresh app and reproduces the identical mesh; the same flow works in the browser through the Library tab.
 - Still unverified on real devices: download behaviour on slow mobile networks (no progress bar yet), IndexedDB quota behaviour with many thumbnails.
+
+
+## M5 notes (Second Life binding)
+
+### What was verified against the viewer source (commit `18648fc5`)
+Read directly from `secondlife/viewer`: `llpolyskeletaldistortion.cpp`, `llpolymorph.cpp`, `lldriverparam.cpp`, `llvisualparam.cpp`, `llavatarappearance.cpp`, `lljoint.cpp`, `xform.cpp`, `llquaternion.cpp`.
+- A skeletal parameter with weight `w` adds `w·scale` / `w·offset` to its bones (the viewer applies increments, so the net is `w·delta` since weights start at 0). `value_default` is **0 when absent** (not the minimum) and weights are clamped to `[min,max]`.
+- `volume_morph` adds `w·scale` / `w·pos` to a collision volume; collision volumes under a scaled bone additionally get `restScale ⊙ boneScaleDelta · w` (`inheritScale`).
+- Driver parameters set their driven parameters through a trapezoid (`min1→max1` up, hold to `max2`, down to `min2`); omitted attributes default to the driver's `min`/`max`.
+- **Transform rules (this corrected an M2 mistake):** a child's offset is scaled by its *direct* parent's own scale only, and a joint's matrix carries only its *own* scale — scale does **not** accumulate down the hierarchy as in an ordinary scene graph. `computeBodySize`'s formula (`hip.z·pelvisScale.z − knee.z·hipScale.z − …`) confirms it.
+- `rot="x y z"` is `mayaQ(…, XYZ)` = `xQ*yQ*zQ` with LLQuaternion's reversed product, i.e. **Rz·Ry·Rx** in the usual convention (M2 had Rx·Ry·Rz).
+- Cross-check: Linkpoint's hand-written `AvatarSkeleton.kt` (37 bones, 27 collision volumes) is a subset of the generated table, except `BACK`, which is not in the viewer file at this commit.
+
+### Still inferred, not verified
+- Sex gating (`sex="male|female"` params) uses the `male` parameter (id 80) ≥ 0.5; the viewer's `getSex()` was not read.
+- That Second Life honours **joint-position overrides** from a rigged mesh the way this app's "joint overrides" mode assumes (the Project Bento notes say so; not tested in-world or on OpenSim).
+- Collision-volume `scale` as ellipsoid half-axes (M2 assumption; the viewer draws them as unit spheres scaled by it).
+
+### What was built
+- `tools/import-sl-skeleton` also extracts 186 shape parameters (82 bone-moving, 30 volume-morphing, 73 drivers, plus `Hover`) from `avatar_lad.xml`; `SlShape` evaluates them; `pelvisToFoot` and `computeBodyHeight` are ports of the viewer's.
+- **Rig data (CC0):** MakeHuman's default skeleton and skin weights (both files state `"license": "CC0"`) merged onto 53 SL joints (top-4 weights per vertex, bytes; `rig.json`/`rig.bin`, 105 KB). Toes weight to `mFoot` (SL bends toes at the ball of the foot; `mToe` is the end joint).
+- **Helper vertices:** the 448 vertices MakeHuman defines its joints from are appended to the morph mesh as non-rendered helpers, so joints follow every morph. The worker returns their positions with each frame.
+- **`packages/rig`:** SL↔MakeHuman joint correspondences; A→T-pose retarget (limb directions from SL's rest skeleton, the character's own bone lengths); linear-blend skinning; a custom rest skeleton (joint-position overrides) derived from the morphed body; skeleton-driven deform that is the identity at rest; `fitShape` — the SL body sliders that best reproduce the character's joints (exact bounded least squares, re-linearized because drivers make the response piecewise-affine).
+- **App:** an *SL* tab (T-pose skinned view, the 12 SL body sliders as 0–100 %, "fit SL sliders", two skeleton modes) and a skeleton overlay on the character's own skeleton.
+
+### Measured
+- Fit of the default MakeHuman character with SL sliders alone: **4.9 cm RMS, 8.5 cm worst joint** (toes, collars); Thickness, Hip Length and Leg Length pin at 0 %, Shoulders at 100 %. So SL sliders alone cannot reproduce this body; joint overrides give an exact fit by construction.
+- Cost on this container's CPU (Node): full SL frame (retarget + skin + deform + normals) 5 ms; slider/pose change 3 ms. It runs on the main thread; on a phone it may deserve a worker.
+- Visual checks (headless Chromium): T-pose arms level with the shoulders, shoulders/neck clean, feet grounded, SL Height 100 % stretches the skinned body (viewer height estimate 1.59 → 1.80 m), elbow bend follows the skeleton.
+
+### OpenSim harness (`tools/opensim`, adapted from Kaleaon/React-Linkpoint)
+Runs a real OpenSimulator 0.9.3 locally (no Docker): `start` downloads/configures/boots it and creates a test avatar, `login` performs the XML-RPC viewer login (verified here: valid agent id, seed capability, 21-folder inventory skeleton), `console` sends any OpenSim console command, `stop`. `.github/workflows/live.yml` runs the same in CI (**not yet run on Actions**).
+What it can and cannot do for this project: OpenSim has no renderer, so it **cannot show deformation**, and standalone mode exposes no HTTP avatar-service endpoint. It *can* check what a grid does with our assets: `load oar`/`load iar` and `dump asset` exist, and Linkpoint's Kotlin core (login, UDP circuit, CAPS, an LL-mesh decoder with rig and weights already verified against OpenSim) can fetch and decode them. That is the plan for M6's round-trip test of exported rigged meshes.
+
+### Not done / next
+- **Fitted-mesh weights.** Weights go to mBones only. Weighting to collision volumes (so SL's fat/muscle/breast sliders deform the body) is designed (mBone→CV map) but not generated.
+- No Bento face bones are weighted (the head moves rigidly); no export yet (M6); the toes tilt ~1 cm vs. MakeHuman's pose because the foot is re-aimed to SL's orientation.
+- Weights are MakeHuman's; quality was inspected at a few poses only. Legs end up touching at the thighs because SL's hips are straight below the pelvis.
+- Not verifiable here: how SL itself renders the result (no account; OpenSim cannot render).

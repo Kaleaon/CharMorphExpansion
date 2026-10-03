@@ -8,7 +8,8 @@ export function ruleFor(bone: string): string | null {
   const base = side ? bone.slice(0, -2) : bone;
   const finger = /^finger(\d)-(\d)$/.exec(base);
   if (finger) return `mHand${FINGER_NAMES[finger[1]!]!}${finger[2]}${side}`;
-  if (/^toe\d-\d$/.test(base)) return `mToe${side}`;
+  // SL bends the toes at the ball of the foot: that joint is mFoot. mToe is the end joint at the tip and carries no weights.
+  if (/^toe\d-\d$/.test(base)) return `mFoot${side}`;
   if (/^metacarpal\d$/.test(base)) return `mWrist${side}`;
   switch (base) {
     case "root": case "spine05": case "pelvis": return "mPelvis";

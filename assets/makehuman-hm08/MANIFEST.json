@@ -31,14 +31,14 @@
     },
     {
       "path": "rig.json",
-      "sha256": "cfe103cdc8138073a32a59afb9afb7bd4486f5b5dcc934e01ae059864e0f50a6",
+      "sha256": "45fa05fca060c00722789428ae2d908f712b51977ab12edc21221a6a7f17f627",
       "license": "CC0-1.0",
       "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
       "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"
     },
     {
       "path": "rig.bin",
-      "sha256": "0f2f94870d845e44684cb11283acd91fcf31ccbc0a20f29709d506532bc02390",
+      "sha256": "e6f083ba119761fdea8427b6a108a41b67240ace6c20f7d2db9069dddf4bc9d3",
       "license": "CC0-1.0",
       "author": "MakeHuman Community (Data Collection AB, Joel Palmius, Jonas Hauquier)",
       "sourceUrl": "https://github.com/makehumancommunity/makehuman/tree/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data"

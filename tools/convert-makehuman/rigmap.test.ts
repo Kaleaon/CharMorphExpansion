@@ -6,7 +6,7 @@ describe("ruleFor", () => {
     expect(ruleFor("upperarm02.L")).toBe("mShoulderLeft");
     expect(ruleFor("lowerarm01.R")).toBe("mElbowRight");
     expect(ruleFor("foot.L")).toBe("mAnkleLeft");
-    expect(ruleFor("toe3-2.R")).toBe("mToeRight");
+    expect(ruleFor("toe3-2.R")).toBe("mFootRight"); // toes bend at the ball of the foot
     expect(ruleFor("finger1-2.L")).toBe("mHandThumb2Left");
     expect(ruleFor("finger5-3.R")).toBe("mHandPinky3Right");
     expect(ruleFor("metacarpal2.L")).toBe("mWristLeft");

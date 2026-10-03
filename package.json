@@ -4,12 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "packageManager": "pnpm@10.28.0",
-  "engines": { "node": ">=22.18" },
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "typecheck": "tsc -b",
     "test": "vitest run",
     "license-gate": "node tools/license-gate/check.ts",
-    "ci": "pnpm typecheck && pnpm test && pnpm license-gate"
+    "ci": "pnpm typecheck && pnpm test && pnpm license-gate",
+    "opensim:start": "python3 tools/opensim/opensim.py start",
+    "opensim:login": "python3 tools/opensim/opensim.py login",
+    "opensim:stop": "python3 tools/opensim/opensim.py stop",
+    "skeleton:check": "node tools/import-sl-skeleton/import.ts --check"
   },
   "devDependencies": {
     "typescript": "^5.9.0",

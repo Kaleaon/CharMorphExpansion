@@ -1,11 +1,15 @@
 import { CharacterModel, parsePreset, type CharacterSpec } from "@charmorph/core";
-import { createBrowserMorphWorker, decodeMeshPack, MorphWorkerClient, type MeshPackMeta, type MorphFrame, type TargetPackMeta } from "@charmorph/morph";
+import { createBrowserMorphWorker, decodeMeshPack, MorphWorkerClient, type MeshPackMeta, type MorphFrame, type MorphMesh, type TargetPackMeta } from "@charmorph/morph";
 import { PackManager } from "@charmorph/packs";
+import { BodyRig, decodeRig, type RigMeta } from "@charmorph/rig";
 import { MorphMeshView } from "@charmorph/render";
+import { SL_SKELETON_DATA } from "@charmorph/skeleton";
 import { openCharacterStore, type CharacterStore } from "@charmorph/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import meshBinUrl from "../../../../assets/makehuman-hm08/mesh.bin?url";
 import meshJsonUrl from "../../../../assets/makehuman-hm08/mesh.json?url";
+import rigBinUrl from "../../../../assets/makehuman-hm08/rig.bin?url";
+import rigJsonUrl from "../../../../assets/makehuman-hm08/rig.json?url";
 import specUrl from "../../../../assets/makehuman-hm08/spec.json?url";
 import targetsBinUrl from "../../../../assets/makehuman-hm08/targets.bin?url";
 import targetsJsonUrl from "../../../../assets/makehuman-hm08/targets.json?url";
@@ -25,6 +29,14 @@ export interface Character {
   packs: PackManager | null;
   store: CharacterStore | null;
   stats: MorphStats;
+  /** The MakeHuman body as a Second Life rigged mesh (null until loaded). */
+  rig: BodyRig | null;
+  mesh: MorphMesh | null;
+  /**
+   * Route every morph frame through `fn` before it reaches the display; `fn` returns the positions/normals to show, or null to
+   * show the frame unchanged. Passing null restores the plain view. Re-applies the latest frame immediately.
+   */
+  setFrameProcessor: (fn: ((f: MorphFrame) => { positions: Float32Array; normals: Float32Array } | null) | null) => void;
   /** Bumps whenever the model or a pack changed, to re-render sliders. */
   version: number;
   set: (id: string, v: number) => void;
@@ -52,6 +64,10 @@ export function useCharacter(): Character {
   const workerRef = useRef<MorphWorkerClient | null>(null);
   const packsRef = useRef<PackManager | null>(null);
   const storeRef = useRef<CharacterStore | null>(null);
+  const rigRef = useRef<BodyRig | null>(null);
+  const meshRef = useRef<MorphMesh | null>(null);
+  const processorRef = useRef<((f: MorphFrame) => { positions: Float32Array; normals: Float32Array } | null) | null>(null);
+  const lastRaw = useRef<MorphFrame | null>(null);
   const sentAt = useRef(0);
   const stats = useRef<MorphStats>({ latencyMs: 0, frames: 0 });
 
@@ -61,16 +77,23 @@ export function useCharacter(): Character {
     let unsub: (() => void) | null = null;
     (async () => {
       try {
-        const [meshMeta, meshBin, targetMeta, targetBin, spec, store] = await Promise.all([
+        const [meshMeta, meshBin, targetMeta, targetBin, spec, rigMeta, rigBin, store] = await Promise.all([
           fetchJson<MeshPackMeta>(meshJsonUrl), fetchBin(meshBinUrl), fetchJson<TargetPackMeta>(targetsJsonUrl), fetchBin(targetsBinUrl), fetchJson<CharacterSpec>(specUrl),
+          fetchJson<RigMeta>(rigJsonUrl), fetchBin(rigBinUrl),
           openCharacterStore(),
         ]);
         if (cancelled) return;
         const model = new CharacterModel(spec, new Set(targetMeta.targets.map((t) => t.id)));
-        const view = new MorphMeshView(decodeMeshPack(meshMeta, meshBin.slice(0)));
+        const mesh = decodeMeshPack(meshMeta, meshBin.slice(0));
+        const view = new MorphMeshView(mesh);
+        rigRef.current = new BodyRig(rigMeta, decodeRig(rigMeta, rigBin), mesh.renderToMorph, SL_SKELETON_DATA);
+        meshRef.current = mesh;
         client = new MorphWorkerClient(createBrowserMorphWorker());
         client.onFrame = (f: MorphFrame) => {
-          view.applyFrame(f.positions, f.normals);
+          lastRaw.current = { ...f, positions: Float32Array.from(f.positions), normals: Float32Array.from(f.normals), helpers: Float32Array.from(f.helpers) };
+          const shown = processorRef.current?.(f) ?? null;
+          if (shown) view.applyFrame(shown.positions, shown.normals);
+          else view.applyFrame(f.positions, f.normals);
           client!.release(f);
           const dt = performance.now() - sentAt.current;
           const s = stats.current;
@@ -98,6 +121,7 @@ export function useCharacter(): Character {
       client?.terminate();
       viewRef.current?.dispose();
       modelRef.current = null; viewRef.current = null; workerRef.current = null; packsRef.current = null; storeRef.current = null;
+      rigRef.current = null; meshRef.current = null; processorRef.current = null; lastRaw.current = null;
       window.__character = undefined;
     };
   }, []);
@@ -113,6 +137,15 @@ export function useCharacter(): Character {
   return {
     status, error,
     model: modelRef.current, view: viewRef.current, packs: packsRef.current, store: storeRef.current,
+    rig: rigRef.current, mesh: meshRef.current,
+    setFrameProcessor: (fn) => {
+      processorRef.current = fn;
+      const raw = lastRaw.current, view = viewRef.current;
+      if (!raw || !view) return;
+      const shown = fn?.(raw) ?? null;
+      if (shown) view.applyFrame(shown.positions, shown.normals); else view.applyFrame(raw.positions, raw.normals);
+      window.dispatchEvent(new Event("cm-frame"));
+    },
     get stats() { return stats.current; },
     version,
     set: (id, v) => { modelRef.current?.set(id, v); push(); },

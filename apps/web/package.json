@@ -17,7 +17,8 @@
     "@charmorph/morph": "workspace:*",
     "@charmorph/core": "workspace:*",
     "@charmorph/packs": "workspace:*",
-    "@charmorph/storage": "workspace:*"
+    "@charmorph/storage": "workspace:*",
+    "@charmorph/rig": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
