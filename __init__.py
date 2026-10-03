@@ -19,10 +19,70 @@
 # Copyright (C) 2020 Michael Vigovsky
 
 import logging
+import sys
+from unittest.mock import MagicMock
+
+class DummyPropertyDeferred:
+    pass
+
+class DummyObject:
+    pass
+
+class DummyMesh:
+    pass
+
+class DummyArmature:
+    pass
+
 try:
     import bpy  # pylint: disable=import-error
 except ImportError:
-    pass
+    class DummyOperator:
+        pass
+
+    class DummyImportHelper:
+        pass
+
+    class DummyExportHelper:
+        pass
+
+    bpy = MagicMock()
+    bpy.app.version = (3, 3, 0)
+    bpy.props._PropertyDeferred = DummyPropertyDeferred
+    bpy.types.Operator = DummyOperator
+    bpy.types.Panel = DummyOperator
+    bpy.types.PropertyGroup = DummyOperator
+    bpy.types.AddonPreferences = DummyOperator
+    bpy.types.UIList = DummyOperator
+    bpy.types.Header = DummyOperator
+    bpy.types.Menu = DummyOperator
+    bpy.types.Object = DummyObject
+    bpy.types.Mesh = DummyMesh
+    bpy.types.Armature = DummyArmature
+
+    mock_bpy_extras = MagicMock()
+    mock_bpy_extras.io_utils.ImportHelper = DummyImportHelper
+    mock_bpy_extras.io_utils.ExportHelper = DummyExportHelper
+
+    sys.modules["bpy"] = bpy
+    sys.modules["bpy.app"] = bpy.app
+    sys.modules["bpy.app.handlers"] = MagicMock()
+    sys.modules["bpy.props"] = bpy.props
+    sys.modules["bpy.types"] = bpy.types
+    mock_utils = MagicMock()
+    mock_utils.register_classes_factory.return_value = (MagicMock(), MagicMock())
+    bpy.utils = mock_utils
+    sys.modules["bpy.utils"] = mock_utils
+    sys.modules["addon_utils"] = MagicMock()
+    sys.modules["mathutils"] = MagicMock()
+    sys.modules["bmesh"] = MagicMock()
+    sys.modules["rna_prop_ui"] = MagicMock()
+    sys.modules["idprop"] = MagicMock()
+    sys.modules["idprop.types"] = MagicMock()
+    sys.modules["bpy_extras"] = mock_bpy_extras
+    sys.modules["bpy_extras.io_utils"] = mock_bpy_extras.io_utils
+    sys.modules["bpy_extras.wm_utils"] = MagicMock()
+    sys.modules["bpy_extras.wm_utils.progress_report"] = MagicMock()
 
 from . import addon_updater_ops
 from . import common, library, assets, morphing, randomize, file_io, hair, finalize, rig, rigify, pose, prefs, cmedit

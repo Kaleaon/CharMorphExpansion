@@ -120,8 +120,60 @@ def _extract_archive(archive_path: Path, destination: Path) -> List[Path]:
     return files
 
 
+DEFAULT_HUMANOID_NEUTRAL_XML = """<?xml version="1.0" encoding="utf-8"?>
+<BaseMesh name="HumanoidNeutral" version="1.0">
+  <Metadata>
+    <Description>Humanoid Neutral Base Mesh Preset</Description>
+  </Metadata>
+  <Topology unit="meters">
+    <Vertices>
+      <Vertex id="0" x="0.0" y="0.0" z="0.0" />
+      <Vertex id="1" x="0.0" y="0.0" z="1.7" />
+      <Vertex id="2" x="0.5" y="0.0" z="0.85" />
+    </Vertices>
+    <Faces>
+      <Face verts="0, 1, 2" />
+    </Faces>
+  </Topology>
+  <Rig>
+    <Bone name="root" head_x="0.0" head_y="0.0" head_z="0.0" tail_x="0.0" tail_y="0.0" tail_z="1.0" />
+    <Bone name="chest" parent="root" head_x="0.0" head_y="0.0" head_z="1.0" tail_x="0.0" tail_y="0.0" tail_z="1.5" />
+  </Rig>
+  <WeightLayers>
+    <Layer name="skin" type="skin" normalised="true">
+      <Description>Skin weights</Description>
+      <Bone name="root">
+        <Weight vertex="0" value="1.0" />
+        <Weight vertex="2" value="0.5" />
+      </Bone>
+      <Bone name="chest">
+        <Weight vertex="1" value="1.0" />
+        <Weight vertex="2" value="0.5" />
+      </Bone>
+    </Layer>
+  </WeightLayers>
+  <Sizing>
+    <Parameter name="height" value="1.7" min="1.4" max="2.0" unit="meters">
+      <Description>Base height</Description>
+    </Parameter>
+  </Sizing>
+</BaseMesh>
+"""
+
+
+def _ensure_default_presets(directory: Path) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    neutral_file = directory / "HumanoidNeutral.xml"
+    if not neutral_file.exists():
+        neutral_file.write_text(DEFAULT_HUMANOID_NEUTRAL_XML, encoding="utf-8")
+
+
 def _load_base_mesh_catalog() -> Dict[str, xml_base_mesh.BaseMesh]:
-    return xml_base_mesh.load_dir(str(BASE_MESH_DIRECTORY))
+    catalog = xml_base_mesh.load_dir(str(BASE_MESH_DIRECTORY))
+    if not catalog:
+        _ensure_default_presets(BASE_MESH_DIRECTORY)
+        catalog = xml_base_mesh.load_dir(str(BASE_MESH_DIRECTORY))
+    return catalog
 
 
 def _summarise_layer(
@@ -190,7 +242,7 @@ class ModelIngestionPipeline:
         self.dispose_source = dispose_source
         self.output_root = output_root or (Path(tempfile.gettempdir()) / "charmorph_ingest")
         self.session_id = uuid.uuid4().hex
-        self._base_mesh_catalog = _load_base_mesh_catalog()
+        self._base_mesh_catalog: Optional[Dict[str, xml_base_mesh.BaseMesh]] = None
 
     def run(self) -> IngestionReport:
         start_time = time.perf_counter()
@@ -266,6 +318,8 @@ class ModelIngestionPipeline:
         return files
 
     def _resolve_base_mesh(self) -> xml_base_mesh.BaseMesh:
+        if self._base_mesh_catalog is None:
+            self._base_mesh_catalog = _load_base_mesh_catalog()
         if not self._base_mesh_catalog:
             raise RuntimeError(
                 f"No base meshes were discovered in {BASE_MESH_DIRECTORY}. "

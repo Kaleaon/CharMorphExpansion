@@ -30,22 +30,26 @@ class DummyImportHelper:
 class DummyExportHelper:
     pass
 
-bpy_mock = MagicMock()
-bpy_mock.app.version = (4, 2, 0)
-bpy_mock.app.handlers.persistent = lambda fn: fn
-bpy_mock.props._PropertyDeferred = type("PropertyDeferred", (), {})
-bpy_mock.utils.register_classes_factory = lambda classes: (lambda: None, lambda: None)
-bpy_mock.types.Object = DummyObject
-bpy_mock.types.Operator = DummyOperator
-bpy_mock.types.Panel = DummyPanel
-bpy_mock.types.Menu = DummyMenu
-bpy_mock.types.Header = DummyHeader
-bpy_mock.types.PropertyGroup = DummyPropertyGroup
-sys.modules["bpy"] = bpy_mock
-sys.modules["bpy.app"] = bpy_mock.app
-sys.modules["bpy.app.handlers"] = bpy_mock.app.handlers
-sys.modules["bpy.types"] = bpy_mock.types
-sys.modules["bpy.ops"] = bpy_mock.ops
+if "bpy" in sys.modules:
+    bpy_mock = sys.modules["bpy"]
+    DummyObject = getattr(bpy_mock.types, "Object", DummyObject)
+else:
+    bpy_mock = MagicMock()
+    bpy_mock.app.version = (4, 2, 0)
+    bpy_mock.app.handlers.persistent = lambda fn: fn
+    bpy_mock.props._PropertyDeferred = type("PropertyDeferred", (), {})
+    bpy_mock.utils.register_classes_factory = lambda classes: (lambda: None, lambda: None)
+    bpy_mock.types.Object = DummyObject
+    bpy_mock.types.Operator = DummyOperator
+    bpy_mock.types.Panel = DummyPanel
+    bpy_mock.types.Menu = DummyMenu
+    bpy_mock.types.Header = DummyHeader
+    bpy_mock.types.PropertyGroup = DummyPropertyGroup
+    sys.modules["bpy"] = bpy_mock
+    sys.modules["bpy.app"] = bpy_mock.app
+    sys.modules["bpy.app.handlers"] = bpy_mock.app.handlers
+    sys.modules["bpy.types"] = bpy_mock.types
+    sys.modules["bpy.ops"] = bpy_mock.ops
 
 if "rna_prop_ui" not in sys.modules:
     sys.modules["rna_prop_ui"] = MagicMock()
