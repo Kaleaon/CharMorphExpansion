@@ -19,7 +19,11 @@
 # Copyright (C) 2020-2022 Michael Vigovsky
 
 import logging, json
-import bpy  # pylint: disable=import-error
+try:
+    import bpy  # pylint: disable=import-error
+except ImportError:
+    from unittest.mock import MagicMock
+    bpy = MagicMock()
 
 from . import prefs
 from .lib import charlib, morpher, morpher_cores

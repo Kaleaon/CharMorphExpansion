@@ -26,6 +26,7 @@ except ImportError:
     bpy = None
 
 from . import morphs, utils, xml_base_mesh
+from .cas_store import get_cas_store
 
 logger = logging.getLogger(__name__)
 
@@ -256,7 +257,7 @@ class Asset(DataDir):
     def __init__(self, name, file, path=None):
         super().__init__(path)
         self.name = name
-        self.blend_file = file
+        self.blend_file = get_cas_store().translate_path(file) if file else file
 
     @utils.lazyproperty
     def config(self):

@@ -1,4 +1,8 @@
-import bpy  # pylint: disable=import-error
+try:
+    import bpy  # pylint: disable=import-error
+except ImportError:
+    from unittest.mock import MagicMock
+    bpy = MagicMock()
 from . import addon_updater_ops
 
 undo_modes = [("S", "Simple", "Don't show additional info in undo list")]

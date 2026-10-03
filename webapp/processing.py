@@ -25,6 +25,7 @@ import zipfile
 import numpy
 
 from lib import xml_base_mesh
+from cas_store import get_cas_store
 
 logger = logging.getLogger(__name__)
 
@@ -199,6 +200,17 @@ class ModelIngestionPipeline:
 
         try:
             extracted_files = self._prepare_uploads()
+            cas = get_cas_store()
+            for path in extracted_files:
+                if path.is_file():
+                    h = cas.ingest_file(
+                        source=path,
+                        package_id=self.session_id,
+                        virtual_path=path.name,
+                        filename=path.name,
+                    )
+                    generated_assets[path.name] = h
+
             processed_files = [str(path) for path in extracted_files if _is_supported_model(path)]
 
             if not processed_files:
