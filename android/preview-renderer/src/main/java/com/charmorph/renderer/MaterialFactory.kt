@@ -20,7 +20,7 @@ object MaterialFactory {
             // Attributes needed for PBR
             .require(MaterialBuilder.VertexAttribute.UV0)
             .require(MaterialBuilder.VertexAttribute.COLOR)
-            
+
             // Parameters
             .samplerParameter(MaterialBuilder.SamplerType.SAMPLER_2D, MaterialBuilder.SamplerFormat.FLOAT, MaterialBuilder.ParameterPrecision.DEFAULT, "baseColorMap")
             .samplerParameter(MaterialBuilder.SamplerType.SAMPLER_2D, MaterialBuilder.SamplerFormat.FLOAT, MaterialBuilder.ParameterPrecision.DEFAULT, "normalMap")
